@@ -2,20 +2,36 @@
   "name": "verial_software_react",
   "version": "0.1.0",
   "private": true,
+  "main": "electron.js",
+  "type": "module",
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
+    "@popperjs/core": "^2.11.8",
+    "@preline/dropdown": "^2.4.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "popper.js": "^1.16.1",
+    "preline": "^2.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "dist": "electron-builder",
+    "build": {
+      "appId": "com.example.myapp",
+      "productName": "My Electron App",
+      "directories": {
+        "output": "dist"
+      }
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +50,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "electron-is-dev": "^3.0.1",
+    "electron-reloader": "^1.2.3",
+    "tailwindcss": "^3.4.8"
   }
 }
