@@ -1,0 +1,88 @@
+@import '../styles/root.scss';
+
+.clientsForm {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  width: 100%;
+
+  input,
+  select {
+    padding: 8px 12px;
+    font-size: 15px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+    outline: none;
+  }
+}
+
+.input-label {
+  width: 30%;
+  color: $color-red;
+}
+
+.react-international-phone-input-container {
+  width: 100%;
+}
+
+.react-international-phone-input-container > .react-international-phone-input,
+button {
+  border: 1px solid lightgray !important;
+  height: 38px !important;
+}
+
+textarea {
+  border: 1px solid lightgray;
+  width: 15rem;
+  border-radius: 5px;
+  resize: none;
+  position: relative;
+  padding: 10px;
+}
+
+.endForm {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+.phoneDetails {
+  width: 100%;
+  h3 {
+    font-size: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .inputs {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+  }
+}
+
+input[type='submit'] {
+  background-color: $color-red;
+  color: $color-white;
+  font-weight: bold;
+  width: 30%;
+  margin: 0 auto;
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+
+.required:after {
+  content: ' *';
+  color: red;
+}
+
+.search-bar {
+  padding: 8px 12px;
+  font-size: 15px;
+  border-radius: 5px;
+  border: 1px solid lightgray;
+  outline: none;
+  width: 40%;
+}

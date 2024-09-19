@@ -1,0 +1,26 @@
+<FormField
+          type="text"
+          placeholder="1002"
+          label="File Number"
+          name="fileNb"
+          register={register}
+          error={errors.email}
+        />
+
+        <FormField
+          type="text"
+          placeholder="Insurance Details here"
+          label="File Number"
+          name="insuranceDetails"
+          register={register}
+          error={errors.email}
+        />
+
+        <FormField
+          type="text"
+          placeholder="#13829"
+          label="N.I.F"
+          name="nif"
+          register={register}
+          error={errors.email}
+        />
