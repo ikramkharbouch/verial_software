@@ -17,7 +17,7 @@ import Modal from 'react-modal';
 import { Component, useContext, useState } from 'react';
 import '@renderer/styles/actions.scss';
 import ClientsForm from './forms/clients';
-import { GlobalContext } from '@context';
+import GlobalContext from '../../context/Context';
 import Search from './search';
 
 Modal.setAppElement('#root');
@@ -37,7 +37,10 @@ const customStyles = {
 
 const Actions = () => {
   const [currentData, setCurrentData] = useState();
-  const { modalIsOpen, setIsOpen } = useContext(GlobalContext);
+  const { modalIsOpen, setIsOpen } = useContext(GlobalContext) as any;
+
+  // temporary solution to test
+  // const [ modalIsOpen, setIsOpen] = useState(false);
 
 
   function openModal(data: any) {
@@ -85,10 +88,10 @@ const Actions = () => {
           <DeleteFilled />
         </button>
 
-        <button onClick={() => openModal(<Search />)}>
+        {/* <button onClick={() => openModal(<Search />)}>
           Search
           <SearchOutlined />
-        </button>
+        </button> */}
         <button onClick={() => openModal('make a comment here')}>
           Comment
           <FileTextOutlined />

@@ -10,7 +10,7 @@ import InputPhone from './shared/phoneInput';
 import { useCreateClient } from '@renderer/hooks';
 import { useMutation } from 'react-query';
 import toast from 'react-hot-toast';
-import { GlobalContext } from '@context';
+import GlobalContext from '../../../context/Context';
 
 const options = [
   { value: 'Entreprise', label: 'entreprise' },
@@ -26,7 +26,6 @@ const ClientsForm = ({action}: IClientFormType) => {
   const [clientType, setClientType] = useState('Entreprise');
   const [phone, setPhone] = useState([]);
 
-  const [clients, setClients] = useState([]);
   const { mutate, isError, error, data } = useMutation(useCreateClient);
   const { modalIsOpen, setIsOpen } = useContext(GlobalContext);
 
@@ -64,6 +63,8 @@ const ClientsForm = ({action}: IClientFormType) => {
     }
     // when the clients creates a new user, this action emerges
   }, [data]);
+
+  console.log(modalIsOpen);
 
   return (
     <>

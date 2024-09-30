@@ -1,33 +1,56 @@
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import '../../styles/forms.scss';
+import { useFetchItems } from '@renderer/hooks';
+import TableContainer from './tableContainer';
 
-const users = [
-  { firstName: 'John', id: 1 },
-  { firstName: 'Emily', id: 2 },
-  { firstName: 'Michael', id: 3 },
-  { firstName: 'Sarah', id: 4 },
-  { firstName: 'David', id: 5 },
-  { firstName: 'Jessica', id: 6 },
-  { firstName: 'Daniel', id: 7 },
-  { firstName: 'Olivia', id: 8 },
-  { firstName: 'Matthew', id: 9 },
-  { firstName: 'Sophia', id: 10 },
-];
+const Search = (searchType: string) => {
+  const { data, isLoading, error } = useFetchItems();
 
-const Search = () => {
+  const [tableData, setTableData] = useState([]);
+
+  // let data: any = [];
   const [searchItem, setSearchItem] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [filteredUsers, setFilteredUsers] = useState(data);
+
+  // wrap it in a useMemo Hook for memorization
+  const columns = useMemo(
+    () => [
+      {
+        Header: "TV Show",
+        columns: [
+          {
+            Header: "ID",
+            accessor: "data.id"
+          },
+          {
+            Header: "Name",
+            accessor: "data.name"
+          }
+        ]
+      }
+    ],
+    [data]
+  )
+
 
   const handleInputChange = (e: any) => {
     const searchTerm = e.target.value;
     setSearchItem(searchTerm);
 
-    const filteredItems = users.filter((user) =>
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()),
+    // make a type for client later
+    const filteredItems = data.filter((client: any) =>
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredUsers(filteredItems);
   };
+
+  useEffect(() => {
+    console.log(data);
+    setFilteredUsers(data);
+  }, [data])
+
+  console.log(data);
 
   return (
     <div>
@@ -39,11 +62,13 @@ const Search = () => {
         className='search-bar'
       />
 
-      <ul>
-        {filteredUsers.map((user) => (
-          <li key={user.id}>{user.firstName}</li>
+      {data && filteredUsers && <ul>
+        {filteredUsers.map((client: any) => (
+          <li key={client.id}>{client.name}</li>
         ))}
-      </ul>
+      </ul>}
+
+      <TableContainer />
     </div>
   );
 };

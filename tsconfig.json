@@ -2,7 +2,7 @@
   "compilerOptions": {
     "paths": {
       "@*": ["./src/*"],
-      "@context": ["./src/context.js"],
+      "@context": ["./src/context"],
       "@styles": ["./src/styles"]
     },
     "incremental": true,

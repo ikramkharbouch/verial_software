@@ -26,7 +26,7 @@ const Dashboard = () => {
       // content: <Articles />
     },
     {
-      label: 'Collections',
+      label: 'Charges',
       content:
         'Fugiat dolor et quis in incididunt aute. Ullamco voluptate consectetur dolor officia sunt est dolor sint.',
     },

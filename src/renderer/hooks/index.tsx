@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from 'react-query';
 
 export function useFetchItems() {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       const response = await fetch(
-        process.env.REACT_APP_API_URI + '/users?limit=2',
+        'http://localhost:3000/users?limit=2',
       );
       if (!response.ok) {
         throw new Error('Network response was not ok');
