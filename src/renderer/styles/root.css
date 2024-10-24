@@ -70,3 +70,15 @@
   transform: translateY(20px); /* You can adjust the transformation */
   transition: opacity 300ms ease, transform 300ms ease;
 }
+
+.clients-actions {
+  margin: 1rem 0 1rem 0;
+}
+
+.ant-table-wrapper {
+  overflow-y: scroll;
+}
+
+li.ant-pagination-item > a {
+  margin: 0 !important;
+}
