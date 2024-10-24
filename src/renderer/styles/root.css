@@ -82,3 +82,7 @@
 li.ant-pagination-item > a {
   margin: 0 !important;
 }
+
+li.ant-menu-item {
+  padding-left: 2rem !important;
+}

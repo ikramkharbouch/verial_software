@@ -12,6 +12,7 @@ import Providers from './pages/providers';
 import Articles from './pages/articles';
 import Financials from './pages/financials';
 import MainLayout from './components/layout';
+import ClientDocs from './pages/client-docs';
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,10 @@ const AppRoutes = () => {
 
       <Route element={<PrivateRoute />}>
         <Route path="/clients" element={<Clients />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/client-docs" element={<ClientDocs />} />
       </Route>
 
       <Route element={<PrivateRoute />}>

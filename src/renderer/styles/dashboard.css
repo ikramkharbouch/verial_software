@@ -91,6 +91,7 @@
 .ant-menu-item {
   color: #ffffff !important;
   background-color: transparent;
+  text-align: start;
 }
 
 a.ant-menu-item-selected {
@@ -115,3 +116,14 @@ a.ant-menu-item-selected {
 .ant-menu-item-selected .ant-menu-item-icon {
   color: white !important; /* Custom icon color */
 }
+
+/* .dropdownmenu {
+    margin: 0 auto;
+}
+
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+} */
