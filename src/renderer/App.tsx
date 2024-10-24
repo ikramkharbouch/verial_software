@@ -12,10 +12,6 @@ import Providers from './pages/providers';
 import Articles from './pages/articles';
 import Financials from './pages/financials';
 import MainLayout from './components/layout';
-import MainMenu from './components/menu';
-import { Layout } from 'antd';
-
-const { Content, Header } = Layout;
 
 const queryClient = new QueryClient();
 
@@ -28,7 +24,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <Toaster />
-          <Wrapper />
+        <Wrapper />
         <ContextProvider>
           <QueryClientProvider client={queryClient}></QueryClientProvider>
         </ContextProvider>
@@ -62,16 +58,20 @@ const AppRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
       </Route>
+
       <Route element={<PrivateRoute />}>
         <Route path="/clients" element={<Clients />} />
       </Route>
+
       <Route element={<PrivateRoute />}>
         <Route path="/providers" element={<Providers />} />
       </Route>
+
       <Route element={<PrivateRoute />}>
         <Route path="/articles" element={<Articles />} />
       </Route>
-      <Route element={<PrivateRoute />}>
+
+      <Route path="/financials" element={<Financials />}>
         <Route path="/financials" element={<Financials />} />
       </Route>
     </Routes>

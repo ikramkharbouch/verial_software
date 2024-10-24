@@ -10,7 +10,7 @@ import {
   MenuProps,
 } from 'antd';
 import '@renderer/styles/dashboard.css';
-import {  useState } from 'react';
+import { useState } from 'react';
 import {
   DownOutlined,
   LogoutOutlined,
@@ -82,6 +82,7 @@ const MainLayout = ({children}: any) => {
           flexDirection: 'column',
           justifyContent: 'space-between',
         }}
+        className={`sidebar ${collapsed ? 'collapsed' : ''}`}
       >
         <div
           style={{
@@ -113,7 +114,6 @@ const MainLayout = ({children}: any) => {
             <MainMenu />
           </div>
 
-    
           <Button
             style={{ margin: '1rem', wordBreak: 'break-word' }}
             onClick={() => auth.logOut()}
@@ -123,6 +123,7 @@ const MainLayout = ({children}: any) => {
         </div>
       </Sider>
       <Layout>
+        
         <Header style={{ padding: 0, background: colorBgContainer }}>
           <Flex align="center" justify="space-between">
             <div

@@ -1,93 +1,117 @@
 @import './root.css';
 
 .container {
-    nav.left-menu {
-        width: 15%;
-        background-color: #434343;
-        color: #fff;
-        text-align: center;
-        font-size: 12px;
-        padding: 1rem;
-    }
+  nav.left-menu {
+    width: 15%;
+    background-color: #434343;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    padding: 1rem;
+  }
 
-    .tabs {
-        display: flex;
-        
-        button {
-            padding: 5px 15px;
-            font-size: 15px;
-            border-radius: 0;
-            background-color: lightgray;
-        }
-    }
+  .tabs {
+    display: flex;
 
-    .tab-content {
-        padding: 20px;
+    button {
+      padding: 5px 15px;
+      font-size: 15px;
+      border-radius: 0;
+      background-color: lightgray;
     }
+  }
 
-    .logout {
-        font-size: 15px;
-        margin-top: 20px;
-    }
+  .tab-content {
+    padding: 20px;
+  }
+
+  .logout {
+    font-size: 15px;
+    margin-top: 20px;
+  }
 }
 
 .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  margin-right: 10px;
+
+  button {
     display: flex;
-    flex-wrap: wrap;
+    font-size: 14px;
     gap: 0.5rem;
-
-    margin-right: 10px;
-
-    button {
-        display: flex;
-        font-size: 14px;
-        gap: 0.5rem;
-        font-weight: 600;
-    }
+    font-weight: 600;
+  }
 }
 
 .charts {
-    display: flex;
-    flex-wrap: wrap;
-    height: 100%;
-    gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  gap: 1rem;
 }
 
 .bar-container {
-    width: 40%;
-    height: 50%;
-    border: lightgray solid 0.5px;
-    border-radius: 5px;
-    padding: 1rem;
-    overflow-x: scroll !important;
+  width: 40%;
+  height: 50%;
+  border: lightgray solid 0.5px;
+  border-radius: 5px;
+  padding: 1rem;
+  overflow-x: scroll !important;
 }
 
 .line-container {
-    width: 58%;
-    height: 50%;
-    border: lightgray solid 0.5px;
-    border-radius: 5px;
-    padding: 1rem;
+  width: 58%;
+  height: 50%;
+  border: lightgray solid 0.5px;
+  border-radius: 5px;
+  padding: 1rem;
 }
 
 .pie-container {
-    border: lightgray solid 0.5px;
-    border-radius: 5px;
-    height: 50%;
-    width: 40%;
-    padding: 1rem 1rem 2rem 1rem;
+  border: lightgray solid 0.5px;
+  border-radius: 5px;
+  height: 50%;
+  width: 40%;
+  padding: 1rem 1rem 2rem 1rem;
 }
 
 .bar-container#articles {
-    width: 58% !important;
+  width: 58% !important;
 }
 
 .financials-container {
-    display: flex;
-    height: 100%;
-    overflow-x: scroll;
+  display: flex;
+  height: 100%;
+  overflow-x: scroll;
 }
 
+.ant-menu-item {
+  color: #ffffff !important;
+  background-color: transparent;
+}
+
+a.ant-menu-item-selected {
+  background-color: transparent !important;
+}
+
+.ant-menu-item:hover {
+  background-color: #d32f2f !important;
+}
+
+/* Style for the selected (active) menu item */
 .ant-menu-item-selected {
-    background-color: transparent !important;
+  background-color: #d32f2f !important; /* Custom background color */
+  color: white !important; /* Custom text color */
+  font-weight: bold; /* Make the selected text bold */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease; /* Smooth transitions */
+}
+
+/* Optionally, style icons inside selected menu items */
+.ant-menu-item-selected .ant-menu-item-icon {
+  color: white !important; /* Custom icon color */
 }
