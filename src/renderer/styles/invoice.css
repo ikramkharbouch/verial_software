@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+.invoice-modal {
+  background-color: white;
+  padding: 20px;
+  font-family: 'Inter', serif;
+  margin: auto;
+  height: 90vh;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.invoice-table th {
+  background-color: #f5f5f5;
+}
+
+.invoice-table td {
+  text-align: center;
+}
+
+.total {
+    font-size: 18px;
+    margin-top: 1rem;
+}
+
+.invoice-summary {
+    margin-top: 1.5rem;
+}
+
+.invoice-grand-total {
+    font-size: 25px;
+}
+
+.invoice-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+}
