@@ -1,5 +1,5 @@
 import { CompactTable } from '@table-library/react-table-library/compact';
-import '../../styles/table.scss'
+import '../../styles/table.css'
 // import { AiOutlineMore } from "react-icons/ai";
 
 const nodes = [

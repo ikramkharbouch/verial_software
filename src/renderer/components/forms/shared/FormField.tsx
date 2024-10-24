@@ -1,6 +1,6 @@
 import { FormFieldProps } from '@renderer/types/ClientSchema';
 
-import '@/styles/forms.scss'
+import '@/styles/forms.css'
 
 const FormField: React.FC<FormFieldProps> = ({
   type,

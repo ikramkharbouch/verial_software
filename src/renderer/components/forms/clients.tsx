@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import '@renderer/styles/forms.scss';
+import '@renderer/styles/forms.css';
 import Select from 'react-select';
 import { useState, useEffect, useContext } from 'react';
 import 'react-international-phone/style.css';
@@ -11,6 +11,8 @@ import { useCreateClient } from '@renderer/hooks';
 import { useMutation } from 'react-query';
 import toast from 'react-hot-toast';
 import GlobalContext from '../../../context/Context';
+import React from 'react';
+import PhoneInput from 'react-phone-input-2';
 
 const options = [
   { value: 'Entreprise', label: 'entreprise' },
@@ -19,10 +21,10 @@ const options = [
 ];
 
 interface IClientFormType {
-  action ?: string;
+  action?: string;
 }
 
-const ClientsForm = ({action}: IClientFormType) => {
+function ClientsFormX({ action }: IClientFormType) {
   const [clientType, setClientType] = useState('Entreprise');
   const [phone, setPhone] = useState([]);
 
@@ -44,11 +46,10 @@ const ClientsForm = ({action}: IClientFormType) => {
     e.preventDefault();
     let data = getValues();
 
-    if (action == "create") {
+    if (action == 'create') {
       mutate(data);
-    }
-    else if (action == "modify") {
-      console.log("modify data here");
+    } else if (action == 'modify') {
+      console.log('modify data here');
     }
   };
 
@@ -75,8 +76,7 @@ const ClientsForm = ({action}: IClientFormType) => {
         </div>
       )}
 
-      <form className="clientsForm">
-        
+      <form className="form-layout">
         <Input
           type="text"
           label="File Number"
@@ -156,12 +156,10 @@ const ClientsForm = ({action}: IClientFormType) => {
           disabled={!modalIsOpen}
         />
 
-        <InputPhone
-          label="Phone Number"
-          value={phone as any}
-          setPhone={setPhone as any}
-          required={true}
-          disabled={!modalIsOpen}
+        <PhoneInput
+          country={'ma'}
+          // value={phone}
+          onChange={(phone) => setPhone(Object.assign(phone as any))}
         />
 
         <div className="endForm">
@@ -177,7 +175,12 @@ const ClientsForm = ({action}: IClientFormType) => {
 
           <label htmlFor="location">
             <p>Location</p>
-            <textarea name="location" rows={4} cols={40} disabled={!modalIsOpen} />
+            <textarea
+              name="location"
+              rows={4}
+              cols={40}
+              disabled={!modalIsOpen}
+            />
           </label>
 
           <Input
@@ -193,13 +196,13 @@ const ClientsForm = ({action}: IClientFormType) => {
         <div className="phoneDetails">
           <h3>Phone Details</h3>
           <div className="inputs">
-            <InputPhone
+            {/* <InputPhone
               label="Tel N1"
               value={phone as any}
               setPhone={setPhone as any}
               disabled={!modalIsOpen}
-            />
-            <InputPhone
+            /> */}
+            {/* <InputPhone
               label="Tel N2"
               value={phone as any}
               setPhone={setPhone as any}
@@ -210,7 +213,7 @@ const ClientsForm = ({action}: IClientFormType) => {
               value={phone as any}
               setPhone={setPhone as any}
               disabled={!modalIsOpen}
-            />
+            /> */}
           </div>
         </div>
         {modalIsOpen && (
@@ -223,6 +226,8 @@ const ClientsForm = ({action}: IClientFormType) => {
       </form>
     </>
   );
-};
+}
+
+const ClientsForm = React.memo(ClientsFormX);
 
 export default ClientsForm;

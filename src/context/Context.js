@@ -7,12 +7,15 @@ const GlobalContext = createContext({
   items: [],
   addItem: () => {},
   removeItem: () => {},
-  clearCart: () => {}
+  clearCart: () => {},
+  currentTab: 0,
+  setTab: (val) => {}
 });
 
 export const ContextProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isOpen, setModalIsOpen] = useState(false);
+  const [currentTabIndex, setCurrentTabIndex] = useState(0)
 
   const addItem = (item) => {
     setCartItems([...cartItems, item]);
@@ -33,6 +36,12 @@ export const ContextProvider = ({ children }) => {
     else setModalIsOpen(!isOpen);
   }
 
+  const setTab = (value) => {
+    if (value !== undefined)
+      setCurrentTabIndex(value);
+    else setCurrentTabIndex(0);
+  }
+
   return (
     <GlobalContext.Provider
       value={{
@@ -42,6 +51,8 @@ export const ContextProvider = ({ children }) => {
         clearCart,
         modalIsOpen: isOpen,
         setIsOpen,
+        setTab,
+        currentTab: currentTabIndex
       }}
     >
       {children}

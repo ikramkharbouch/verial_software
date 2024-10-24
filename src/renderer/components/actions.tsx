@@ -15,10 +15,12 @@ import {
 
 import Modal from 'react-modal';
 import { Component, useContext, useState } from 'react';
-import '@renderer/styles/actions.scss';
+import '@renderer/styles/actions.css';
 import ClientsForm from './forms/clients';
 import GlobalContext from '../../context/Context';
 import Search from './search';
+import ProvidersForm from './forms/providers';
+import ArticlesForm from './forms/articles';
 
 Modal.setAppElement('#root');
 
@@ -39,9 +41,10 @@ const Actions = () => {
   const [currentData, setCurrentData] = useState();
   const { modalIsOpen, setIsOpen } = useContext(GlobalContext) as any;
 
+  const { currentTab } = useContext(GlobalContext) as any;
+
   // temporary solution to test
   // const [ modalIsOpen, setIsOpen] = useState(false);
-
 
   function openModal(data: any) {
     setIsOpen(true);
@@ -60,6 +63,34 @@ const Actions = () => {
     console.log('data deleted');
   }
 
+  function setForm() {
+    console.log("debugging here", currentTab);
+    switch (currentTab) {
+      case 0:
+        openModal(<ClientsForm action="modify" />);
+      case 1:
+        openModal(<ProvidersForm action="modify" />);
+      case 2:
+        openModal(<ArticlesForm action="modify" />);
+      case 3:
+        openModal(<ClientsForm action="modify" />);
+      case 4:
+        openModal(<ClientsForm action="modify" />);
+      case 4:
+        openModal(<ClientsForm action="modify" />);
+      case 5:
+        openModal(<ClientsForm action="modify" />);
+      case 6:
+        openModal(<ClientsForm action="modify" />);
+      case 7:
+        openModal(<ClientsForm action="modify" />);
+      case 8:
+        openModal(<ClientsForm action="modify" />);
+    }
+  }
+
+  console.log(currentTab);
+
   return (
     <>
       <div>
@@ -75,11 +106,14 @@ const Actions = () => {
       </div>
 
       <div className="actions">
-        <button id="new" onClick={() => openModal(<ClientsForm action="create"/>)}>
+        <button
+          id="new"
+          onClick={() => openModal(<ClientsForm action="create" />)}
+        >
           New Client
           <PlusCircleFilled />
         </button>
-        <button id="modify" onClick={() => openModal(<ClientsForm action="modify" />)}>
+        <button id="modify" onClick={() => setForm()}>
           Modify
           <CodepenOutlined />
         </button>

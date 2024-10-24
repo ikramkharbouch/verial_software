@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import '../../styles/forms.scss';
+import '../../styles/forms.css';
 import { useFetchItems } from '@renderer/hooks';
 import TableContainer from './tableContainer';
 

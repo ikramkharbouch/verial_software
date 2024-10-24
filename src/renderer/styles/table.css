@@ -1,4 +1,4 @@
-@import './root.scss';
+@import './root.css';
 
 html {
   font-family: sans-serif;
@@ -9,8 +9,6 @@ table {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   width: 100%;
   font-size: 1rem;
-  color: $color-charcoal;
-  // border:1px solid #ccc;
   border-collapse:collapse;
 }
 

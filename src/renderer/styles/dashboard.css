@@ -1,0 +1,93 @@
+@import './root.css';
+
+.container {
+    nav.left-menu {
+        width: 15%;
+        background-color: #434343;
+        color: #fff;
+        text-align: center;
+        font-size: 12px;
+        padding: 1rem;
+    }
+
+    .tabs {
+        display: flex;
+        
+        button {
+            padding: 5px 15px;
+            font-size: 15px;
+            border-radius: 0;
+            background-color: lightgray;
+        }
+    }
+
+    .tab-content {
+        padding: 20px;
+    }
+
+    .logout {
+        font-size: 15px;
+        margin-top: 20px;
+    }
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    margin-right: 10px;
+
+    button {
+        display: flex;
+        font-size: 14px;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+}
+
+.charts {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    gap: 1rem;
+}
+
+.bar-container {
+    width: 40%;
+    height: 50%;
+    border: lightgray solid 0.5px;
+    border-radius: 5px;
+    padding: 1rem;
+    overflow-x: scroll !important;
+}
+
+.line-container {
+    width: 58%;
+    height: 50%;
+    border: lightgray solid 0.5px;
+    border-radius: 5px;
+    padding: 1rem;
+}
+
+.pie-container {
+    border: lightgray solid 0.5px;
+    border-radius: 5px;
+    height: 50%;
+    width: 40%;
+    padding: 1rem 1rem 2rem 1rem;
+}
+
+.bar-container#articles {
+    width: 58% !important;
+}
+
+.financials-container {
+    display: flex;
+    height: 100%;
+    overflow-x: scroll;
+}
+
+.ant-menu-item-selected {
+    background-color: transparent !important;
+}

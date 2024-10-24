@@ -1,7 +1,8 @@
 import { PhoneInput } from 'react-international-phone';
-
 import { PhoneInputType } from '@renderer/types/types';
-  const InputPhone = ({ label, value,required, setPhone, disabled }: PhoneInputType) => {
+import React from 'react';
+
+function InputPhoneMemoized({ label, value,required, setPhone, disabled }: PhoneInputType) {
     return (
       <label htmlFor="phoneNumber">
         <p className={required ? 'required' : ''}>{label}</p>
@@ -14,5 +15,7 @@ import { PhoneInputType } from '@renderer/types/types';
       </label>
     );
   };
+
+  const InputPhone = React.memo(InputPhoneMemoized)
 
   export default InputPhone;

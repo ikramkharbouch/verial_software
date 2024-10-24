@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
-import '@renderer/styles/login.scss'
+import '@renderer/styles/login.css'
 
 const Login = () => {
   const [input, setInput] = useState({
