@@ -29,7 +29,7 @@ const clientsData: Client[] = Array.from({ length: 30 }, (_, index) => ({
 
 const ClientsPage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<React.FC>('');
+  const [modalContent, setModalContent] = useState<React.FC>();
   const [action, setAction] = useState<string>('');
 
   const showModal = (action: any) => {
@@ -43,8 +43,10 @@ const ClientsPage: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const handleCancel = () => {
+  const handleCancel = (reset: () => void) => {
+    reset();
     setIsModalVisible(false);
+
   };
 
   const columns = [
@@ -118,7 +120,7 @@ const ClientsPage: React.FC = () => {
         <Button
           type="primary"
           style={{ marginRight: '10px' }}
-          onClick={() => showModal(<CreateNewClient />)}
+          onClick={() => showModal(<CreateNewClient handleCancel={handleCancel} />)}
         >
           New
         </Button>
@@ -150,7 +152,7 @@ const ClientsPage: React.FC = () => {
         title={modalContent}
         visible={isModalVisible}
         onOk={handleOk}
-        onCancel={handleCancel}
+        onCancel={handleCancel as any}
       >
         {action == 'New' && <p>Make new client</p>}
         {action == 'Modify/Delete' && <p>Modify/Delete client</p>}

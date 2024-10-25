@@ -31,10 +31,11 @@ const clientSchema = z.object({
 // Define the form data type
 type ClientFormData = z.infer<typeof clientSchema>;
 
-const CreateNewClient = () => {
+const CreateNewClient = ({handleCancel}: any) => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
@@ -50,6 +51,7 @@ const CreateNewClient = () => {
       );
       console.log(response.data);
       notification.success({ message: 'Client created successfully!' });
+      handleCancel(reset);
     } catch (error) {
       console.error('Error creating client:', error);
       notification.error({ message: 'Failed to create client.' });
