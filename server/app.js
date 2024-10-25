@@ -45,7 +45,7 @@ app.use('/clients', clientsRouter);
 // DB crud functions for users
 app.get('/users', queries.getUsers);
 app.get('/users/:id', queries.getUserById);
-app.post('/users', queries.createUser);
+app.post('/users/create', queries.createUser);
 app.put('/users/:id', queries.updateUser);
 app.delete('/users/:id', queries.deleteUser);
 

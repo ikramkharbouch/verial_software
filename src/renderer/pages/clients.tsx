@@ -6,6 +6,7 @@ import {
   SettingOutlined,
   CommentOutlined,
 } from '@ant-design/icons';
+import CreateNewClient from '@renderer/components/clients/createNew';
 
 interface Client {
   id: number;
@@ -28,13 +29,13 @@ const clientsData: Client[] = Array.from({ length: 30 }, (_, index) => ({
 
 const ClientsPage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<string>('');
+  const [modalContent, setModalContent] = useState<React.FC>('');
   const [action, setAction] = useState<string>('');
 
-  const showModal = (action: string) => {
+  const showModal = (action: any) => {
     setModalContent(action);
     setIsModalVisible(true);
-    setAction(action);
+    setAction('action');
     console.log(action);
   };
 
@@ -117,7 +118,7 @@ const ClientsPage: React.FC = () => {
         <Button
           type="primary"
           style={{ marginRight: '10px' }}
-          onClick={() => showModal('New')}
+          onClick={() => showModal(<CreateNewClient />)}
         >
           New
         </Button>
