@@ -1,8 +1,9 @@
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, Button, Form, notification } from 'antd';
+import { Input, Select, Button, Form, notification, Row, Col } from 'antd';
 import axios from 'axios';
+import '../../styles/forms.css'
 
 const { Option } = Select;
 
@@ -31,7 +32,7 @@ const clientSchema = z.object({
 // Define the form data type
 type ClientFormData = z.infer<typeof clientSchema>;
 
-const CreateNewClient = ({handleCancel}: any) => {
+const CreateNewClient = ({ handleCancel }: any) => {
   const {
     control,
     handleSubmit,
@@ -51,7 +52,8 @@ const CreateNewClient = ({handleCancel}: any) => {
       );
       console.log(response.data);
       notification.success({ message: 'Client created successfully!' });
-      handleCancel(reset);
+      handleCancel(reset, true);
+      reset();
     } catch (error) {
       console.error('Error creating client:', error);
       notification.error({ message: 'Failed to create client.' });
@@ -59,116 +61,146 @@ const CreateNewClient = ({handleCancel}: any) => {
   };
 
   return (
-    <Form onFinish={handleSubmit(onSubmit)} layout="vertical">
-      <Form.Item label="ID">
-        <Controller
-          name="id"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.id && <span style={{ color: 'red' }}>{errors.id.message}</span>}
-      </Form.Item>
+    <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className='client-form'>
+      <h2>Client Management</h2>
+      <Row gutter={16}>
+        <Col span={12}>
+          {' '}
+          <Form.Item label="ID">
+            <Controller
+              name="id"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.id && (
+              <span style={{ color: 'red' }}>{errors.id.message}</span>
+            )}
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Company's Name">
-        <Controller
-          name="companyName"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.companyName && (
-          <span style={{ color: 'red' }}>{errors.companyName.message}</span>
-        )}
-      </Form.Item>
+        <Col span={12}>
+          {' '}
+          <Form.Item label="Company's Name">
+            <Controller
+              name="companyName"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.companyName && (
+              <span style={{ color: 'red' }}>{errors.companyName.message}</span>
+            )}
+          </Form.Item>
+        </Col>
+      </Row>
 
-      <Form.Item label="N.I.F">
-        <Controller
-          name="nif"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.nif && (
-          <span style={{ color: 'red' }}>{errors.nif.message}</span>
-        )}
-      </Form.Item>
+      <Row gutter={16}>
+        <Col span={12}>
+          {' '}
+          <Form.Item label="N.I.F">
+            <Controller
+              name="nif"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.nif && (
+              <span style={{ color: 'red' }}>{errors.nif.message}</span>
+            )}
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Client's Name">
-        <Controller
-          name="clientName"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.clientName && (
-          <span style={{ color: 'red' }}>{errors.clientName.message}</span>
-        )}
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item label="Client's Name">
+            <Controller
+              name="clientName"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.clientName && (
+              <span style={{ color: 'red' }}>{errors.clientName.message}</span>
+            )}
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Type of Client">
-        <Controller
-          name="clientType"
-          control={control}
-          render={({ field }) => (
-            <Select {...field}>
-              <Option value="individual">Individual</Option>
-              <Option value="corporate">Corporate</Option>
-              <Option value="government">Government</Option>
-            </Select>
-          )}
-        />
-        {errors.clientType && (
-          <span style={{ color: 'red' }}>{errors.clientType.message}</span>
-        )}
-      </Form.Item>
+        <Col span={12}>
+          {' '}
+          <Form.Item label="Type of Client">
+            <Controller
+              name="clientType"
+              control={control}
+              render={({ field }) => (
+                <Select {...field}>
+                  <Option value="individual">Individual</Option>
+                  <Option value="corporate">Corporate</Option>
+                  <Option value="government">Government</Option>
+                </Select>
+              )}
+            />
+            {errors.clientType && (
+              <span style={{ color: 'red' }}>{errors.clientType.message}</span>
+            )}
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label="Phone Number 1">
+            <Controller
+              name="phoneNumber1"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.phoneNumber1 && (
+              <span style={{ color: 'red' }}>
+                {errors.phoneNumber1.message}
+              </span>
+            )}
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Phone Number 1">
-        <Controller
-          name="phoneNumber1"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.phoneNumber1 && (
-          <span style={{ color: 'red' }}>{errors.phoneNumber1.message}</span>
-        )}
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item label="Phone Number 2">
+            <Controller
+              name="phoneNumber2"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Phone Number 2">
-        <Controller
-          name="phoneNumber2"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-      </Form.Item>
+        <Col span={12}>
+          <Form.Item label="Phone Number 3">
+            <Controller
+              name="phoneNumber3"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label="ICEO">
+            <Controller
+              name="iceo"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.iceo && (
+              <span style={{ color: 'red' }}>{errors.iceo.message}</span>
+            )}
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label="Country">
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => <Input {...field} />}
+            />
+            {errors.country && (
+              <span style={{ color: 'red' }}>{errors.country.message}</span>
+            )}
+          </Form.Item>
+        </Col>
 
-      <Form.Item label="Phone Number 3">
-        <Controller
-          name="phoneNumber3"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-      </Form.Item>
-
-      <Form.Item label="ICEO">
-        <Controller
-          name="iceo"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.iceo && (
-          <span style={{ color: 'red' }}>{errors.iceo.message}</span>
-        )}
-      </Form.Item>
-
-      <Form.Item label="Country">
-        <Controller
-          name="country"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.country && (
-          <span style={{ color: 'red' }}>{errors.country.message}</span>
-        )}
-      </Form.Item>
-
-      <Form.Item label="Province">
+        <Col span={12}>
+        <Form.Item label="Province">
         <Controller
           name="province"
           control={control}
@@ -178,8 +210,10 @@ const CreateNewClient = ({handleCancel}: any) => {
           <span style={{ color: 'red' }}>{errors.province.message}</span>
         )}
       </Form.Item>
+        </Col>
 
-      <Form.Item label="Postal Code">
+        <Col span={12}>
+          <Form.Item label="Postal Code">
         <Controller
           name="postalCode"
           control={control}
@@ -189,6 +223,12 @@ const CreateNewClient = ({handleCancel}: any) => {
           <span style={{ color: 'red' }}>{errors.postalCode.message}</span>
         )}
       </Form.Item>
+        </Col>
+      </Row>
+
+      
+
+      
 
       <Form.Item label="Email 1">
         <Controller

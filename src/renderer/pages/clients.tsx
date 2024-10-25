@@ -43,8 +43,8 @@ const ClientsPage: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const handleCancel = (reset: () => void) => {
-    reset();
+  const handleCancel = (reset: () => void, formFilled: boolean = false) => {
+    if (formFilled) reset();
     setIsModalVisible(false);
 
   };

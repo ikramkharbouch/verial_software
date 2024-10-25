@@ -1,7 +1,13 @@
 @import './root.css';
 
-.client-form {
+
+.ant-form {
   width: 100%;
+  gap: 0;
+}
+
+.ant-form-item { 
+  margin-bottom: 0 !important;
 }
 
 .form-section {
@@ -10,4 +16,8 @@
 
 label {
   margin-top: 1rem !important;
+}
+
+button[type=submit] {
+  margin-top: 1rem;
 }
