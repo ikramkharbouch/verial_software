@@ -10,10 +10,13 @@ import { ContextProvider } from '../context/Context';
 import Clients from './pages/clients';
 import Providers from './pages/providers';
 import Articles from './pages/articles';
-import Financials from './pages/financials';
 import MainLayout from './components/layout';
 import ClientDocs from './pages/client-docs';
 import ProvidersDocs from './pages/providers-docs';
+import Charges from './components/financials/charges';
+import Payments from './components/financials/payments';
+import MadeBills from './components/financials/made-bills';
+import ReceivedBills from './components/financials/received-bills';
 
 const queryClient = new QueryClient();
 
@@ -83,9 +86,22 @@ const AppRoutes = () => {
         <Route path="/articles" element={<Articles />} />
       </Route>
 
-      <Route path="/financials" element={<Financials />}>
-        <Route path="/financials" element={<Financials />} />
+      <Route element={<PrivateRoute />}>
+        <Route path="/charges" element={<Charges />} />
       </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/payments" element={<Payments />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/made-bills" element={<MadeBills />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/received-bills" element={<ReceivedBills />} />
+      </Route>
+
     </Routes>
   );
 };
