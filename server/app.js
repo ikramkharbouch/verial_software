@@ -9,12 +9,29 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var clientsRouter = require('./routes/clients');
+var http = require('http');
+
+
+// const server = require('./bin/www');
 
 // import our postgres db
 const db = require('./db/index');
 const queries = require('./db/queries');
+const { Server } = require('socket.io');
 
 var app = express();
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allows any origin, you may restrict this for production
+  },
+});
+
+// Middleware
+app.use(express.json());
+app.use((req, res, next) => {
+  req.io = io; // Make io instance available in routes
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -79,6 +96,20 @@ app.put('/user', (req, res) => {
 
 app.delete('/user', (req, res) => {
   res.send('Got a DELETE request at /user');
+});
+
+
+// WebSocket connection event
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
+var server = http.createServer(app).listen(3001, function(){
+  console.log("Express server listening on port " + 3001);
 });
 
 module.exports = app;

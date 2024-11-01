@@ -4,7 +4,7 @@ import Login from './pages/signin';
 import AuthProvider, { useAuth } from '../auth/AuthProvider';
 import PrivateRoute from '../auth/PrivateRoute';
 import Dashboard from './pages/dashboard';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { ContextProvider } from '../context/Context';
 import Clients from './pages/clients';
@@ -13,6 +13,8 @@ import Articles from './pages/articles';
 import Financials from './pages/financials';
 import MainLayout from './components/layout';
 import ClientDocs from './pages/client-docs';
+import { ClientsProvider } from '@context/ClientsContext';
+import ProvidersDocs from './pages/providers-docs';
 
 const queryClient = new QueryClient();
 
@@ -23,13 +25,17 @@ function Hello() {
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Toaster />
-        <Wrapper />
-        <ContextProvider>
-          <QueryClientProvider client={queryClient}></QueryClientProvider>
-        </ContextProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <ClientsProvider>
+          <ContextProvider>
+            <AuthProvider>
+              <Toaster />
+              <Wrapper />
+              <webview allowpopups />
+            </AuthProvider>
+          </ContextProvider>
+        </ClientsProvider>
+      </QueryClientProvider>
     </Router>
   );
 }
@@ -70,6 +76,10 @@ const AppRoutes = () => {
 
       <Route element={<PrivateRoute />}>
         <Route path="/providers" element={<Providers />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/providers-docs" element={<ProvidersDocs />} />
       </Route>
 
       <Route element={<PrivateRoute />}>

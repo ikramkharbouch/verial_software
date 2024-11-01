@@ -3,15 +3,21 @@ var pool = require('.').pool;
 const getUsers = (request, response) => {
   let limit = request.query.limit;
 
-  // in case user doesn't send limit digit
-  limit = limit != undefined ? limit : 1;
+  // If limit is not specified, default to 10
+  limit = limit !== undefined ? parseInt(limit, 10) : 10;
 
   pool.query(
-    'SELECT * FROM users ORDER BY id ASC LIMIT ' + limit,
+    'SELECT * FROM clients ORDER BY id ASC LIMIT $1',
+    [limit],
     (error, results) => {
       if (error) {
-        throw error;
+        console.error('Database query error:', error);
+        response.status(500).json({ message: 'Failed to retrieve clients' });
+        return;
       }
+      // Emit the event to update clients list to all connected clients
+      request.io.emit('clientsUpdated', results.rows); // Emit updated clients list
+
       response.status(200).json(results.rows);
     },
   );
@@ -30,11 +36,13 @@ const getUserById = (request, response) => {
 
 const generateRandomId = async () => {
   // Generate a random integer between 100000 and 999999
-  const randomId = Math.floor(Math.random() * 900000) + 100000; 
+  const randomId = Math.floor(Math.random() * 900000) + 100000;
 
   // Check if the generated ID already exists in the database
-  const result = await pool.query('SELECT id FROM clients WHERE id = $1', [randomId]);
-  
+  const result = await pool.query('SELECT id FROM clients WHERE id = $1', [
+    randomId,
+  ]);
+
   if (result.rowCount > 0) {
     // If the ID exists, generate a new one
     return generateRandomId();
@@ -42,7 +50,6 @@ const generateRandomId = async () => {
 
   return randomId; // Return the unique ID
 };
-
 
 const createUser = async (request, response) => {
   const {
@@ -64,7 +71,19 @@ const createUser = async (request, response) => {
   } = request.body;
 
   // Validate the input fields
-  if (!id || !companyName || !nif || !clientName || !clientType || !phoneNumber1 || !iceo || !country || !province || !postalCode || !email1) {
+  if (
+    !id ||
+    !companyName ||
+    !nif ||
+    !clientName ||
+    !clientType ||
+    !phoneNumber1 ||
+    !iceo ||
+    !country ||
+    !province ||
+    !postalCode ||
+    !email1
+  ) {
     return response.status(400).send({
       message: 'All required fields must be filled.',
       status: 400,
