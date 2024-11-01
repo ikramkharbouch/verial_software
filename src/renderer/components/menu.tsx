@@ -35,6 +35,23 @@ const dropdownMenuProviders = (
   </Menu>
 );
 
+const dropdownMenuFinancials = (
+  <Menu>
+    <Menu.Item key="fn-1">
+      <Link to="/charges">Charges</Link>
+    </Menu.Item>
+    <Menu.Item key="fn-2">
+      <Link to="/payments">Payments</Link>
+    </Menu.Item>
+    <Menu.Item key="fn-3">
+      <Link to="/made-bills">Made Bills</Link>
+    </Menu.Item>
+    <Menu.Item key="fn-4">
+      <Link to="/received-bills">Received Bills</Link>
+    </Menu.Item>
+  </Menu>
+);
+
 const MainMenu = () => {
   const [selectedKey, setSelectedKey] = useState<string[]>([]); // Initialize selectedKey with the current path
 
@@ -78,7 +95,11 @@ const MainMenu = () => {
         </NavLink>
       </Menu.Item>
 
-      <Menu.Item
+      <Dropdown overlay={dropdownMenuFinancials} trigger={['click']} className='dropdownmenu' key="financials-sub">
+        <Menu.Item key="fn" icon={<MoneyCollectOutlined />}>Financials</Menu.Item>
+      </Dropdown>
+
+      {/* <Menu.Item
         key="4"
         icon={<MoneyCollectOutlined />}
         className="ant-menu-item"
@@ -86,7 +107,7 @@ const MainMenu = () => {
         <NavLink to="/financials">
           Financials
         </NavLink>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 };

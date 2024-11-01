@@ -13,7 +13,6 @@ import Articles from './pages/articles';
 import Financials from './pages/financials';
 import MainLayout from './components/layout';
 import ClientDocs from './pages/client-docs';
-import { ClientsProvider } from '@context/ClientsContext';
 import ProvidersDocs from './pages/providers-docs';
 
 const queryClient = new QueryClient();
@@ -26,7 +25,6 @@ export default function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <ClientsProvider>
           <ContextProvider>
             <AuthProvider>
               <Toaster />
@@ -34,7 +32,6 @@ export default function App() {
               <webview allowpopups />
             </AuthProvider>
           </ContextProvider>
-        </ClientsProvider>
       </QueryClientProvider>
     </Router>
   );

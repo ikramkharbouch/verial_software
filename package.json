@@ -114,6 +114,7 @@
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "file-saver": "^2.0.5",
+    "jspdf": "^2.5.2",
     "jszip": "^3.10.1",
     "moment": "^2.30.1",
     "postcss-loader": "^8.1.1",
