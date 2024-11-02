@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input, Select, Button, Form, notification, Row, Col } from 'antd';
@@ -9,7 +9,6 @@ const { Option } = Select;
 
 // Define the validation schema using Zod
 const clientSchema = z.object({
-  id: z.string().min(1, 'ID is required'),
   companyName: z.string().min(1, 'Company name is required'),
   nif: z.string().min(1, 'NIF is required'),
   clientName: z.string().min(1, 'Client name is required'),
@@ -64,19 +63,6 @@ const CreateNewClient = ({ handleCancel }: any) => {
     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className='client-form'>
       <h2>Client Management</h2>
       <Row gutter={16}>
-        <Col span={12}>
-          {' '}
-          <Form.Item label="ID">
-            <Controller
-              name="id"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.id && (
-              <span style={{ color: 'red' }}>{errors.id.message}</span>
-            )}
-          </Form.Item>
-        </Col>
 
         <Col span={12}>
           {' '}

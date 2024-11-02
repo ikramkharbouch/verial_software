@@ -8,7 +8,6 @@ import {
 } from '@ant-design/icons';
 import CreateNewClient from '@renderer/components/clients/createNew';
 import ModifyDeleteUser from '@renderer/components/clients/modifyDelete';
-import { useClients } from '@context/ClientsContext';
 
 interface Client {
   id: number;
@@ -33,7 +32,6 @@ const ClientsPage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<React.FC>();
   const [action, setAction] = useState<string>('');
-  const { clients, isLoading, error } = useClients();
 
   const showModal = (action: any) => {
     setModalContent(action);
@@ -131,7 +129,7 @@ const ClientsPage: React.FC = () => {
         </Button>
         <Button
           style={{ marginRight: '10px' }}
-          onClick={() => showModal(<ModifyDeleteUser users={clients as any} />)}
+          onClick={() => showModal(<ModifyDeleteUser users={[]} />)}
         >
           Modify/Delete
         </Button>

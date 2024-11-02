@@ -86,3 +86,12 @@ li.ant-pagination-item > a {
 li.ant-menu-item {
   padding-left: 2rem !important;
 }
+
+.ant-btn-primary {
+  background-color: #8B0000; /* Your custom primary color */
+  border-color: #8B0000; /* Optional: to match the border */
+}
+
+.ant-btn-primary:hover {
+  background-color: #A52A2A; /* Darker shade for hover effect */
+}
