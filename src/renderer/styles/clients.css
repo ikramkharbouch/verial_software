@@ -1,8 +1,4 @@
 
-.ant-row {
-    align-items: flex-end;
-}
-
 .filter-btns {
     height: max-content;
     display: flex;

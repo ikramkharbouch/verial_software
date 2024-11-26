@@ -11,6 +11,7 @@ import {
   Tooltip,
   Modal,
   message,
+  Descriptions,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -55,6 +56,7 @@ const ClientsPage: React.FC = () => {
   const [form] = Form.useForm();
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null); // Track the client to be deleted
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -100,6 +102,12 @@ const ClientsPage: React.FC = () => {
   const resetFilters = () => {
     form.resetFields();
     setData(clients);
+  };
+
+  // Open modal and set selected client
+  const handleViewDetails = (client: Client) => {
+    setSelectedClient(client);
+    setIsModalVisible(true);
   };
 
   const columns = [
@@ -159,6 +167,11 @@ const ClientsPage: React.FC = () => {
               onClick={() => showModal('Comment')}
             />
           </Tooltip>
+          <Tooltip title="View">
+            <Button type="link" onClick={() => handleViewDetails(record)}>
+              View Details
+            </Button>
+          </Tooltip>
         </Space>
       ),
     },
@@ -191,6 +204,12 @@ const ClientsPage: React.FC = () => {
   const handleCancelDelete = () => {
     setIsDeleteModalVisible(false);
     setSelectedClientId(null);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedClient(null);
   };
 
   useEffect(() => {
@@ -292,7 +311,6 @@ const ClientsPage: React.FC = () => {
         {action == 'New' && <p>Make new client</p>}
         {action == 'Modify/Delete' && <p>Modify/Delete client</p>}
         {action == 'Comment' && <p>Comment client</p>}
-        {action == 'View' && <p>View client</p>}
         {action == 'Edit' && <p>Edit client</p>}
         {action == 'Delete' && <p>Delete client</p>}
         {action == 'Operations' && <p>See client's Operations</p>}
@@ -309,6 +327,37 @@ const ClientsPage: React.FC = () => {
         cancelText="Cancel"
       >
         <p>Are you sure you want to delete this client?</p>
+      </Modal>
+
+      <Modal
+        title="Client Details"
+        visible={isModalVisible}
+        onCancel={handleCloseModal}
+        footer={[
+          <Button key="close" onClick={handleCloseModal}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedClient && (
+          <div style={{ padding: '10px', lineHeight: '1.8' }}>
+            <p>
+              <strong>Name:</strong> {selectedClient.id}
+            </p>
+            <p>
+              <strong>Company:</strong> {selectedClient.companyName}
+            </p>
+            <p>
+              <strong>Email:</strong> {selectedClient.clientType}
+            </p>
+            <p>
+              <strong>Phone:</strong> {selectedClient.country}
+            </p>
+            <p>
+              <strong>Address:</strong> {selectedClient.province}
+            </p>
+          </div>
+        )}
       </Modal>
     </div>
   );

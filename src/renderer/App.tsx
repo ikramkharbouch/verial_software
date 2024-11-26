@@ -28,8 +28,9 @@ function Hello() {
 
 export default function App() {
   return (
-    <Router>
-      <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <Router>
+        <QueryClientProvider client={queryClient}>
           <ContextProvider>
             <AuthProvider>
               <Toaster />
@@ -37,8 +38,9 @@ export default function App() {
               <webview allowpopups />
             </AuthProvider>
           </ContextProvider>
-      </QueryClientProvider>
-    </Router>
+        </QueryClientProvider>
+      </Router>
+    </Provider>
   );
 }
 
@@ -69,7 +71,7 @@ const AppRoutes = () => {
       </Route>
 
       <Route element={<PrivateRoute />}>
-        <Route path="/clients" element={<Provider store={store}><Clients /></Provider>} />
+        <Route path="/clients" element={<Clients />} />
       </Route>
 
       <Route element={<PrivateRoute />}>
@@ -103,7 +105,6 @@ const AppRoutes = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/received-bills" element={<ReceivedBills />} />
       </Route>
-
     </Routes>
   );
 };

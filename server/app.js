@@ -9,6 +9,7 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var clientsRouter = require('./routes/clients');
+var chargesRouter = require('./routes/charges'); // Adjust path as needed
 var emailRouter = require('./routes/email')
 
 // import our postgres db
@@ -45,6 +46,7 @@ app.use(
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/clients', clientsRouter);
+app.use('/charges', chargesRouter);
 app.use('/email', emailRouter)
 
 // DB crud functions for users
