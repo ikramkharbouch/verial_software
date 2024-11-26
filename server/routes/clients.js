@@ -4,6 +4,18 @@ const pool = require('../db'); // Assuming you're using PostgreSQL with a connec
 
 const router = express.Router();
 
+router.get('/', async (req, res) => {
+  try {
+    const query = `SELECT * FROM clients`;
+    const result = await pool.query(query);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: 'Failed to fetch clients' });
+  }
+});
+
 router.post('/create',
   [
     body('id').isInt().withMessage('ID should be a number'),

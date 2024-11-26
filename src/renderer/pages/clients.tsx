@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Table, Button, Space, Tooltip, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Input, Select, Button, Form, Row, Col, Space, Tooltip, Modal } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   EditOutlined,
   DeleteOutlined,
@@ -8,6 +9,9 @@ import {
 } from '@ant-design/icons';
 import CreateNewClient from '@renderer/components/clients/createNew';
 import ModifyDeleteUser from '@renderer/components/clients/modifyDelete';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch, store } from '../../store/store';
+import { getClients, createClient } from '../../store/slices/clientsSlice';
 
 interface Client {
   id: number;
@@ -18,20 +22,38 @@ interface Client {
   province: string;
 }
 
-// Generating more sample data for pagination
-const clientsData: Client[] = Array.from({ length: 30 }, (_, index) => ({
-  id: index + 1,
-  companyName: `Company ${index + 1}`,
-  clientName: `Client ${index + 1}`,
-  clientType: index % 2 === 0 ? 'Corporate' : 'Individual',
-  country: index % 3 === 0 ? 'USA' : 'Canada',
-  province: index % 3 === 0 ? 'California' : 'Ontario',
-}));
+const { Option } = Select;
+
+// // Generating more sample data for pagination
+// const initialData: Client[] = Array.from({ length: 30 }, (_, index) => ({
+//   id: index + 1,
+//   companyName: `Company ${index + 1}`,
+//   clientName: `Client ${index + 1}`,
+//   clientType: index % 2 === 0 ? 'Corporate' : 'Individual',
+//   country: index % 3 === 0 ? 'USA' : 'Canada',
+//   province: index % 3 === 0 ? 'California' : 'Ontario',
+// }));
 
 const ClientsPage: React.FC = () => {
+
+      // Access the clients state from the Redux store
+      const { clients, status, error } = useSelector((state: RootState) => state.clients);
+
+  const [data, setData] = useState<any>(clients);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<React.FC>();
   const [action, setAction] = useState<string>('');
+  const [form] = Form.useForm();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+      // Dispatch getClients when the component mounts
+      useEffect(() => {
+        if (status === 'idle') {
+            dispatch(getClients());
+        }
+    }, [dispatch, status]);
+
 
   const showModal = (action: any) => {
     setModalContent(action);
@@ -50,7 +72,23 @@ const ClientsPage: React.FC = () => {
 
   };
 
-  // console.log("Client Data:", JSON.stringify(clients, null, 2));
+  const handleFilter = (values: Partial<Client>) => {
+    const filteredData = clients.filter((client) => {
+      return Object.entries(values).every(([key, value]) => {
+        if (!value) return true; // Skip if no filter value
+        return String(client[key as keyof Client])
+          .toLowerCase()
+          .includes(String(value).toLowerCase());
+      });
+    });
+    setData(filteredData);
+  };
+
+  const resetFilters = () => {
+    form.resetFields();
+    setData(clients);
+  };
+
 
   const columns = [
     {
@@ -60,17 +98,17 @@ const ClientsPage: React.FC = () => {
     },
     {
       title: 'Company Name',
-      dataIndex: 'companyName',
+      dataIndex: 'company_name',
       key: 'companyName',
     },
     {
       title: 'Client Name',
-      dataIndex: 'clientName',
+      dataIndex: 'client_name',
       key: 'clientName',
     },
     {
       title: 'Type of Client',
-      dataIndex: 'clientType',
+      dataIndex: 'client_type',
       key: 'clientType',
     },
     {
@@ -114,6 +152,12 @@ const ClientsPage: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+    console.log(clients);
+    setData(clients);
+}, [clients]); // ✅ Always call the hook; conditionally execute inside.
+
+
   return (
     <div>
       <h1>Client Management</h1>
@@ -142,17 +186,65 @@ const ClientsPage: React.FC = () => {
         <Button onClick={() => showModal('View')}>View</Button>
       </div>
 
+            {/* Filter Form */}
+            <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFilter}
+        style={{ marginBottom: 16 }}
+      >
+        <Row gutter={16}>
+          <Col span={4}>
+            <Form.Item name="companyName" label="Company Name">
+              <Input placeholder="Enter company name" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item name="clientName" label="Client Name">
+              <Input placeholder="Enter client name" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item name="clientType" label="Type of Client">
+              <Select placeholder="Select client type" allowClear>
+                <Option value="Individual">Individual</Option>
+                <Option value="Corporate">Corporate</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item name="country" label="Country">
+              <Input placeholder="Enter country" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item name="province" label="Province">
+              <Input placeholder="Enter province" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Filter
+              </Button>
+              <Button onClick={resetFilters}>Reset</Button>
+            </Space>
+          </Col>
+        </Row>
+      </Form>
+
+
       {/* Ant Design Table with Pagination */}
       <div className="ant-table-wrapper">
         <Table
-          dataSource={clientsData}
+          dataSource={data}
           columns={columns}
           rowKey="id"
           pagination={{ pageSize: 8 }} // Set the number of rows per page
         />
       </div>
       <Modal
-        title={modalContent}
+        title={modalContent as any}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel as any}

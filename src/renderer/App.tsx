@@ -17,6 +17,8 @@ import Charges from './components/financials/charges';
 import Payments from './components/financials/payments';
 import MadeBills from './components/financials/made-bills';
 import ReceivedBills from './components/financials/received-bills';
+import { Provider } from 'react-redux';
+import { store } from '@store/store';
 
 const queryClient = new QueryClient();
 
@@ -67,7 +69,7 @@ const AppRoutes = () => {
       </Route>
 
       <Route element={<PrivateRoute />}>
-        <Route path="/clients" element={<Clients />} />
+        <Route path="/clients" element={<Provider store={store}><Clients /></Provider>} />
       </Route>
 
       <Route element={<PrivateRoute />}>
