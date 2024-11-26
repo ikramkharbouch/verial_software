@@ -157,6 +157,7 @@ const ClientDocs: React.FC = () => {
         dataSource={documentsData}
         columns={columns}
         rowKey="id"
+        scroll={{ x: 'max-content' }}
         pagination={{
           pageSize: 7,
           showSizeChanger: true, // Allow the user to change the page size

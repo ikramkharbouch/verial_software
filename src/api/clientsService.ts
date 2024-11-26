@@ -10,3 +10,8 @@ export const addClient = async (client: ClientType): Promise<ClientType> => {
     const response = await API.post('/clients', client);
     return response.data;
 };
+
+export const deleteClient = async (id: any): Promise<ClientType> => {
+    const response = await API.delete(`/clients/${id}`);
+    return response.data;
+}

@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Select, Button, Form, Row, Col, Space, Tooltip, Modal } from 'antd';
+import {
+  Table,
+  Input,
+  Select,
+  Button,
+  Form,
+  Row,
+  Col,
+  Space,
+  Tooltip,
+  Modal,
+  message,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   EditOutlined,
@@ -11,7 +23,13 @@ import CreateNewClient from '@renderer/components/clients/createNew';
 import ModifyDeleteUser from '@renderer/components/clients/modifyDelete';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch, store } from '../../store/store';
-import { getClients, createClient } from '../../store/slices/clientsSlice';
+import {
+  getClients,
+  createClient,
+  removeClient,
+} from '../../store/slices/clientsSlice';
+import '../styles/clients.css';
+import axios from 'axios';
 
 interface Client {
   id: number;
@@ -24,36 +42,28 @@ interface Client {
 
 const { Option } = Select;
 
-// // Generating more sample data for pagination
-// const initialData: Client[] = Array.from({ length: 30 }, (_, index) => ({
-//   id: index + 1,
-//   companyName: `Company ${index + 1}`,
-//   clientName: `Client ${index + 1}`,
-//   clientType: index % 2 === 0 ? 'Corporate' : 'Individual',
-//   country: index % 3 === 0 ? 'USA' : 'Canada',
-//   province: index % 3 === 0 ? 'California' : 'Ontario',
-// }));
-
 const ClientsPage: React.FC = () => {
-
-      // Access the clients state from the Redux store
-      const { clients, status, error } = useSelector((state: RootState) => state.clients);
+  // Access the clients state from the Redux store
+  const { clients, status, error } = useSelector(
+    (state: RootState) => state.clients,
+  );
 
   const [data, setData] = useState<any>(clients);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<React.FC>();
   const [action, setAction] = useState<string>('');
   const [form] = Form.useForm();
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState(null); // Track the client to be deleted
 
   const dispatch = useDispatch<AppDispatch>();
 
-      // Dispatch getClients when the component mounts
-      useEffect(() => {
-        if (status === 'idle') {
-            dispatch(getClients());
-        }
-    }, [dispatch, status]);
-
+  // Dispatch getClients when the component mounts
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(getClients());
+    }
+  }, [dispatch, status]);
 
   const showModal = (action: any) => {
     setModalContent(action);
@@ -69,11 +79,12 @@ const ClientsPage: React.FC = () => {
   const handleCancel = (reset: () => void, formFilled: boolean = false) => {
     if (formFilled) reset();
     setIsModalVisible(false);
-
   };
 
   const handleFilter = (values: Partial<Client>) => {
     const filteredData = clients.filter((client) => {
+      console.log('Filter parameters:', values);
+
       return Object.entries(values).every(([key, value]) => {
         if (!value) return true; // Skip if no filter value
         return String(client[key as keyof Client])
@@ -81,6 +92,8 @@ const ClientsPage: React.FC = () => {
           .includes(String(value).toLowerCase());
       });
     });
+
+    console.log(filteredData);
     setData(filteredData);
   };
 
@@ -88,7 +101,6 @@ const ClientsPage: React.FC = () => {
     form.resetFields();
     setData(clients);
   };
-
 
   const columns = [
     {
@@ -132,7 +144,7 @@ const ClientsPage: React.FC = () => {
           <Tooltip title="Delete">
             <Button
               icon={<DeleteOutlined />}
-              onClick={() => showModal('Delete')}
+              onClick={() => handleDeleteClick(record.id)}
             />
           </Tooltip>
           <Tooltip title="Operations">
@@ -152,11 +164,39 @@ const ClientsPage: React.FC = () => {
     },
   ];
 
+  // Open confirmation modal
+  const handleDeleteClick = (id: any) => {
+    setSelectedClientId(id);
+    setIsDeleteModalVisible(true);
+  };
+
+  // Proceed with deletion
+  const handleConfirmDelete = async () => {
+    console.log(selectedClientId);
+    if (selectedClientId !== null) {
+      try {
+        await dispatch(removeClient(selectedClientId)).unwrap(); // Dispatch Redux thunk
+        message.success('Client deleted successfully');
+        dispatch(getClients()); // Refetch the updated client list
+      } catch (error) {
+        message.error('Failed to delete client');
+      } finally {
+        setIsDeleteModalVisible(false);
+        setSelectedClientId(null);
+      }
+    }
+  };
+
+  // Cancel deletion
+  const handleCancelDelete = () => {
+    setIsDeleteModalVisible(false);
+    setSelectedClientId(null);
+  };
+
   useEffect(() => {
     console.log(clients);
     setData(clients);
-}, [clients]); // ✅ Always call the hook; conditionally execute inside.
-
+  }, [clients]); // ✅ Always call the hook; conditionally execute inside.
 
   return (
     <div>
@@ -167,7 +207,9 @@ const ClientsPage: React.FC = () => {
         <Button
           type="primary"
           style={{ marginRight: '10px' }}
-          onClick={() => showModal(<CreateNewClient handleCancel={handleCancel} />)}
+          onClick={() =>
+            showModal(<CreateNewClient handleCancel={handleCancel} />)
+          }
         >
           New
         </Button>
@@ -186,8 +228,8 @@ const ClientsPage: React.FC = () => {
         <Button onClick={() => showModal('View')}>View</Button>
       </div>
 
-            {/* Filter Form */}
-            <Form
+      {/* Filter Form */}
+      <Form
         form={form}
         layout="vertical"
         onFinish={handleFilter}
@@ -195,17 +237,17 @@ const ClientsPage: React.FC = () => {
       >
         <Row gutter={16}>
           <Col span={4}>
-            <Form.Item name="companyName" label="Company Name">
+            <Form.Item name="company_name" label="Company Name">
               <Input placeholder="Enter company name" />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item name="clientName" label="Client Name">
+            <Form.Item name="client_name" label="Client Name">
               <Input placeholder="Enter client name" />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item name="clientType" label="Type of Client">
+            <Form.Item name="client_type" label="Type of Client">
               <Select placeholder="Select client type" allowClear>
                 <Option value="Individual">Individual</Option>
                 <Option value="Corporate">Corporate</Option>
@@ -222,17 +264,14 @@ const ClientsPage: React.FC = () => {
               <Input placeholder="Enter province" />
             </Form.Item>
           </Col>
-          <Col span={4}>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                Filter
-              </Button>
-              <Button onClick={resetFilters}>Reset</Button>
-            </Space>
-          </Col>
+          <div className="filter-btns">
+            <Button type="primary" htmlType="submit">
+              Filter
+            </Button>
+            <Button onClick={resetFilters}>Reset</Button>
+          </div>
         </Row>
       </Form>
-
 
       {/* Ant Design Table with Pagination */}
       <div className="ant-table-wrapper">
@@ -240,6 +279,7 @@ const ClientsPage: React.FC = () => {
           dataSource={data}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 'max-content' }}
           pagination={{ pageSize: 8 }} // Set the number of rows per page
         />
       </div>
@@ -257,6 +297,18 @@ const ClientsPage: React.FC = () => {
         {action == 'Delete' && <p>Delete client</p>}
         {action == 'Operations' && <p>See client's Operations</p>}
         {action == 'View' && <p>Comment client</p>}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Confirm Delete"
+        visible={isDeleteModalVisible}
+        onOk={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        okText="Yes, Delete"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to delete this client?</p>
       </Modal>
     </div>
   );

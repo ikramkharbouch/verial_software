@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchClients, addClient } from '../../api/clientsService';
+import { fetchClients, addClient, deleteClient } from '../../api/clientsService';
 import { ClientType } from '../../types/clients';
 
 // Define the shape of the state
@@ -30,6 +30,15 @@ export const createClient = createAsyncThunk<ClientType, ClientType>(
     'clients/createClient',
     async (client: any) => {
         const response = await addClient(client);
+        return response;
+    }
+);
+
+// Async thunk for deleting a client
+export const removeClient = createAsyncThunk(
+    'clients/deleteClient',
+    async (clientId: number, { rejectWithValue }) => {
+        const response = await deleteClient(clientId);
         return response;
     }
 );
@@ -75,6 +84,18 @@ const clientsSlice = createSlice({
             .addCase(createClient.rejected, (state: any) => {
                 state.status = 'failed';
                 state.error = 'Failed to create client';
+            })
+            .addCase(removeClient.pending, (state: any) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(removeClient.fulfilled, (state: any, action: PayloadAction<number>) => {
+                state.loading = false;
+                state.clients = state.clients.filter((client: any) => client.id !== action.payload);
+            })
+            .addCase(removeClient.rejected, (state: any, action: PayloadAction<string | undefined>) => {
+                state.loading = false;
+                state.error = action.payload || 'Failed to delete client';
             });
     },
 });
