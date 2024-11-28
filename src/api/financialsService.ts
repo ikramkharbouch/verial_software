@@ -66,3 +66,33 @@ export const getCharges = async () => {
     throw error; // Re-throw the error to handle it in the calling component
   }
 };
+
+
+export const fetchMadeBills = async () => {
+  const response = await API.get('/madeBills');
+  return response.data;
+};
+
+export const createMadeBill = async (bill: any) => {
+  const response = await API.post('/madeBills', bill);
+  return response.data;
+};
+
+export const updateMadeBill = async (id: string, updatedBill: any) => {
+  const response = await API.put(`/madeBills/${id}`, updatedBill);
+  return response.data;
+};
+
+export const deleteMadeBill = async (id: string) => {
+  const response = await API.delete(`/madeBills/${id}`);
+  return response.data;
+};
+
+export const downloadInvoiceAPI = async (id: string): Promise<Blob> => {
+  const response = await API.get(`/madeBills/${id}/download`, {
+    responseType: 'blob', // Ensures the response is treated as binary data
+  });
+
+  return response.data;
+};
+

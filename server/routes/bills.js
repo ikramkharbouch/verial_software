@@ -2,6 +2,10 @@ const express = require('express');
 const pool = require('../db');
 
 const router = express.Router();
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+
 
 // Get all made bills
 router.get('/', async (req, res) => {
@@ -64,6 +68,39 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error deleting the made bill.');
+    }
+});
+
+router.get('/:id/download', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Define file path dynamically
+        const filePath = path.join(__dirname, `../invoices/Invoice_${id}.pdf`);
+
+        // Check if the file already exists
+        if (!fs.existsSync(filePath)) {
+            // Generate a new PDF file
+            const doc = new PDFDocument();
+            doc.pipe(fs.createWriteStream(filePath)); // Write to file
+
+            // Add content to the PDF
+            doc.fontSize(16).text(`Invoice ID: ${id}`, { align: 'center' });
+            doc.text('Provider: Example Provider', { align: 'left' });
+            doc.text('Amount: $1234.56', { align: 'left' });
+            doc.text('Status: Paid', { align: 'left' });
+            doc.text('Date: 2024-01-01', { align: 'left' });
+
+            doc.end(); // Finalize the document
+        }
+
+        // Serve the PDF file
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Invoice_${id}.pdf`);
+        res.sendFile(filePath);
+    } catch (error) {
+        console.error('Error generating or serving PDF:', error);
+        res.status(500).send('Error generating invoice');
     }
 });
 
