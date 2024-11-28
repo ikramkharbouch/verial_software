@@ -6,7 +6,6 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
-
 // Get all made bills
 router.get('/', async (req, res) => {
     try {

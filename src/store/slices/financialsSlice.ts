@@ -27,6 +27,10 @@ export interface Charge {
 
 // Define the MadeBill type
 export interface MadeBill {
+    clientName: any;
+    invoiceNumber: any;
+    invoiceType: string;
+    totalPrice: number;
     id: string;
     provider: string;
     amount: number;
