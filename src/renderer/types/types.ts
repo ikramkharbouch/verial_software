@@ -17,3 +17,21 @@ export type PhoneInputType = {
   setPhone: React.Dispatch<React.SetStateAction<any[]>>;
   disabled?: boolean;
 };
+
+export interface Payment {
+  id: string;
+  payer: string;
+  amount: number;
+  method: string;
+  date: string;
+  status: "Paid" | "Pending";
+}
+
+export interface Bill {
+  id: number;
+  payer: string;
+  amount: number;
+  method: string;
+  date: string; // Could be Date if you parse it before rendering
+  status: string;
+}

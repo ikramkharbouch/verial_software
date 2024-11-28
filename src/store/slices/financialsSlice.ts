@@ -9,6 +9,8 @@ import {
 
 // Define the Charge type
 export interface Charge {
+    invoice_number: any;
+    provider_client: any;
     id: number;
     chargeType: string;
     providerClient: string;
@@ -80,7 +82,7 @@ const financialsSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(fetchCharges.fulfilled, (state, action: PayloadAction<Charge[]>) => {
+            .addCase(fetchCharges.fulfilled, (state, action: PayloadAction<any[]>) => {
                 state.loading = false;
                 state.charges = action.payload;
             })
@@ -91,7 +93,7 @@ const financialsSlice = createSlice({
             .addCase(addCharge.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(addCharge.fulfilled, (state, action: PayloadAction<Charge>) => {
+            .addCase(addCharge.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 state.charges.push(action.payload);
             })
@@ -102,7 +104,7 @@ const financialsSlice = createSlice({
             .addCase(updateCharge.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(updateCharge.fulfilled, (state, action: PayloadAction<Charge>) => {
+            .addCase(updateCharge.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 const index = state.charges.findIndex((charge) => charge.id === action.payload.id);
                 if (index !== -1) {

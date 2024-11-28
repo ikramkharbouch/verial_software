@@ -35,3 +35,34 @@ export const updateChargeById = async (id: number, charge: Omit<Charge, 'id'>): 
 export const deleteChargeById = async (id: number): Promise<void> => {
     await API.delete(`/charges/${id}`);
 };
+
+
+export const getPayments = async () => {
+  const response = await API.get("/payments");
+  return response.data;
+};
+
+export const addPayment = async (payment: any) => {
+  const response = await API.post("/payments", payment);
+  return response.data;
+};
+
+export const updatePayment = async (id: string, payment: any) => {
+  const response = await API.put(`/payments/${id}`, payment);
+  return response.data;
+};
+
+export const deletePayment = async (id: string) => {
+  const response = await API.delete(`/payments/${id}`);
+  return response.data;
+};
+
+export const getCharges = async () => {
+  try {
+    const response = await API.get("/charges"); // Replace with your endpoint URL
+    return response.data; // Assumes the response contains the array of charges
+  } catch (error) {
+    console.error("Error fetching charges:", error);
+    throw error; // Re-throw the error to handle it in the calling component
+  }
+};
