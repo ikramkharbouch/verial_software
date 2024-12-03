@@ -19,6 +19,7 @@ import MadeBills from './components/financials/made-bills';
 import ReceivedBills from './components/financials/received-bills';
 import { Provider } from 'react-redux';
 import { store } from '@store/store';
+import ProfilePage from './pages/profile';
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,10 @@ const AppRoutes = () => {
 
       <Route element={<PrivateRoute />}>
         <Route path="/received-bills" element={<ReceivedBills />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
     </Routes>
   );

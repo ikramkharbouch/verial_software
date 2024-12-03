@@ -143,8 +143,10 @@ const MadeBills: React.FC = () => {
 
   return (
     <div>
+            <h1>Received Bills</h1>
+
       {/* Filters Section */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+      <Row gutter={[16, 16]} style={{ margin: '16px 0 16px 0' }}>
         <Col span={6}>
           <Input
             placeholder="Search Provider"

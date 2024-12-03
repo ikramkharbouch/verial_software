@@ -9,6 +9,8 @@ import {
   DatePicker,
   InputNumber,
   message,
+  Row,
+  Col,
   Space,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -41,7 +43,7 @@ interface Charge {
 
 const ChargesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { charges, loading } = useSelector((state: RootState) => state.financials);
+  const { charges, loading } = useSelector((state: RootState) => state.financials.chargesState);
   const [filteredCharges, setFilteredCharges] = useState<Charge[]>([]);
 
   // Filter states
@@ -61,7 +63,6 @@ const ChargesPage: React.FC = () => {
   const memoizedCharges = useMemo(() => charges, [charges]);
 
   useEffect(() => {
-    console.log("Charges changed:", memoizedCharges);
     setFilteredCharges(memoizedCharges as any);
   }, [memoizedCharges]);
 
@@ -200,54 +201,63 @@ const ChargesPage: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={() => openModal()}>
-          Add Charge
-        </Button>
-      </div>
-      <Space style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="Search by provider, invoice, or description"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          allowClear
-          style={{ width: 250 }}
-        />
-        <Select
-          placeholder="Select Charge Type"
-          value={chargeType}
-          onChange={(value) => setChargeType(value)}
-          allowClear
-          style={{ width: 200 }}
-        >
-          <Option value="Purchase">Purchase</Option>
-          <Option value="Operational Expense">Operational Expense</Option>
-          <Option value="Miscellaneous">Miscellaneous</Option>
-        </Select>
-        <Input
-          placeholder="Filter by Provider/Client"
-          value={providerClient}
-          onChange={(e) => setProviderClient(e.target.value)}
-          allowClear
-          style={{ width: 200 }}
-        />
-        <RangePicker
-          onChange={(dates, dateStrings) =>
-            setDateRange(dateStrings[0] && dateStrings[1] ? dateStrings : undefined)
-          }
-          style={{ width: 250 }}
-        />
-        <Button type="primary" onClick={applyFilters}>
-          Apply Filters
-        </Button>
-        <Button onClick={resetFilters}>Reset Filters</Button>
-      </Space>
+      <h1>Charges</h1>
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Input
+            placeholder="Search by provider, invoice, or description"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            allowClear
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Select
+            placeholder="Select Charge Type"
+            value={chargeType}
+            onChange={(value) => setChargeType(value)}
+            allowClear
+            style={{ width: '100%' }}
+          >
+            <Option value="Purchase">Purchase</Option>
+            <Option value="Operational Expense">Operational Expense</Option>
+            <Option value="Miscellaneous">Miscellaneous</Option>
+          </Select>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Input
+            placeholder="Filter by Provider/Client"
+            value={providerClient}
+            onChange={(e) => setProviderClient(e.target.value)}
+            allowClear
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <RangePicker
+            onChange={(dates, dateStrings) =>
+              setDateRange(dateStrings[0] && dateStrings[1] ? dateStrings : undefined)
+            }
+            style={{ width: '100%' }}
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Button type="primary" onClick={applyFilters} style={{ width: '100%' }}>
+            Apply Filters
+          </Button>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Button onClick={resetFilters} style={{ width: '100%' }}>
+            Reset Filters
+          </Button>
+        </Col>
+      </Row>
       <Table
         dataSource={filteredCharges}
         columns={columns}
         rowKey="id"
         loading={loading}
         pagination={{ pageSize: 5 }}
+        scroll={{ x: 'max-content' }}
       />
       <Modal
         title={editingCharge ? 'Edit Charge' : 'Add Charge'}

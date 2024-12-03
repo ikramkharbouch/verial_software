@@ -1,70 +1,68 @@
 import { useState } from 'react';
-import { useAuth } from '../../auth/AuthProvider';
-import '@renderer/styles/login.css'
+import { Form, Input, Button, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [input, setInput] = useState({
-    username: '',
-    password: '',
-  });
+const { Title } = Typography;
 
-  const auth = useAuth();
-  const handleSubmitEvent = (e: any) => {
-    e.preventDefault();
-    if (input.username !== '' && input.password !== '') {
-      auth.loginAction(input);
-      return;
+const SignIn = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (values: { username: string; password: string }) => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Store JWT token in localStorage
+        localStorage.setItem('site', data.token);
+
+        // Navigate to the dashboard
+        navigate('/dashboard');
+      } else {
+        alert(`Login failed: ${data.message}`);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    alert('please provide a valid input');
-  };
-
-  const handleInput = (e: any) => {
-    const { name, value }: any = e.target;
-    setInput((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   return (
-    <div className="container">
-      <section className='left-sec'>&nbsp;</section>
-      <section className='right-sec'>
-        <div className='top-titles'>
-            <h1>Verial Software</h1>
-            <p>Sign up and manage your tires enterprise</p>
-        </div>
-        <form onSubmit={handleSubmitEvent} className="">
-          <div className="form_control">
-            <label htmlFor="Username">Username:</label>
-            <input
-              type="username"
-              id="username"
-              name="username"
-              placeholder="Enter username"
-              aria-describedby="user"
-              aria-invalid="false"
-              onChange={handleInput}
-            />
-          </div>
-          <div className="form_control">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="*********"
-              aria-describedby="user-password"
-              aria-invalid="false"
-              onChange={handleInput}
-            />
-          </div>
-          <button className="btn-submit">Login</button>
-          <p>Forgot password ? <span id='reset'>Reset</span></p>
-        </form>
-      </section>
+    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
+      <Title level={2}>Sign In</Title>
+      <Form layout="vertical" onFinish={handleSubmit}>
+        <Form.Item
+          label="Username"
+          name="username"
+          rules={[{ required: true, message: 'Please input your username!' }]}
+        >
+          <Input placeholder="Enter your username" />
+        </Form.Item>
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: 'Please input your password!' }]}
+        >
+          <Input.Password placeholder="Enter your password" />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading} block>
+            Sign In
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
 
-export default Login;
+export default SignIn;

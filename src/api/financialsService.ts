@@ -95,4 +95,3 @@ export const downloadInvoiceAPI = async (id: string): Promise<Blob> => {
 
   return response.data;
 };
-

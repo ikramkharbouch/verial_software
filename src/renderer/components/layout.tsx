@@ -5,7 +5,6 @@ import {
   theme,
   Input,
   Space,
-  GetProps,
   Dropdown,
   MenuProps,
 } from 'antd';
@@ -16,58 +15,44 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  SmileOutlined,
 } from '@ant-design/icons';
 import logo from '../../../assets/official-logo.svg';
 import avatar from '../../../assets/avatar.svg';
 import MainMenu from './menu';
 import { useAuth } from '../../auth/AuthProvider';
+import { useNavigate } from 'react-router-dom'; // Import navigation hook
 
-type SearchProps = GetProps<typeof Input.Search>;
+type SearchProps = React.ComponentProps<typeof Input.Search>;
 
 const { Search } = Input;
 
 const { Header, Sider, Content } = Layout;
 
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-      >
-        1st menu item
-      </a>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.aliyun.com"
-      >
-        2nd menu item (disabled)
-      </a>
-    ),
-    icon: <SmileOutlined />,
-    disabled: true,
-  },
-];
-
-const MainLayout = ({children}: any) => {
+const MainLayout = ({ children }: any) => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const auth = useAuth();
+  const navigate = useNavigate(); // Use navigate for navigation
 
   const onSearch: SearchProps['onSearch'] = (value, _e, info) =>
     console.log(info?.source, value);
+
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'profile',
+      label: 'Profile',
+      onClick: () => navigate('/profile'), // Navigate to profile
+    },
+    {
+      key: 'logout',
+      label: 'Log Out',
+      icon: <LogoutOutlined />,
+      onClick: () => auth.logOut(), // Log out action
+    },
+  ];
 
   return (
     <Layout>
@@ -77,7 +62,7 @@ const MainLayout = ({children}: any) => {
         collapsed={collapsed}
         style={{
           height: '100vh',
-          background: '#2C2C2C', // Customize sidebar color
+          background: '#2C2C2C',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -92,7 +77,6 @@ const MainLayout = ({children}: any) => {
             height: '100%',
           }}
         >
-          {/* Logo Section */}
           <div>
             <div
               style={{
@@ -101,14 +85,13 @@ const MainLayout = ({children}: any) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // background: '#FFFFFF', // White background for logo area
                 borderRadius: '8px',
               }}
             >
               <img
-                src={logo} // Replace with your logo path
+                src={logo}
                 alt="Company Logo"
-                style={{ height: '6rem' }} // Adjust size as needed
+                style={{ height: '6rem' }}
               />
             </div>
             <MainMenu />
@@ -123,7 +106,6 @@ const MainLayout = ({children}: any) => {
         </div>
       </Sider>
       <Layout>
-        
         <Header style={{ padding: 0, background: colorBgContainer }}>
           <Flex align="center" justify="space-between">
             <div
@@ -141,10 +123,10 @@ const MainLayout = ({children}: any) => {
               />
 
               <div className="avatar">
-                <img src={avatar} />
+                <img src={avatar} alt="Avatar" />
               </div>
               <div>
-                <Dropdown menu={{ items }}>
+                <Dropdown menu={{ items: menuItems }}>
                   <a onClick={(e) => e.preventDefault()}>
                     <Space>
                       Username

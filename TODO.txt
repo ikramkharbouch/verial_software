@@ -1,0 +1,12 @@
+To-Do List for 2024-11-29
+
+- Add the dashboard link in the menu section
+- Fix the profile page (ensure inputs are editable and save correctly)
+- Fix styling across all pages for a consistent UI/UX
+- Revise actions in all pages for correctness
+- Add notifications functionality
+- Add a software menu in the sidebar
+- Fix the login and logout functionality
+- Display the username and profile picture from the database in the menu
+- Add a global search functionality across the application
+Secret word: Anchor
