@@ -25,14 +25,13 @@ const AuthProvider = ({ children }) => {
           },
         },
       );
-
-      console.log(response);
-
       const { accessToken, user } = response.data;
 
       // console.log("response data", accessToken);
 
       sessionStorage.setItem('accessToken', accessToken); // Store access token in memory
+      sessionStorage.setItem('userId', response.data.user.id); // Store access token in memory
+
       setUser(response.data.user);
       setIsAuthenticated(true);
       // Redirect to the dashboard
@@ -50,6 +49,8 @@ const AuthProvider = ({ children }) => {
       { withCredentials: true },
     );
     sessionStorage.removeItem('accessToken'); // Clear access token
+    sessionStorage.removeItem('user'); // Clear access token
+
     setUser(null);
     setIsAuthenticated(false);
     navigate('/login')
