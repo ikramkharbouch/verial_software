@@ -51,7 +51,7 @@ const MainLayout = ({ items }: any) => {
       key: 'logout',
       label: 'Log Out',
       icon: <LogoutOutlined />,
-      onClick: () => auth.logOut(), // Log out action
+      onClick: () => auth.logout(), // Log out action
     },
   ];
 
@@ -100,7 +100,7 @@ const MainLayout = ({ items }: any) => {
 
           <Button
             style={{ margin: '1rem', wordBreak: 'break-word' }}
-            onClick={() => auth.logOut()}
+            onClick={() => auth.logout()}
           >
             <LogoutOutlined />
           </Button>

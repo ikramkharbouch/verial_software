@@ -52,6 +52,7 @@ const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('accessToken'); // Clear access token
     setUser(null);
     setIsAuthenticated(false);
+    navigate('/login')
   };
 
   const restoreSession = async () => {
