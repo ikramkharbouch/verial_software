@@ -2,6 +2,7 @@ import {
   AppstoreOutlined,
   MoneyCollectOutlined,
   UserOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons';
 import { Menu, MenuProps, Dropdown } from 'antd';
 import { useState } from 'react';
@@ -68,15 +69,32 @@ const MainMenu = () => {
       style={{ background: '#2C2C2C' }}
       selectedKeys={[location.pathname]} // Highlight the selected menu item
       onClick={handleMenuClick} // Handle menu item click
-      className='menu-container'
+      className="menu-container"
     >
+      <Menu.Item key="ds" icon={<DashboardOutlined />}>
+        <Link to="/dashboard">Dashboard</Link>
+      </Menu.Item>
 
-      <Dropdown overlay={dropdownMenu} trigger={['click']} className='dropdownmenu' key="clientSub">
-        <Menu.Item key="cl" icon={<UserOutlined />}>Clients</Menu.Item>
+      <Dropdown
+        overlay={dropdownMenu}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="clientSub"
+      >
+        <Menu.Item key="cl" icon={<UserOutlined />}>
+          Clients
+        </Menu.Item>
       </Dropdown>
 
-      <Dropdown overlay={dropdownMenuProviders} trigger={['click']} className='dropdownmenu' key="providerSub">
-        <Menu.Item key="pr" icon={<UserOutlined />}>Providers</Menu.Item>
+      <Dropdown
+        overlay={dropdownMenuProviders}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="providerSub"
+      >
+        <Menu.Item key="pr" icon={<UserOutlined />}>
+          Providers
+        </Menu.Item>
       </Dropdown>
 
       {/* <Menu.Item
@@ -95,8 +113,15 @@ const MainMenu = () => {
         </NavLink>
       </Menu.Item>
 
-      <Dropdown overlay={dropdownMenuFinancials} trigger={['click']} className='dropdownmenu' key="financials-sub">
-        <Menu.Item key="fn" icon={<MoneyCollectOutlined />}>Financials</Menu.Item>
+      <Dropdown
+        overlay={dropdownMenuFinancials}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="financials-sub"
+      >
+        <Menu.Item key="fn" icon={<MoneyCollectOutlined />}>
+          Financials
+        </Menu.Item>
       </Dropdown>
 
       {/* <Menu.Item
