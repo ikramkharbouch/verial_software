@@ -21,6 +21,7 @@ import avatar from '../../../assets/avatar.svg';
 import MainMenu from './menu';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNavigate } from 'react-router-dom'; // Import navigation hook
+import { Outlet } from 'react-router-dom';
 
 type SearchProps = React.ComponentProps<typeof Input.Search>;
 
@@ -28,7 +29,7 @@ const { Search } = Input;
 
 const { Header, Sider, Content } = Layout;
 
-const MainLayout = ({ children }: any) => {
+const MainLayout = ({ items }: any) => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -153,7 +154,7 @@ const MainLayout = ({ children }: any) => {
             borderRadius: borderRadiusLG,
           }}
         >
-          {children}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

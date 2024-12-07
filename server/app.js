@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
+
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var clientsRouter = require('./routes/clients');
@@ -27,7 +28,11 @@ app.use(express.json());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+// Allow requests from your frontend's origin
+app.use(cors({
+  origin: 'http://localhost:1212', // Replace with your React app's URL
+  credentials: true, // Allow cookies and other credentials
+}));
 
 app.use(logger('dev'));
 app.use(express.json());

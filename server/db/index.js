@@ -19,7 +19,8 @@ pool.query('SELECT * FROM clients', (err, res) => {
   if (err) {
       console.error('Error fetching data:', err.message);
   } else {
-      console.log('Data:', res.rows);
+      // console.log('Data:', res.rows);
+      console.log('data fetched')
   }
 });
 

@@ -1,4 +1,9 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  MemoryRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import './App.css';
 import Login from './pages/signin';
 import AuthProvider, { useAuth } from '../auth/AuthProvider';
@@ -20,12 +25,11 @@ import ReceivedBills from './components/financials/received-bills';
 import { Provider } from 'react-redux';
 import { store } from '@store/store';
 import ProfilePage from './pages/profile';
+import SignupPage from './pages/signup';
+import SignIn from './pages/signin';
+import React, { useEffect, useState } from 'react';
 
 const queryClient = new QueryClient();
-
-function Hello() {
-  return <Login />;
-}
 
 export default function App() {
   return (
@@ -35,7 +39,32 @@ export default function App() {
           <ContextProvider>
             <AuthProvider>
               <Toaster />
-              <Wrapper />
+              {/* <Route element={<PrivateRoute />}> */}
+              <Routes>
+                {/* Public Routes */}
+                {/* <Route path="/" element={<SignIn />} /> */}
+                <Route path="/login" element={<SignIn />} />
+
+                {/* Private Routes */}
+                <Route element={<PrivateRoute />}>
+                  {/* MainLayout wrapping all private routes */}
+                  <Route element={<MainLayout />}>
+                  <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/clients" element={<Clients />} />
+                    <Route path="/client-docs" element={<ClientDocs />} />
+                    <Route path="/providers" element={<Providers />} />
+                    <Route path="/providers-docs" element={<ProvidersDocs />} />
+                    <Route path="/articles" element={<Articles />} />
+                    <Route path="/charges" element={<Charges />} />
+                    <Route path="/payments" element={<Payments />} />
+                    <Route path="/made-bills" element={<MadeBills />} />
+                    <Route path="/received-bills" element={<ReceivedBills />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                  </Route>
+                </Route>
+              </Routes>
+              {/* </Route> */}
               <webview allowpopups />
             </AuthProvider>
           </ContextProvider>
@@ -45,71 +74,47 @@ export default function App() {
   );
 }
 
-const Wrapper = () => {
-  const { user } = useAuth();
+const Wrapper = ({ items }: any) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // Add a spinner or styled loader if needed
+  }
+
+  console.log('Wrapper debug:', isAuthenticated);
 
   return (
-    <div>
-      {user ? (
-        <MainLayout>
-          <AppRoutes />
-        </MainLayout>
-      ) : (
-        <AppRoutes />
-      )}
-    </div>
+    <>
+      {/* Always render children */}
+      {items}
+    </>
   );
 };
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* Public Routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignupPage />} />
 
+      {/* Private Routes */}
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/clients" element={<Clients />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/client-docs" element={<ClientDocs />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/providers" element={<Providers />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/providers-docs" element={<ProvidersDocs />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/articles" element={<Articles />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/charges" element={<Charges />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/payments" element={<Payments />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/made-bills" element={<MadeBills />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/received-bills" element={<ReceivedBills />} />
-      </Route>
-
-      <Route element={<PrivateRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
+
+      {/* Catch-All Route */}
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 };

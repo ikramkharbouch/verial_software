@@ -1,89 +1,94 @@
-import { useContext, createContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('site') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Function to log in a user
-  const loginAction = async (data) => {
-    const uri = `http://localhost:3000/auth/login`;
+  const loginAction = async (username, password) => {
+    console.log(username, password);
     try {
-      const response = await fetch(uri, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        'http://localhost:3000/auth/login',
+        {
+          username,
+          password,
         },
-        body: JSON.stringify(data),
-      });
-      const res = await response.json();
-
-      if (res) {
-        setUser(res.user);
-        setToken(res.token);
-        localStorage.setItem('site', res.token);
-        navigate('/dashboard');
-        return;
-      }
-      throw new Error(res.message);
-    } catch (err) {
-      console.error('Login error:', err);
-    }
-  };
-
-  // Function to log out a user
-  const logOut = () => {
-    setUser(null);
-    setToken('');
-    localStorage.removeItem('site');
-    navigate('/login');
-  };
-
-  // Function to restore the session from the token
-  const restoreSession = async () => {
-    const savedToken = localStorage.getItem('site');
-    if (savedToken) {
-      try {
-        // Validate the token with your backend (replace `/auth/validate` with your endpoint)
-        const response = await fetch(`http://localhost:3000/auth/validate`, {
-          method: 'POST',
+        {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${savedToken}`,
           },
-        });
+        },
+      );
 
-        const res = await response.json();
-        if (res.user) {
-          setUser(res.user);
-          setToken(savedToken);
-        } else {
-          logOut(); // If the token is invalid, log out the user
-        }
-      } catch (err) {
-        console.error('Session restoration error:', err);
-        logOut();
-      }
+      console.log(response);
+
+      const { accessToken, user } = response.data;
+
+      // console.log("response data", accessToken);
+
+      sessionStorage.setItem('accessToken', accessToken); // Store access token in memory
+      setUser(response.data.user);
+      setIsAuthenticated(true);
+      // Redirect to the dashboard
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
     }
   };
 
-  // Automatically restore session on component mount
+  const logout = async () => {
+    await axios.post(
+      'http://localhost:3000/auth/logout',
+      {},
+      { withCredentials: true },
+    );
+    sessionStorage.removeItem('accessToken'); // Clear access token
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  const restoreSession = async () => {
+    try {
+      const accessToken = sessionStorage.getItem('accessToken');
+      if (!accessToken) {
+        const response = await axios.post(
+          'http://localhost:3000/auth/refresh',
+          {},
+          { withCredentials: true },
+        );
+        sessionStorage.setItem('accessToken', response.data.accessToken);
+      }
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.warn('Session restoration failed:', error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    restoreSession();
+    restoreSession(); // Restore session on component mount
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, loginAction, logOut, restoreSession }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, loginAction, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// Hook to use the Auth context
+export const useAuth = () => useContext(AuthContext);
 
+// Default export for the AuthProvider
 export default AuthProvider;

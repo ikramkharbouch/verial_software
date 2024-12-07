@@ -57,7 +57,6 @@ router.post('/create',
 router.delete('/:id', async (req, res) => {
   const { id } = req.params; // Extract client ID from URL parameters
 
-  console.log(id);
 
   try {
       // Execute a query to delete the client from the database
