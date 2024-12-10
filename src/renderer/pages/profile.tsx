@@ -6,16 +6,16 @@ import {
   Button,
   Upload,
   message,
-  Row,
-  Col,
   Avatar,
   Spin,
   Select,
+  Tooltip,
 } from 'antd';
-import { UploadOutlined, UserOutlined } from '@ant-design/icons';
+import { UploadOutlined, UserOutlined, EditOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/store';
 import { fetchProfile, updateProfile } from '../../store/slices/profileSlice';
+import '../styles/profile.css'; // Import the CSS file
 
 const { Option } = Select;
 
@@ -23,25 +23,18 @@ const ProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { profile, loading } = useSelector((state: RootState) => state.profile);
   const [form] = Form.useForm();
-  const [isEditing, setIsEditing] = useState(false);
   const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string>(
-    sessionStorage.getItem('userId') as string,
-  );
+  const [editableFields, setEditableFields] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log('user is', userId);
+    const userId = sessionStorage.getItem('userId') as string;
     dispatch(fetchProfile(userId));
-
-    console.log(profile);
   }, [dispatch]);
 
   useEffect(() => {
     if (profile) {
       form.setFieldsValue(profile);
-      setProfilePic(
-        profile.profilePicture
-      );
+      setProfilePic(profile.profilePicture);
     }
   }, [profile, form]);
 
@@ -55,7 +48,7 @@ const ProfilePage: React.FC = () => {
       };
       await dispatch(updateProfile(updatedProfile)).unwrap();
       message.success('Profile updated successfully.');
-      setIsEditing(false);
+      setEditableFields([]);
     } catch (error) {
       message.error('Failed to update profile.');
     }
@@ -71,115 +64,102 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const toggleEditField = (fieldName: string) => {
+    setEditableFields((prev) =>
+      prev.includes(fieldName)
+        ? prev.filter((field) => field !== fieldName)
+        : [...prev, fieldName],
+    );
+  };
+
   if (loading) {
     return <Spin style={{ display: 'block', margin: '100px auto' }} />;
   }
 
   return (
-    <Card
-      title="Edit Profile"
-      style={{ maxWidth: 900, margin: '20px auto', padding: 20 }}
-    >
-      <Row gutter={[32, 32]}>
-        <Col xs={24} md={8} style={{ textAlign: 'center' }}>
-          <Avatar
-            size={120}
-            src={profilePic}
-            icon={!profilePic && <UserOutlined />}
-            style={{ marginBottom: 16 }}
-          />
-          <Upload
-            name="avatar"
-            action="http://localhost:3000/profile/upload"
-            headers={{
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`, // Optional, if auth is required
-            }}
-            data={{
-              userId: userId, // Pass userId dynamically from your state or context
-            }}
-            onChange={handleProfilePicChange}
-            showUploadList={false}
-          >
-            <Button icon={<UploadOutlined />}>Change Profile Picture</Button>
-          </Upload>
-        </Col>
+    <Card title="Edit Profile" className="profile-card">
+      <div className="profile-avatar-container">
+        <Avatar
+          size={120}
+          src={profilePic}
+          icon={!profilePic && <UserOutlined />}
+        />
+        <Upload
+          name="avatar"
+          action="http://localhost:3000/profile/upload"
+          headers={{
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          }}
+          data={{
+            userId: sessionStorage.getItem('userId'),
+          }}
+          onChange={handleProfilePicChange}
+          showUploadList={false}
+        >
+          <Button icon={<UploadOutlined />}>Change Profile Picture</Button>
+        </Upload>
+      </div>
 
-        <Col xs={24} md={16}>
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleFormSubmit}
-            initialValues={profile as any}
-            disabled={!isEditing}
-          >
+      <div className="profile-form">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleFormSubmit}
+          initialValues={profile as any}
+        >
+          {[
+            { name: 'username', label: 'Username', placeholder: 'Username' },
+            { name: 'email', label: 'Email', placeholder: 'Email Address' },
+            {
+              name: 'phoneNumber',
+              label: 'Phone Number',
+              placeholder: 'Phone Number',
+            },
+            { name: 'address', label: 'Address', placeholder: 'Your Address' },
+          ].map((field) => (
             <Form.Item
-              name="name"
-              label="Name"
-              rules={[{ required: true, message: 'Please enter your name' }]}
+              key={field.name}
+              name={field.name}
+              label={
+                <span>
+                  {field.label}{' '}
+                  <Tooltip title="Edit">
+                    <EditOutlined
+                      onClick={() => toggleEditField(field.name)}
+                      style={{ cursor: 'pointer', marginLeft: 8 }}
+                    />
+                  </Tooltip>
+                </span>
+              }
             >
-              <Input placeholder="Full Name" />
+              <Input
+                placeholder={field.placeholder}
+                disabled={!editableFields.includes(field.name)}
+              />
             </Form.Item>
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                {
-                  required: true,
-                  type: 'email',
-                  message: 'Please enter a valid email',
-                },
-              ]}
+          ))}
+
+          <Form.Item name="role" label="Role">
+            <Select
+              placeholder="Select Role"
+              disabled={!editableFields.includes('role')}
             >
-              <Input placeholder="Email Address" />
-            </Form.Item>
-            <Form.Item
-              name="phoneNumber"
-              label="Phone Number"
-              rules={[
-                { required: true, message: 'Please enter your phone number' },
-              ]}
+              <Option value="user">User</Option>
+              <Option value="admin">Admin</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="profile-save-button"
             >
-              <Input placeholder="Phone Number" />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: isEditing, message: 'Please enter a password' },
-              ]}
-            >
-              <Input.Password placeholder="Password" />
-            </Form.Item>
-            <Form.Item name="role" label="Role">
-              <Select placeholder="Select Role" disabled={!isEditing}>
-                <Option value="user">User</Option>
-                <Option value="admin">Admin</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="address" label="Address">
-              <Input.TextArea rows={3} placeholder="Your Address" />
-            </Form.Item>
-            <Form.Item>
-              {isEditing ? (
-                <>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    style={{ marginRight: 8 }}
-                  >
-                    Save
-                  </Button>
-                  <Button onClick={() => setIsEditing(false)}>Cancel</Button>
-                </>
-              ) : (
-                <Button type="primary" onClick={() => setIsEditing(true)}>
-                  Edit Profile
-                </Button>
-              )}
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
+              Save Changes
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
     </Card>
   );
 };
