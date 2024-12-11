@@ -27,16 +27,38 @@ const initialState: ProfileState = {
 
 // Updated Async thunk for fetching profile data with userId
 export const fetchProfile = createAsyncThunk<
-  Profile,
-  string, // Accepts userId as an argument
-  { rejectValue: string }
+  Profile, // Return type of the thunk
+  string, // Argument type (userId)
+  { rejectValue: string } // Rejected value type
 >('profile/fetchProfile', async (userId, { rejectWithValue }) => {
   try {
-    const response = await fetchProfileData(userId); // Pass userId to fetchProfileData
-    console.log('fetch profile in profileSlice', response.data);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data || 'Failed to fetch profile');
+    // Fetch profile data from the API
+    const response = await fetchProfileData(userId); // Ensure fetchProfileData is correctly typed
+
+    console.log('Raw profile data:', response.data);
+
+    // Update the profilePicture URL if it exists
+    const updatedProfile: Profile = {
+      ...response.data,
+      profilePicture: response.data.profilePicture
+        ? `http://localhost:3000/profile/uploads/${response.data.profilePicture}`
+        : null,
+    };
+
+    console.log('Updated profile with full image path:', updatedProfile);
+
+    return updatedProfile;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+
+    // Handle error typing explicitly
+    if (error instanceof Error && error.message) {
+      return rejectWithValue(error.message);
+    } else if (typeof error === 'object' && error && 'response' in error && error.response?.data) {
+      return rejectWithValue(error.response.data);
+    } else {
+      return rejectWithValue('Failed to fetch profile');
+    }
   }
 });
 

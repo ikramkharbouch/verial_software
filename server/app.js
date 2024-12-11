@@ -14,7 +14,7 @@ var chargesRouter = require('./routes/charges');
 var emailRouter = require('./routes/email')
 var paymentsRouter = require('./routes/payments');
 var madeBillsrouter = require('./routes/bills');
-var profileRouter = require('./routes/profile')
+var profileRouter = require('./routes/profile');
 
 // import our postgres db
 const db = require('./db/index');
@@ -24,6 +24,7 @@ var app = express();
 
 // Middleware
 app.use(express.json());
+app.use('./uploads', express.static('uploads')); // Serves files from the uploads folder
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

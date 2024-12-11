@@ -31,6 +31,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Serve static files in the 'uploads' directory
+router.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+
 // File upload endpoint
 router.post('/upload', upload.single('avatar'), async (req, res) => {
   try {

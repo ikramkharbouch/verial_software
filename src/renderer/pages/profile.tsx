@@ -32,21 +32,26 @@ const ProfilePage: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (profile) {
-      form.setFieldsValue(profile);
-      setProfilePic(profile.profilePicture);
+
+    const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
+
+    if (profile && profile.profilePicture) {
+      setProfilePic(`${cleanedUrl}`);
     }
-  }, [profile, form]);
+
+    console.log("Profile picture debugging", profilePic);
+  }, [profile]);
 
   const handleFormSubmit = async (values: any) => {
     try {
       const updatedProfile = {
         ...values,
         profilePicture: profilePic
-          ? profilePic.replace('http://localhost:3000', '')
+          ? profilePic.replace('http://localhost:3000/uploads/', '')
           : null,
       };
       await dispatch(updateProfile(updatedProfile)).unwrap();
+      dispatch(fetchProfile(sessionStorage.getItem('userId')!));
       message.success('Profile updated successfully.');
       setEditableFields([]);
     } catch (error) {
@@ -57,7 +62,9 @@ const ProfilePage: React.FC = () => {
   const handleProfilePicChange = (info: any) => {
     if (info.file.status === 'done') {
       const uploadedUrl = info.file.response.url;
-      setProfilePic(`http://localhost:3000${uploadedUrl}`);
+      const fullPath = `http://localhost:3000/uploads/${uploadedUrl}`;
+      setProfilePic(`${fullPath}?timestamp=${new Date().getTime()}`);
+      form.setFieldsValue({ profilePicture: fullPath });
       message.success(`${info.file.name} uploaded successfully.`);
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} upload failed.`);
