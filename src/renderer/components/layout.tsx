@@ -9,7 +9,7 @@ import {
   MenuProps,
 } from 'antd';
 import '@renderer/styles/dashboard.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DownOutlined,
   LogoutOutlined,
@@ -22,6 +22,9 @@ import MainMenu from './menu';
 import { useAuth } from '../../auth/AuthProvider';
 import { useNavigate } from 'react-router-dom'; // Import navigation hook
 import { Outlet } from 'react-router-dom';
+import { fetchProfile, updateProfile } from '../../store/slices/profileSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../store/store';
 
 type SearchProps = React.ComponentProps<typeof Input.Search>;
 
@@ -30,6 +33,10 @@ const { Search } = Input;
 const { Header, Sider, Content } = Layout;
 
 const MainLayout = ({ items }: any) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { profile, loading } = useSelector((state: RootState) => state.profile);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -54,6 +61,18 @@ const MainLayout = ({ items }: any) => {
       onClick: () => auth.logout(), // Log out action
     },
   ];
+
+  useEffect(() => {
+    const userId = sessionStorage.getItem('userId') as string;
+    dispatch(fetchProfile(userId));
+  }, [dispatch]);
+
+  useEffect(() => {
+    const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
+
+    setProfilePic(cleanedUrl as any);
+    setUsername(profile?.username as string | null);
+  }, [profile])
 
   return (
     <Layout>
@@ -124,13 +143,13 @@ const MainLayout = ({ items }: any) => {
               />
 
               <div className="avatar">
-                <img src={avatar} alt="Avatar" />
+                <img src={profilePic as string} alt="Avatar" />
               </div>
               <div>
                 <Dropdown menu={{ items: menuItems }}>
                   <a onClick={(e) => e.preventDefault()}>
                     <Space>
-                      Username
+                      {username}
                       <DownOutlined />
                     </Space>
                   </a>

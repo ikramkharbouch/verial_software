@@ -11,6 +11,7 @@ interface ProfileState {
 // Define the shape of the profile object
 interface Profile {
   id: string;
+  username: string;
   profilePicture: string;
   name: string;
   email: string;
