@@ -105,6 +105,8 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const userId = req.body.userId; // Assuming userId is sent in the request body
+
+    console.log(userId);
     const {
       username,
       email,
@@ -114,6 +116,8 @@ router.put('/', async (req, res) => {
       role,
       password,
     } = req.body;
+
+    console.log(req.body);
 
     if (!userId) {
       return res.status(400).json({ message: 'User ID is required' });

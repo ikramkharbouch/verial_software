@@ -25,9 +25,10 @@ const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [editableFields, setEditableFields] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    const userId = sessionStorage.getItem('userId') as string;
+    setUserId(sessionStorage.getItem('userId') as string);
     dispatch(fetchProfile(userId));
   }, [dispatch]);
 
@@ -43,9 +44,12 @@ const ProfilePage: React.FC = () => {
   }, [profile]);
 
   const handleFormSubmit = async (values: any) => {
+
+    console.log(values);
     try {
       const updatedProfile = {
         ...values,
+        userId,
         profilePicture: profilePic
           ? profilePic.replace('http://localhost:3000/uploads/', '')
           : null,
