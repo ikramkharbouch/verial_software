@@ -230,22 +230,9 @@ const ClientsPage: React.FC = () => {
             showModal(<CreateNewClient handleCancel={handleCancel} />)
           }
         >
-          New
+          Create New Client
         </Button>
-        <Button
-          style={{ marginRight: '10px' }}
-          onClick={() => showModal(<ModifyDeleteUser users={[]} />)}
-        >
-          Modify/Delete
-        </Button>
-        <Button
-          style={{ marginRight: '10px' }}
-          onClick={() => showModal('Comment')}
-        >
-          Comment
-        </Button>
-        <Button onClick={() => showModal('View')}>View</Button>
-      </div>
+         </div>
 
       {/* Filter Form */}
       <Form

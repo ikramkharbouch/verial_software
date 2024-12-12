@@ -1,7 +1,7 @@
 To-Do List for 2024-11-29
 
 - Add the dashboard link in the menu section done
-- Fix the profile page (ensure inputs are editable and save correctly)
+- Fix the profile page (ensure inputs are editable and save correctly) done
 - Fix styling across all pages for a consistent UI/UX
 - Revise actions in all pages for correctness
 - Add notifications functionality
