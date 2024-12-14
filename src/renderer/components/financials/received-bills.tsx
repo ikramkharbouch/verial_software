@@ -185,7 +185,7 @@ const ReceivedBillsPage: React.FC = () => {
         dataSource={filteredData}
         loading={loading}
         rowKey={(record) => record.id.toString()}
-        pagination={{ pageSize: 7 }}
+        pagination={{ pageSize: 5 }}
       />
     </div>
   );

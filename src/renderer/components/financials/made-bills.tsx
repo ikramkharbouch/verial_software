@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, DatePicker, InputNumber, Button, Row, Col, Popconfirm } from 'antd';
+import {
+  Table,
+  Input,
+  DatePicker,
+  InputNumber,
+  Button,
+  Row,
+  Col,
+  Popconfirm,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import moment, { Moment } from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../../store/store';
-import { fetchAllMadeBills, removeMadeBill, downloadInvoice } from '../../../store/slices/financialsSlice';
+import {
+  fetchAllMadeBills,
+  removeMadeBill,
+  downloadInvoice,
+} from '../../../store/slices/financialsSlice';
 
 const { RangePicker } = DatePicker;
 
@@ -35,7 +48,9 @@ const MadeBills: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Access Redux state
-  const { madeBills, loading } = useSelector((state: RootState) => state.financials.madeBillsState);
+  const { madeBills, loading } = useSelector(
+    (state: RootState) => state.financials.madeBillsState,
+  );
 
   // Local state for filters
   const [filters, setFilters] = useState<Filters>({
@@ -54,7 +69,8 @@ const MadeBills: React.FC = () => {
 
   // Filter data based on local state
   const filteredData = madeBills.filter((bill) => {
-    const { provider, method, status, dateRange, minAmount, maxAmount } = filters;
+    const { provider, method, status, dateRange, minAmount, maxAmount } =
+      filters;
 
     const isProviderMatch = provider
       ? bill.provider.toLowerCase().includes(provider.toLowerCase())
@@ -70,10 +86,17 @@ const MadeBills: React.FC = () => {
         : true;
 
     const isAmountMatch =
-      (minAmount === undefined || parseFloat(bill.amount as any) >= minAmount) &&
+      (minAmount === undefined ||
+        parseFloat(bill.amount as any) >= minAmount) &&
       (maxAmount === undefined || parseFloat(bill.amount as any) <= maxAmount);
 
-    return isProviderMatch && isMethodMatch && isStatusMatch && isDateInRange && isAmountMatch;
+    return (
+      isProviderMatch &&
+      isMethodMatch &&
+      isStatusMatch &&
+      isDateInRange &&
+      isAmountMatch
+    );
   });
 
   // Define table columns
@@ -116,7 +139,10 @@ const MadeBills: React.FC = () => {
       render: (_, record: MadeBill) => (
         <div style={{ display: 'flex', gap: '8px' }}>
           {/* Download Action */}
-          <Button type="link" onClick={() => dispatch(downloadInvoice(record.id))}>
+          <Button
+            type="link"
+            onClick={() => dispatch(downloadInvoice(record.id))}
+          >
             Download
           </Button>
 
@@ -143,7 +169,7 @@ const MadeBills: React.FC = () => {
 
   return (
     <div>
-            <h1>Received Bills</h1>
+      <h1>Received Bills</h1>
 
       {/* Filters Section */}
       <Row gutter={[16, 16]} style={{ margin: '16px 0 16px 0' }}>
@@ -151,7 +177,9 @@ const MadeBills: React.FC = () => {
           <Input
             placeholder="Search Provider"
             value={filters.provider}
-            onChange={(e) => setFilters({ ...filters, provider: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, provider: e.target.value })
+            }
           />
         </Col>
         <Col span={6}>
@@ -170,14 +198,18 @@ const MadeBills: React.FC = () => {
         </Col>
         <Col span={6}>
           <RangePicker
-            onChange={(dates: any) => setFilters({ ...filters, dateRange: dates })}
+            onChange={(dates: any) =>
+              setFilters({ ...filters, dateRange: dates })
+            }
           />
         </Col>
         <Col span={3}>
           <InputNumber
             placeholder="Min Amount"
             value={filters.minAmount}
-            onChange={(value) => setFilters({ ...filters, minAmount: value || undefined })}
+            onChange={(value) =>
+              setFilters({ ...filters, minAmount: value || undefined })
+            }
             style={{ width: '100%' }}
           />
         </Col>
@@ -185,7 +217,9 @@ const MadeBills: React.FC = () => {
           <InputNumber
             placeholder="Max Amount"
             value={filters.maxAmount}
-            onChange={(value) => setFilters({ ...filters, maxAmount: value || undefined })}
+            onChange={(value) =>
+              setFilters({ ...filters, maxAmount: value || undefined })
+            }
             style={{ width: '100%' }}
           />
         </Col>
@@ -197,7 +231,7 @@ const MadeBills: React.FC = () => {
         dataSource={filteredData}
         loading={loading}
         rowKey="id"
-        pagination={{ pageSize: 7 }}
+        pagination={{ pageSize: 5 }}
       />
     </div>
   );

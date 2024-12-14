@@ -202,7 +202,7 @@ const ChargesPage: React.FC = () => {
   return (
     <div>
       <h1>Charges</h1>
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+      <Row gutter={[16, 16]} style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         <Col xs={24} sm={12} md={6}>
           <Input
             placeholder="Search by provider, invoice, or description"

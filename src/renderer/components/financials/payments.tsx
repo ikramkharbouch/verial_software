@@ -136,7 +136,7 @@ const PaymentsPage: React.FC = () => {
 
   return (
     <div>
-      <h1 className='mb-2 border-2 bg-black'>Payments Management</h1>
+      <h1 style={{marginBottom: '1rem'}}>Payments Management</h1>
       <Button type="primary" onClick={handleAdd} >
         Add Payment
       </Button>

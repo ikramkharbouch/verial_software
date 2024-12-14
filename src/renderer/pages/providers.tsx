@@ -98,7 +98,7 @@ const ProvidersPage: React.FC = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
-        pagination={{ pageSize: 7 }}
+        pagination={{ pageSize: 5 }}
       />
     </div>
   );
