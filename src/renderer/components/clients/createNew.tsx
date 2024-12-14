@@ -1,9 +1,20 @@
+import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, Button, Form, notification, Row, Col } from 'antd';
+import { 
+  Input, 
+  Select, 
+  Button, 
+  Form, 
+  notification, 
+  Row, 
+  Col, 
+  Modal, 
+  Space
+} from 'antd';
 import axios from 'axios';
-import '../../styles/forms.css'
+import '../../styles/forms.css';
 
 const { Option } = Select;
 
@@ -12,26 +23,39 @@ const clientSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   nif: z.string().min(1, 'NIF is required'),
   clientName: z.string().min(1, 'Client name is required'),
-  clientType: z.string().min(1, 'Client type is required'),
-  phoneNumber1: z.string().min(1, 'Phone number 1 is required'),
+  clientType: z.string().optional(),
+  phoneNumber1: z.string().optional(),
   phoneNumber2: z.string().optional(),
   phoneNumber3: z.string().optional(),
-  iceo: z.string().min(1, 'ICEO is required'),
-  country: z.string().min(1, 'Country is required'),
-  province: z.string().min(1, 'Province is required'),
-  postalCode: z.string().min(1, 'Postal code is required'),
-  email1: z
-    .string()
-    .email('Invalid email format')
-    .min(1, 'Email 1 is required'),
-  email2: z.string().email('Invalid email format').optional(),
-  email3: z.string().email('Invalid email format').optional(),
+  iceo: z.string().optional(),
+  country: z.string().optional(),
+  province: z.string().optional(),
+  postalCode: z.string().optional(),
+  email1: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
+    message: 'Invalid email format',
+  }),
+  email2: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
+    message: 'Invalid email format',
+  }),
+  email3: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
+    message: 'Invalid email format',
+  }),
 });
 
 // Define the form data type
 type ClientFormData = z.infer<typeof clientSchema>;
 
-const CreateNewClient = ({ handleCancel }: any) => {
+interface CreateNewClientProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onClientCreated?: (client: ClientFormData) => void;
+}
+
+const CreateNewClient: React.FC<CreateNewClientProps> = ({ 
+  isVisible, 
+  onClose, 
+  onClientCreated 
+}) => {
   const {
     control,
     handleSubmit,
@@ -39,61 +63,88 @@ const CreateNewClient = ({ handleCancel }: any) => {
     formState: { errors },
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
+    mode: 'onBlur',
   });
-  const onSubmit = async (data: ClientFormData) => {
-    console.log(data);
 
+  const onSubmit = async (data: ClientFormData) => {
     try {
       // Send a POST request to the server
       const response = await axios.post(
         'http://localhost:3000/users/create',
         data,
       );
-      console.log(response.data);
-      notification.success({ message: 'Client created successfully!' });
-      handleCancel(reset, true);
+      
+      // Notify success
+      notification.success({ 
+        message: 'Client created successfully!',
+        description: `Client ${data.clientName} has been added.`
+      });
+
+      // Call optional callback if provided
+      if (onClientCreated) {
+        onClientCreated(data);
+      }
+
+      // Reset form and close modal
       reset();
+      onClose();
     } catch (error) {
       console.error('Error creating client:', error);
-      notification.error({ message: 'Failed to create client.' });
+      notification.error({ 
+        message: 'Failed to create client',
+        description: 'Please check your input and try again.'
+      });
     }
   };
 
+  const handleCancel = () => {
+    reset(); // Reset form to clear any entered data
+    onClose(); // Close the modal
+  };
+
   return (
-    <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className='client-form'>
-      <h2>Client Management</h2>
-      <Row gutter={16}>
+    <Modal
+      title="Create New Client"
+      open={isVisible}
+      onCancel={handleCancel}
+      footer={null}
+      destroyOnClose // Ensures form is reset when modal is closed
+    >
+      <Form 
+        onFinish={handleSubmit(onSubmit)} 
+        layout="vertical" 
+        className="client-form"
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item 
+              label="Company's Name" 
+              help={errors.companyName?.message}
+              validateStatus={errors.companyName ? 'error' : ''}
+            >
+              <Controller
+                name="companyName"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item 
+              label="N.I.F"
+              help={errors.nif?.message}
+              validateStatus={errors.nif ? 'error' : ''}
+            >
+              <Controller
+                name="nif"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
-        <Col span={12}>
-          {' '}
-          <Form.Item label="Company's Name">
-            <Controller
-              name="companyName"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.companyName && (
-              <span style={{ color: 'red' }}>{errors.companyName.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={16}>
-        <Col span={12}>
-          {' '}
-          <Form.Item label="N.I.F">
-            <Controller
-              name="nif"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.nif && (
-              <span style={{ color: 'red' }}>{errors.nif.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-
+        <Row gutter={16}>
         <Col span={12}>
           <Form.Item label="Client's Name">
             <Controller
@@ -106,7 +157,6 @@ const CreateNewClient = ({ handleCancel }: any) => {
             )}
           </Form.Item>
         </Col>
-
         <Col span={12}>
           {' '}
           <Form.Item label="Type of Client">
@@ -126,7 +176,9 @@ const CreateNewClient = ({ handleCancel }: any) => {
             )}
           </Form.Item>
         </Col>
-        <Col span={12}>
+
+            <Row gutter={16}>
+            <Col span={12}>
           <Form.Item label="Phone Number 1">
             <Controller
               name="phoneNumber1"
@@ -140,7 +192,6 @@ const CreateNewClient = ({ handleCancel }: any) => {
             )}
           </Form.Item>
         </Col>
-
         <Col span={12}>
           <Form.Item label="Phone Number 2">
             <Controller
@@ -150,7 +201,6 @@ const CreateNewClient = ({ handleCancel }: any) => {
             />
           </Form.Item>
         </Col>
-
         <Col span={12}>
           <Form.Item label="Phone Number 3">
             <Controller
@@ -184,7 +234,6 @@ const CreateNewClient = ({ handleCancel }: any) => {
             )}
           </Form.Item>
         </Col>
-
         <Col span={12}>
         <Form.Item label="Province">
         <Controller
@@ -210,13 +259,12 @@ const CreateNewClient = ({ handleCancel }: any) => {
         )}
       </Form.Item>
         </Col>
-      </Row>
 
-      
+            </Row>
 
-      
+        </Row>
 
-      <Form.Item label="Email 1">
+        <Form.Item label="Email 1">
         <Controller
           name="email1"
           control={control}
@@ -243,12 +291,22 @@ const CreateNewClient = ({ handleCancel }: any) => {
         />
       </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
+
+        {/* Rest of the form remains the same as in the previous implementation */}
+        {/* ... (other form fields) ... */}
+
+        <Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+            <Button onClick={handleCancel}>
+              Cancel
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

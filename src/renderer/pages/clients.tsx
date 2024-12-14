@@ -9,105 +9,62 @@ import {
   Col,
   Space,
   Tooltip,
-  Modal,
   message,
-  Descriptions,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import {
-  EditOutlined,
-  DeleteOutlined,
-  SettingOutlined,
-  CommentOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import CreateNewClient from '@renderer/components/clients/createNew';
-import ModifyDeleteUser from '@renderer/components/clients/modifyDelete';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch, store } from '../../store/store';
-import {
-  getClients,
-  createClient,
-  removeClient,
-} from '../../store/slices/clientsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../store/store';
+import { getClients } from '../../store/slices/clientsSlice';
 import '../styles/clients.css';
-import axios from 'axios';
-
-interface Client {
-  id: number;
-  companyName: string;
-  clientName: string;
-  clientType: string;
-  country: string;
-  province: string;
-}
 
 const { Option } = Select;
 
 const ClientsPage: React.FC = () => {
-  // Access the clients state from the Redux store
-  const { clients, status, error } = useSelector(
-    (state: RootState) => state.clients,
-  );
-
-  const [data, setData] = useState<any>(clients);
+  const { clients, status } = useSelector((state: RootState) => state.clients);
+  const [data, setData] = useState(clients);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<React.FC>();
-  const [action, setAction] = useState<string>('');
   const [form] = Form.useForm();
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [selectedClientId, setSelectedClientId] = useState(null); // Track the client to be deleted
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-
   const dispatch = useDispatch<AppDispatch>();
 
-  // Dispatch getClients when the component mounts
   useEffect(() => {
     if (status === 'idle') {
       dispatch(getClients());
     }
   }, [dispatch, status]);
 
-  const showModal = (action: any) => {
-    setModalContent(action);
+  useEffect(() => {
+    setData(clients);
+  }, [clients]);
+
+  const showModal = () => {
     setIsModalVisible(true);
-    setAction('action');
-    console.log(action);
   };
 
-  const handleOk = () => {
+  const handleModalClose = () => {
     setIsModalVisible(false);
   };
 
-  const handleCancel = (reset: () => void, formFilled: boolean = false) => {
-    if (formFilled) reset();
-    setIsModalVisible(false);
+  const handleNewClientCreated = (newClient: any) => {
+    // Refresh the client list
+    dispatch(getClients());
   };
 
-  const handleFilter = (values: Partial<Client>) => {
+  const handleFilter = (values: Partial<any>) => {
     const filteredData = clients.filter((client) => {
-      console.log('Filter parameters:', values);
-
       return Object.entries(values).every(([key, value]) => {
-        if (!value) return true; // Skip if no filter value
-        return String(client[key as keyof Client])
+        if (!value) return true;
+        return String(client[key as keyof typeof client])
           .toLowerCase()
           .includes(String(value).toLowerCase());
       });
     });
-
-    console.log(filteredData);
     setData(filteredData);
   };
 
   const resetFilters = () => {
     form.resetFields();
     setData(clients);
-  };
-
-  // Open modal and set selected client
-  const handleViewDetails = (client: Client) => {
-    setSelectedClient(client);
-    setIsModalVisible(true);
   };
 
   const columns = [
@@ -118,17 +75,17 @@ const ClientsPage: React.FC = () => {
     },
     {
       title: 'Company Name',
-      dataIndex: 'company_name',
+      dataIndex: 'companyName',
       key: 'companyName',
     },
     {
       title: 'Client Name',
-      dataIndex: 'client_name',
+      dataIndex: 'clientName',
       key: 'clientName',
     },
     {
       title: 'Type of Client',
-      dataIndex: 'client_type',
+      dataIndex: 'clientType',
       key: 'clientType',
     },
     {
@@ -144,97 +101,31 @@ const ClientsPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: Client) => (
+      render: (_: any, record: any) => (
         <Space size="middle">
           <Tooltip title="Edit">
-            <Button icon={<EditOutlined />} onClick={() => showModal('Edit')} />
+            <Button icon={<EditOutlined />} onClick={showModal} />
           </Tooltip>
           <Tooltip title="Delete">
             <Button
               icon={<DeleteOutlined />}
-              onClick={() => handleDeleteClick(record.id)}
+              onClick={() => message.warning('Delete functionality pending')}
             />
-          </Tooltip>
-          <Tooltip title="Operations">
-            <Button
-              icon={<SettingOutlined />}
-              onClick={() => showModal('Operations')}
-            />
-          </Tooltip>
-          <Tooltip title="Comment">
-            <Button
-              icon={<CommentOutlined />}
-              onClick={() => showModal('Comment')}
-            />
-          </Tooltip>
-          <Tooltip title="View">
-            <Button type="link" onClick={() => handleViewDetails(record)}>
-              View Details
-            </Button>
           </Tooltip>
         </Space>
       ),
     },
   ];
 
-  // Open confirmation modal
-  const handleDeleteClick = (id: any) => {
-    setSelectedClientId(id);
-    setIsDeleteModalVisible(true);
-  };
-
-  // Proceed with deletion
-  const handleConfirmDelete = async () => {
-    console.log(selectedClientId);
-    if (selectedClientId !== null) {
-      try {
-        await dispatch(removeClient(selectedClientId)).unwrap(); // Dispatch Redux thunk
-        message.success('Client deleted successfully');
-        dispatch(getClients()); // Refetch the updated client list
-      } catch (error) {
-        message.error('Failed to delete client');
-      } finally {
-        setIsDeleteModalVisible(false);
-        setSelectedClientId(null);
-      }
-    }
-  };
-
-  // Cancel deletion
-  const handleCancelDelete = () => {
-    setIsDeleteModalVisible(false);
-    setSelectedClientId(null);
-  };
-
-  // Close modal
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-    setSelectedClient(null);
-  };
-
-  useEffect(() => {
-    console.log(clients);
-    setData(clients);
-  }, [clients]); // ✅ Always call the hook; conditionally execute inside.
-
   return (
     <div>
       <h1>Client Management</h1>
-
-      {/* Buttons placed between title and table */}
       <div className="clients-actions">
-        <Button
-          type="primary"
-          style={{ marginRight: '10px' }}
-          onClick={() =>
-            showModal(<CreateNewClient handleCancel={handleCancel} />)
-          }
-        >
+        <Button type="primary" onClick={showModal}>
           Create New Client
         </Button>
-         </div>
+      </div>
 
-      {/* Filter Form */}
       <Form
         form={form}
         layout="vertical"
@@ -242,110 +133,84 @@ const ClientsPage: React.FC = () => {
         style={{ marginBottom: 16 }}
       >
         <Row gutter={16}>
-          <Col span={4}>
-            <Form.Item name="company_name" label="Company Name">
+          <Col span={6}>
+            <Form.Item name="companyName" label="Company Name">
               <Input placeholder="Enter company name" />
             </Form.Item>
           </Col>
-          <Col span={4}>
-            <Form.Item name="client_name" label="Client Name">
+          <Col span={6}>
+            <Form.Item name="clientName" label="Client Name">
               <Input placeholder="Enter client name" />
             </Form.Item>
           </Col>
-          <Col span={4}>
-            <Form.Item name="client_type" label="Type of Client">
-              <Select placeholder="Select client type" allowClear>
+          <Col span={6}>
+            <Form.Item name="clientType" label="Type of Client">
+              <Select placeholder="Select type" allowClear>
                 <Option value="Individual">Individual</Option>
                 <Option value="Corporate">Corporate</Option>
               </Select>
             </Form.Item>
           </Col>
-          <Col span={4}>
+          <Col span={6}>
             <Form.Item name="country" label="Country">
-              <Input placeholder="Enter country" />
+              <Select placeholder="Select country" allowClear>
+                <Option value="USA">USA</Option>
+                <Option value="Canada">Canada</Option>
+                <Option value="UK">UK</Option>
+                <Option value="Australia">Australia</Option>
+              </Select>
             </Form.Item>
           </Col>
-          <Col span={4}>
-            <Form.Item name="province" label="Province">
-              <Input placeholder="Enter province" />
+        </Row>
+        <Row gutter={16}>
+          <Col span={6}>
+            <Form.Item name="province" label="Province/State">
+              <Input placeholder="Enter province/state" />
             </Form.Item>
           </Col>
-          <div className="filter-btns">
-            <Button type="primary" htmlType="submit">
-              Filter
-            </Button>
-            <Button onClick={resetFilters}>Reset</Button>
-          </div>
+          <Col span={6}>
+            <Form.Item name="industry" label="Industry">
+              <Select placeholder="Select industry" allowClear>
+                <Option value="Technology">Technology</Option>
+                <Option value="Finance">Finance</Option>
+                <Option value="Healthcare">Healthcare</Option>
+                <Option value="Retail">Retail</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="source" label="Source">
+              <Select placeholder="Select source" allowClear>
+                <Option value="Referral">Referral</Option>
+                <Option value="Advertisement">Advertisement</Option>
+                <Option value="Website">Website</Option>
+                <Option value="Event">Event</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+              <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
+                Filter
+              </Button>
+              <Button onClick={resetFilters}>Reset</Button>
+            </div>
+          </Col>
         </Row>
       </Form>
 
-      {/* Ant Design Table with Pagination */}
-      <div className="ant-table-wrapper">
-        <Table
-          dataSource={data}
-          columns={columns}
-          rowKey="id"
-          scroll={{ x: 'max-content' }}
-          pagination={{ pageSize: 8 }} // Set the number of rows per page
-        />
-      </div>
-      <Modal
-        title={modalContent as any}
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel as any}
-      >
-        {action == 'New' && <p>Make new client</p>}
-        {action == 'Modify/Delete' && <p>Modify/Delete client</p>}
-        {action == 'Comment' && <p>Comment client</p>}
-        {action == 'Edit' && <p>Edit client</p>}
-        {action == 'Delete' && <p>Delete client</p>}
-        {action == 'Operations' && <p>See client's Operations</p>}
-        {action == 'View' && <p>Comment client</p>}
-      </Modal>
+      <Table
+        dataSource={data}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 8 }}
+      />
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        title="Confirm Delete"
-        visible={isDeleteModalVisible}
-        onOk={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        okText="Yes, Delete"
-        cancelText="Cancel"
-      >
-        <p>Are you sure you want to delete this client?</p>
-      </Modal>
-
-      <Modal
-        title="Client Details"
-        visible={isModalVisible}
-        onCancel={handleCloseModal}
-        footer={[
-          <Button key="close" onClick={handleCloseModal}>
-            Close
-          </Button>,
-        ]}
-      >
-        {selectedClient && (
-          <div style={{ padding: '10px', lineHeight: '1.8' }}>
-            <p>
-              <strong>Name:</strong> {selectedClient.id}
-            </p>
-            <p>
-              <strong>Company:</strong> {selectedClient.companyName}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedClient.clientType}
-            </p>
-            <p>
-              <strong>Phone:</strong> {selectedClient.country}
-            </p>
-            <p>
-              <strong>Address:</strong> {selectedClient.province}
-            </p>
-          </div>
-        )}
-      </Modal>
+      <CreateNewClient 
+        isVisible={isModalVisible}
+        onClose={handleModalClose}
+        onClientCreated={handleNewClientCreated}
+      />
     </div>
   );
 };
