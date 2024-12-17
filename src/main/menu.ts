@@ -54,22 +54,24 @@ export default class MenuBuilder {
     });
   }
 
-  openPopup(title: string): void {
-    const popupWindow = new BrowserWindow({
-      width: 800, // Large width
-      height: 600, // Large height
-      parent: this.mainWindow,
-      modal: true, // Prevent interaction with the main window
-      title,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-      },
-    });
-  
-  // Load the popup content
-  const popupPath = path.join(__dirname, 'popup.html');
-  popupWindow.loadFile(popupPath); // Load your existing HTML file
+// Update to `menu.ts`
+
+openPopup(title: string, contentFile: string, width = 800, height = 600): void {
+  const popupWindow = new BrowserWindow({
+    width, // Configurable width
+    height, // Configurable height
+    parent: this.mainWindow,
+    modal: true, // Prevent interaction with the main window
+    title,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  // Load the popup content dynamically
+  const popupPath = path.join(__dirname, 'popups', contentFile);
+  popupWindow.loadFile(popupPath);
 
   popupWindow.setMenu(null); // Remove the menu bar (optional)
 
@@ -83,66 +85,66 @@ export default class MenuBuilder {
   popupWindow.webContents.once('did-finish-load', () => {
     popupWindow.webContents.send('set-title', title);
   });
-  }
-  
+}
 
-  buildDarwinTemplate(): MenuItemConstructorOptions[] {
-    const UserManagementMenu: DarwinMenuItemConstructorOptions = {
-      label: 'User Management',
-      submenu: [
-        {
-          label: 'Configuration',
-          click: () => this.openPopup('Configuration'),
-        },
-        { type: 'separator' },
-        {
-          label: 'Auxiliary',
-          click: () => this.openPopup('Auxiliary'),
-        },
-      ],
-    };
-    const SystemSettingsMenu: DarwinMenuItemConstructorOptions = {
-      label: 'System Settings',
-      submenu: [
-        {
-          label: 'Files',
-          click: () => this.openPopup('Files'),
-        },
-        {
-          label: 'Reports',
-          click: () => this.openPopup('Reports'),
-        },
-        { type: 'separator' },
-        {
-          label: 'Articles',
-          click: () => this.openPopup('Articles'),
-        },
-        {
-          label: 'Clients',
-          click: () => this.openPopup('Clients'),
-        },
-        {
-          label: 'Warehouse',
-          click: () => this.openPopup('Warehouse'),
-        },
-        {
-          label: 'Cash Registers',
-          click: () => this.openPopup('Cash Registers'),
-        },
-      ],
-    };
-    const HelpSupportMenu: MenuItemConstructorOptions = {
-      label: 'Help/Support',
-      submenu: [
-        {
-          label: 'Help',
-          click: () => this.openPopup('Help'),
-        },
-      ],
-    };
+buildDarwinTemplate(): MenuItemConstructorOptions[] {
+  const UserManagementMenu: DarwinMenuItemConstructorOptions = {
+    label: 'User Management',
+    submenu: [
+      {
+        label: 'Configuration',
+        click: () => this.openPopup('Configuration', 'configuration.html', 800, 600),
+      },
+      { type: 'separator' },
+      {
+        label: 'Auxiliary',
+        click: () => this.openPopup('Auxiliary', 'auxiliary.html', 600, 400),
+      },
+    ],
+  };
+  const SystemSettingsMenu: DarwinMenuItemConstructorOptions = {
+    label: 'System Settings',
+    submenu: [
+      {
+        label: 'Files',
+        click: () => this.openPopup('Files', 'files.html', 900, 700),
+      },
+      {
+        label: 'Reports',
+        click: () => this.openPopup('Reports', 'reports.html', 1000, 800),
+      },
+      { type: 'separator' },
+      {
+        label: 'Articles',
+        click: () => this.openPopup('Articles', 'articles.html', 800, 600),
+      },
+      {
+        label: 'Clients',
+        click: () => this.openPopup('Clients', 'clients.html', 800, 600),
+      },
+      {
+        label: 'Warehouse',
+        click: () => this.openPopup('Warehouse', 'warehouse.html', 850, 650),
+      },
+      {
+        label: 'Cash Registers',
+        click: () => this.openPopup('Cash Registers', 'cash_registers.html', 800, 600),
+      },
+    ],
+  };
+  const HelpSupportMenu: MenuItemConstructorOptions = {
+    label: 'Help/Support',
+    submenu: [
+      {
+        label: 'Help',
+        click: () => this.openPopup('Help', 'help.html', 700, 500),
+      },
+    ],
+  };
 
-    return [UserManagementMenu, SystemSettingsMenu, HelpSupportMenu];
-  }
+  return [UserManagementMenu, SystemSettingsMenu, HelpSupportMenu];
+}
+
 
   buildDefaultTemplate() {
     const templateDefault = [
