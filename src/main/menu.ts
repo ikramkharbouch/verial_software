@@ -5,6 +5,8 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import path from 'path';
+
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -52,189 +54,94 @@ export default class MenuBuilder {
     });
   }
 
+  openPopup(title: string): void {
+    const popupWindow = new BrowserWindow({
+      width: 800, // Large width
+      height: 600, // Large height
+      parent: this.mainWindow,
+      modal: true, // Prevent interaction with the main window
+      title,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+    });
+  
+  // Load the popup content
+  const popupPath = path.join(__dirname, 'popup.html');
+  popupWindow.loadFile(popupPath); // Load your existing HTML file
+
+  popupWindow.setMenu(null); // Remove the menu bar (optional)
+
+  // Close popup when clicking outside
+  popupWindow.on('blur', () => popupWindow.close());
+
+  // Close popup via event from renderer
+  const { ipcMain } = require('electron');
+  ipcMain.once('close-popup', () => popupWindow.close());
+
+  popupWindow.webContents.once('did-finish-load', () => {
+    popupWindow.webContents.send('set-title', title);
+  });
+  }
+  
+
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const UserManagementMenu: DarwinMenuItemConstructorOptions = {
       label: 'User Management',
       submenu: [
         {
-          label: 'User Management',
-          selector: 'orderFrontStandardAboutPanel:',
-          submenu: [
-            { label: 'Datos de la empresa' },
-            { label: 'Personal de la empresa' },
-            { label: 'Cuentas bancarias de la empresa' },
-            { label: 'Empresas de este ‘grupo de empresas' },
-          ],
+          label: 'Configuration',
+          click: () => this.openPopup('Configuration'),
         },
         { type: 'separator' },
         {
-          label: 'Ubicaciones',
-          submenu: [
-            { label: 'Divisas' },
-            { label: 'Paises' },
-            { label: 'Provincias' },
-            { label: 'Localidades' },
-          ],
-        },
-        { type: 'separator' },
-        {
-          label: 'Bancos',
-          accelerator: 'Command+H',
-          selector: 'hide:',
-        },
-        {
-          label: 'Impuestos',
-          accelerator: 'Command+Shift+H',
-          selector: 'hideOtherApplications:',
-        },
-        { label: 'Retenciones', selector: 'unhideAllApplications:' },
-        { type: 'separator' },
-        {
-          label: 'Periodicidades de cobro / pago',
-          accelerator: 'Command+Q',
-          click: () => {
-            app.quit();
-          },
-        },
-        {
-          label: 'Métodos de cobro / pago',
-          selector: 'unhideAllApplications:',
-        },
-        { label: 'Series', selector: 'unhideAllApplications:' },
-        { label: 'Areas de venta', selector: 'unhideAllApplications:' },
-        { label: 'Remesas', selector: 'unhideAllApplications:' },
-        { label: 'Incidencias', selector: 'unhideAllApplications:' },
-        { label: 'Aparatos', selector: 'unhideAllApplications:' },
-        { label: 'Calendario', selector: 'unhideAllApplications:' },
-        {
-          label: 'Salir (press Alt + F4 on keyboard)',
-          selector: 'unhideAllApplications:',
+          label: 'Auxiliary',
+          click: () => this.openPopup('Auxiliary'),
         },
       ],
     };
-    const subMenuEdit: DarwinMenuItemConstructorOptions = {
+    const SystemSettingsMenu: DarwinMenuItemConstructorOptions = {
       label: 'System Settings',
       submenu: [
         {
-          label: 'Articulos',
-          accelerator: 'Command+Z',
-          selector: 'undo:',
-          submenu: [
-            { label: 'Articulos' },
-            { label: 'Perfiles' },
-            { label: 'Categorias' },
-            { label: 'Fabricantes' },
-            { label: 'Lotes (Conjuntos)' },
-            { label: 'Tarifas' },
-            { label: 'Movimientos de stock' },
-          ],
+          label: 'Files',
+          click: () => this.openPopup('Files'),
         },
         {
-          label: 'Clientes',
-          accelerator: 'Shift+Command+Z',
-          selector: 'redo:',
-          submenu: [
-            { label: 'Clientes' },
-            { label: 'Grupos' },
-            { label: 'Informes de ventas y documentos de gestión' },
-            { label: 'Impresión de documentos de gestión' },
-            { label: 'Comisiones' },
-            { label: 'Registro de facturas emitidas ' },
-            { label: 'Cobros' },
-            { label: 'Mandatos S.E.P.A' },
-          ],
+          label: 'Reports',
+          click: () => this.openPopup('Reports'),
         },
         { type: 'separator' },
         {
-          label: 'Proveedores',
-          accelerator: 'Command+X',
-          selector: 'cut:',
-          submenu: [
-            { label: 'Proveedores' },
-            { label: 'Grupos' },
-            { label: 'Informes de compras y documentos de gestión' },
-            { label: 'Registro de facturas recibidas' },
-            { label: 'Pagos' },
-          ],
+          label: 'Articles',
+          click: () => this.openPopup('Articles'),
         },
         {
-          label: 'Almacen',
-          accelerator: 'Command+C',
-          selector: 'copy:',
-          submenu: [
-            {
-              label: 'Documentos de almacén',
-            },
-          ],
+          label: 'Clients',
+          click: () => this.openPopup('Clients'),
         },
         {
-          label: 'Cajas',
-          accelerator: 'Command+V',
-          selector: 'paste:',
-          submenu: [
-            { label: 'Arqueos' },
-            { label: 'Estado de la caja (pre-arqueos)' },
-            { label: 'Operaciones de caja' },
-          ],
+          label: 'Warehouse',
+          click: () => this.openPopup('Warehouse'),
         },
         {
-          label: 'Nombres / Direcciones',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
+          label: 'Cash Registers',
+          click: () => this.openPopup('Cash Registers'),
         },
-        {
-          label: 'Personal',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
-        },
-        {
-          label: 'Cuentas Bancarias'
-        },
-        {
-          label: 'Bancos'
-        },
-        { label: 'Retenciones' },
-        { label: 'Remesas' },
-        { label: 'Estadísticas de compras y ventas' },
-        { label: 'Incidencias' },
-        { label: 'Operaciones por usuarios o por puestos' },
-        { label: 'Registro de modificaciones en fichas' },
-        { label: 'Aparatos' },
-        { label: 'Reparaciones' },
-        { label: 'Revisiones' },
-        { label: 'Órdenes de trabajo' },
-        { label: 'Categorias de articulos para clientes y proveedores' },
-        { label: 'Calendario' },
-        { label: 'Informes de uso frecuente' },
       ],
     };
     const HelpSupportMenu: MenuItemConstructorOptions = {
       label: 'Help/Support',
       submenu: [
         {
-          label: 'Ficha de articulos',
-          accelerator: 'Ctrl+Command+F',
-          click: () => {
-            this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-          },
+          label: 'Help',
+          click: () => this.openPopup('Help'),
         },
-        {
-          label: 'Perfiles',
-          accelerator: 'Alt+Command+I',
-          click: () => {
-            this.mainWindow.webContents.toggleDevTools();
-          },
-        },
-        { label: 'Categorias' },
-        { label: 'Lotes (definición de conjuntos de artículos)' },
-        { label: 'Consulta de precios de artículos' },
-        { label: 'Almacenes' },
-        { label: 'Fabricantes' },
-        { label: 'Tarifas' },
       ],
     };
 
-    return [UserManagementMenu, subMenuEdit, HelpSupportMenu];
+    return [UserManagementMenu, SystemSettingsMenu, HelpSupportMenu];
   }
 
   buildDefaultTemplate() {
@@ -273,7 +180,7 @@ export default class MenuBuilder {
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
+                      !this.mainWindow.isFullScreen()
                     );
                   },
                 },
@@ -291,7 +198,7 @@ export default class MenuBuilder {
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
+                      !this.mainWindow.isFullScreen()
                     );
                   },
                 },
@@ -310,7 +217,7 @@ export default class MenuBuilder {
             label: 'Documentation',
             click() {
               shell.openExternal(
-                'https://github.com/electron/electron/tree/main/docs#readme',
+                'https://github.com/electron/electron/tree/main/docs#readme'
               );
             },
           },
