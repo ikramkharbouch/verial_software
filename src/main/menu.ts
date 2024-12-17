@@ -6,6 +6,13 @@ import {
   MenuItemConstructorOptions,
 } from 'electron';
 import path from 'path';
+import Store from 'electron-store';
+const store = new Store();
+
+const setLanguage = (lang: string) => {
+  store.set('language', lang); // Save globally
+  console.log(`Language set to: ${lang}`);
+};
 
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {

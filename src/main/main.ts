@@ -14,6 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import Store from 'electron-store';
+
+const store = new Store();
 
 class AppUpdater {
   constructor() {
@@ -111,6 +114,11 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
+
+ipcMain.handle('get-language', () => {
+  return store.get('language', 'en'); // Default to 'en'
+});
+
 
 /**
  * Add event listeners...
