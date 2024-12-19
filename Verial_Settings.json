@@ -1,0 +1,45 @@
+{
+    "SystemSettings": {
+        "Currency": "Moroccan Dirham (MAD)",
+        "MeasurementUnits": "Millimeters",
+        "FileReportPreferences": {
+            "DefaultExportFormat": "PDF",
+            "DefaultSaveLocation": "C:/App/Reports"
+        }
+    },
+    "DataManagement": {
+        "Backup": "Button to trigger backup",
+        "Restore": "Button to restore backup from file"
+    },
+    "UserSettings": {
+        "EnableUserManagement": true,
+        "RolesAndPermissions": [
+            "Admin",
+            "Cashier"
+        ]
+    },
+    "FutureSettings": {
+        "LanguageAndLocalization": [
+            "English",
+            "French",
+            "Arabic"
+        ],
+        "ThemeSettings": [
+            "Light",
+            "Dark",
+            "Custom"
+        ],
+        "IntegrationSettings": {
+            "AccountingSoftware": false,
+            "CloudStorage": false
+        },
+        "NotificationPreferences": {
+            "LowStockAlerts": false,
+            "OverdueInvoiceAlerts": false
+        },
+        "WarehouseConfiguration": {
+            "ManageLocations": false,
+            "SetInventoryThresholds": false
+        }
+    }
+}

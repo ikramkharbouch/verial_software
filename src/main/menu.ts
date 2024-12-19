@@ -14,7 +14,6 @@ const setLanguage = (lang: string) => {
   console.log(`Language set to: ${lang}`);
 };
 
-
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
@@ -61,97 +60,109 @@ export default class MenuBuilder {
     });
   }
 
-// Update to `menu.ts`
-
-openPopup(title: string, contentFile: string, width = 800, height = 600): void {
-  const popupWindow = new BrowserWindow({
-    width, // Configurable width
-    height, // Configurable height
-    parent: this.mainWindow,
-    modal: true, // Prevent interaction with the main window
-    title,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  // Load the popup content dynamically
-  const popupPath = path.join(__dirname, 'popups', contentFile);
-  popupWindow.loadFile(popupPath);
-
-  popupWindow.setMenu(null); // Remove the menu bar (optional)
-
-  // Close popup when clicking outside
-  popupWindow.on('blur', () => popupWindow.close());
-
-  // Close popup via event from renderer
-  const { ipcMain } = require('electron');
-  ipcMain.once('close-popup', () => popupWindow.close());
-
-  popupWindow.webContents.once('did-finish-load', () => {
-    popupWindow.webContents.send('set-title', title);
-  });
-}
-
-buildDarwinTemplate(): MenuItemConstructorOptions[] {
-  const UserManagementMenu: DarwinMenuItemConstructorOptions = {
-    label: 'User Management',
-    submenu: [
-      {
-        label: 'Configuration',
-        click: () => this.openPopup('Configuration', 'configuration.html', 800, 600),
+  openPopup(title: string, contentFile: string, width = 800, height = 600): void {
+    const popupWindow = new BrowserWindow({
+      width, // Configurable width
+      height, // Configurable height
+      parent: this.mainWindow,
+      modal: true, // Prevent interaction with the main window
+      title,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
       },
-      { type: 'separator' },
-      {
-        label: 'Auxiliary',
-        click: () => this.openPopup('Auxiliary', 'auxiliary.html', 600, 400),
-      },
-    ],
-  };
-  const SystemSettingsMenu: DarwinMenuItemConstructorOptions = {
-    label: 'System Settings',
-    submenu: [
-      {
-        label: 'Files',
-        click: () => this.openPopup('Files', 'files.html', 900, 700),
-      },
-      {
-        label: 'Reports',
-        click: () => this.openPopup('Reports', 'reports.html', 1000, 800),
-      },
-      { type: 'separator' },
-      {
-        label: 'Articles',
-        click: () => this.openPopup('Articles', 'articles.html', 800, 600),
-      },
-      {
-        label: 'Clients',
-        click: () => this.openPopup('Clients', 'clients.html', 800, 600),
-      },
-      {
-        label: 'Warehouse',
-        click: () => this.openPopup('Warehouse', 'warehouse.html', 850, 650),
-      },
-      {
-        label: 'Cash Registers',
-        click: () => this.openPopup('Cash Registers', 'cash_registers.html', 800, 600),
-      },
-    ],
-  };
-  const HelpSupportMenu: MenuItemConstructorOptions = {
-    label: 'Help/Support',
-    submenu: [
-      {
-        label: 'Help',
-        click: () => this.openPopup('Help', 'help.html', 700, 500),
-      },
-    ],
-  };
+    });
 
-  return [UserManagementMenu, SystemSettingsMenu, HelpSupportMenu];
-}
+    const popupPath = path.join(__dirname, 'popups', contentFile);
+    popupWindow.loadFile(popupPath);
 
+    popupWindow.setMenu(null); // Remove the menu bar (optional)
+
+    popupWindow.on('blur', () => popupWindow.close());
+
+    const { ipcMain } = require('electron');
+    ipcMain.once('close-popup', () => popupWindow.close());
+
+    popupWindow.webContents.once('did-finish-load', () => {
+      popupWindow.webContents.send('set-title', title);
+    });
+  }
+
+  buildDarwinTemplate(): MenuItemConstructorOptions[] {
+    const UserManagementMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Users',
+      submenu: [
+        {
+          label: 'Manage',
+          click: () => this.openPopup('Manage Users', 'manage_users.html', 800, 600),
+        },
+        {
+          label: 'Roles',
+          click: () => this.openPopup('User Roles', 'user_roles.html', 800, 600),
+        },
+      ],
+    };
+    const SystemPreferencesMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Settings',
+      submenu: [
+        {
+          label: 'Currency',
+          click: () => this.openPopup('Currency Settings', 'currency_settings.html', 800, 600),
+        },
+        {
+          label: 'Units',
+          click: () => this.openPopup('Measurement Units', 'measurement_units.html', 800, 600),
+        },
+      ],
+    };
+    const FileReportPreferencesMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Reports',
+      submenu: [
+        {
+          label: 'Export',
+          click: () => this.openPopup('Default Export Format', 'default_export_format.html', 800, 600),
+        },
+        {
+          label: 'Location',
+          click: () => this.openPopup('Save Location', 'save_location.html', 800, 600),
+        },
+      ],
+    };
+    const DataBackupRestoreMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Backup',
+      submenu: [
+        {
+          label: 'Backup',
+          click: () => this.openPopup('Backup Data', 'backup_data.html', 800, 600),
+        },
+        {
+          label: 'Restore',
+          click: () => this.openPopup('Restore Data', 'restore_data.html', 800, 600),
+        },
+      ],
+    };
+    const HelpSupportMenu: MenuItemConstructorOptions = {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Info',
+          click: () => this.openPopup('Company Info', 'company_info.html', 700, 500),
+        },
+        {
+          label: 'Support',
+          click: () => this.openPopup('Contact Support', 'contact_support.html', 700, 500),
+        },
+      ],
+    };
+
+    return [
+      UserManagementMenu,
+      SystemPreferencesMenu,
+      FileReportPreferencesMenu,
+      DataBackupRestoreMenu,
+      HelpSupportMenu,
+    ];
+  }
 
   buildDefaultTemplate() {
     const templateDefault = [
