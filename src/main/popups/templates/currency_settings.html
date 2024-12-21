@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Settings</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Currency Settings</h1>
+
+    <!-- Current Currency Display -->
+    <div class="current-currency">
+      <h2>Current Currency: <span id="current-currency">USD</span></h2>
+    </div>
+
+    <!-- Select Currency -->
+    <form id="select-currency-form" class="add-form">
+      <h2>Change Currency</h2>
+      <div class="form-group">
+        <label for="currency-select">Select Currency:</label>
+        <select id="currency-select" required>
+          <option value="USD">USD - United States Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="JPY">JPY - Japanese Yen</option>
+          <option value="GBP">GBP - British Pound Sterling</option>
+          <option value="AUD">AUD - Australian Dollar</option>
+          <option value="CAD">CAD - Canadian Dollar</option>
+          <option value="CHF">CHF - Swiss Franc</option>
+          <option value="CNY">CNY - Chinese Yuan</option>
+          <option value="INR">INR - Indian Rupee</option>
+          <!-- Add more currencies as needed -->
+        </select>
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Change Currency</button>
+    </form>
+
+    <!-- Currency Management Table -->
+    <h2>Manage Currencies</h2>
+    <form id="add-currency-form" class="add-form">
+      <h2>Add New Currency</h2>
+      <div class="form-group">
+        <label for="currency-name">Currency Name:</label>
+        <input type="text" id="currency-name" placeholder="Enter currency name (e.g., Bitcoin)" required>
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Add Currency</button>
+    </form>
+
+    <table id="currency-table" class="ant-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Currencies will be dynamically populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const { ipcRenderer } = window.electron;
+
+    // Fetch and display currencies
+    function loadCurrencies() {
+      ipcRenderer.invoke('get-currencies').then(({ currentCurrency, currencies }) => {
+        // Update current currency display
+        document.getElementById('current-currency').innerText = currentCurrency;
+
+        // Populate currency table
+        const tbody = document.getElementById('currency-table').querySelector('tbody');
+        tbody.innerHTML = '';
+        currencies.forEach(currency => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${currency.code}</td>
+            <td>${currency.name}</td>
+            <td>
+              <button class="ant-btn ant-btn-link" onclick="editCurrency('${currency.code}')">Edit</button>
+              <button class="ant-btn ant-btn-danger" onclick="deleteCurrency('${currency.code}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    // Handle Change Currency Form Submission
+    const selectCurrencyForm = document.getElementById('select-currency-form');
+    selectCurrencyForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selectedCurrency = document.getElementById('currency-select').value;
+      ipcRenderer.send('change-currency', selectedCurrency);
+      loadCurrencies();
+    });
+
+    // Handle Add Currency Form Submission
+    const addCurrencyForm = document.getElementById('add-currency-form');
+    addCurrencyForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const customCurrencyName = document.getElementById('currency-name').value.trim();
+
+      if (customCurrencyName) {
+        const currency = {
+          code: customCurrencyName.toUpperCase().substring(0, 3), // Generate a pseudo code
+          name: customCurrencyName,
+        };
+        ipcRenderer.send('add-currency', currency);
+        loadCurrencies();
+        addCurrencyForm.reset();
+      }
+    });
+
+    // Edit Currency
+    function editCurrency(code) {
+      const newName = prompt('Enter the new name for the currency:');
+      if (newName) {
+        ipcRenderer.send('edit-currency', { code, name: newName });
+        loadCurrencies();
+      }
+    }
+
+    // Delete Currency
+    function deleteCurrency(code) {
+      if (confirm('Are you sure you want to delete this currency?')) {
+        ipcRenderer.send('delete-currency', code);
+        loadCurrencies();
+      }
+    }
+
+    // Initial Load
+    loadCurrencies();
+  </script>
+</body>
+</html>

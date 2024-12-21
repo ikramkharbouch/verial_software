@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backup and Restore</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Backup and Restore</h1>
+
+    <!-- Backup Section -->
+    <div id="backup-section">
+      <h2>Backup Data</h2>
+      <button id="create-backup" class="ant-btn ant-btn-primary">Create Backup</button>
+    </div>
+
+    <!-- Restore Section -->
+    <div id="restore-section">
+      <h2>Restore Data</h2>
+      <form id="restore-form">
+        <input type="file" id="backup-file" accept=".json,.zip" required>
+        <button type="submit" class="ant-btn ant-btn-primary">Restore Backup</button>
+      </form>
+    </div>
+
+    <!-- Backup History -->
+    <div id="backup-history-section">
+      <h2>Backup History</h2>
+      <table class="ant-table">
+        <thead>
+          <tr>
+            <th>Backup Name</th>
+            <th>Date</th>
+            <th>Size</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="backup-history">
+          <!-- Backup history will be dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = window.electron;
+
+    // Handle Backup Creation
+    document.getElementById('create-backup').addEventListener('click', () => {
+      ipcRenderer.invoke('create-backup').then(response => {
+        alert(response.message);
+        loadBackupHistory();
+      });
+    });
+
+    // Handle Restore
+    document.getElementById('restore-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const fileInput = document.getElementById('backup-file');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        ipcRenderer.invoke('restore-backup', file.path).then(response => {
+          alert(response.message);
+        });
+      }
+    });
+
+    // Load Backup History
+    function loadBackupHistory() {
+      ipcRenderer.invoke('get-backup-history').then(history => {
+        const tbody = document.getElementById('backup-history');
+        tbody.innerHTML = '';
+        history.forEach(backup => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${backup.name}</td>
+            <td>${backup.date}</td>
+            <td>${backup.size}</td>
+            <td>
+              <button class="ant-btn ant-btn-primary" onclick="restore('${backup.path}')">Restore</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    // Restore Backup from History
+    function restore(filePath) {
+      ipcRenderer.invoke('restore-backup', filePath).then(response => {
+        alert(response.message);
+      });
+    }
+
+    // Initial Load
+    loadBackupHistory();
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Report</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Sales Report</h1>
+
+    <!-- Filters Section -->
+    <form id="filter-form" class="add-form">
+        <h2>Filter Sales</h2>
+        <div class="form-group">
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date" placeholder="Select start date" required>
+        </div>
+        <div class="form-group">
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date" placeholder="Select end date" required>
+        </div>
+        <div class="form-group">
+          <label for="client-select">Client:</label>
+          <select id="client-select">
+            <option value="">All Clients</option>
+            <!-- Populate with clients dynamically -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="product-select">Product:</label>
+          <select id="product-select">
+            <option value="">All Products</option>
+            <!-- Populate with products dynamically -->
+          </select>
+        </div>
+        <button type="submit" class="ant-btn ant-btn-primary">Generate Report</button>
+      </form>
+      
+
+    <!-- Report Table -->
+    <div id="report-section">
+      <h2>Sales Report</h2>
+      <table id="sales-table" class="ant-table">
+        <thead>
+          <tr>
+            <th>Sale ID</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populate dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Print Button -->
+    <button id="print-report" class="ant-btn ant-btn-primary">Print Report</button>
+  </div>
+
+  <script>
+    const { ipcRenderer } = window.electron;
+
+    // Populate filters
+    function loadFilters() {
+      ipcRenderer.invoke('get-clients').then(clients => {
+        const clientSelect = document.getElementById('client-select');
+        clients.forEach(client => {
+          const option = document.createElement('option');
+          option.value = client.id;
+          option.textContent = client.name;
+          clientSelect.appendChild(option);
+        });
+      });
+
+      ipcRenderer.invoke('get-products').then(products => {
+        const productSelect = document.getElementById('product-select');
+        products.forEach(product => {
+          const option = document.createElement('option');
+          option.value = product.id;
+          option.textContent = product.name;
+          productSelect.appendChild(option);
+        });
+      });
+    }
+
+    // Generate Report
+    document.getElementById('filter-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const clientId = document.getElementById('client-select').value;
+      const productId = document.getElementById('product-select').value;
+
+      ipcRenderer.invoke('get-sales-report', { startDate, endDate, clientId, productId })
+        .then(report => {
+          const tbody = document.getElementById('sales-table').querySelector('tbody');
+          tbody.innerHTML = ''; // Clear existing rows
+          report.forEach(sale => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${sale.id}</td>
+              <td>${sale.date}</td>
+              <td>${sale.client}</td>
+              <td>${sale.product}</td>
+              <td>${sale.quantity}</td>
+              <td>${sale.total}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    });
+
+    // Print Report
+    document.getElementById('print-report').addEventListener('click', () => {
+      ipcRenderer.send('print-report', 'sales-report');
+    });
+
+    // Initial Load
+    loadFilters();
+  </script>
+</body>
+</html>

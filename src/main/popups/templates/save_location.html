@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Management</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Location Management</h1>
+
+    <!-- Add Location Form -->
+    <form id="add-location-form" class="add-form">
+      <h2>Add New Location</h2>
+      <div class="form-group">
+        <label for="location-name">Location Name:</label>
+        <input type="text" id="location-name" placeholder="Enter location name (e.g., Warehouse A)" required>
+      </div>
+      <div class="form-group">
+        <label for="address">Address:</label>
+        <input type="text" id="address" placeholder="Enter address (e.g., 123 Main St)" required>
+      </div>
+      <div class="form-group">
+        <label for="city">City:</label>
+        <input type="text" id="city" placeholder="Enter city (e.g., Casablanca)" required>
+      </div>
+      <div class="form-group">
+        <label for="country">Country:</label>
+        <input type="text" id="country" placeholder="Enter country (e.g., Morocco)" required>
+      </div>
+      <div class="form-group">
+        <label for="location-type">Type:</label>
+        <select id="location-type" required>
+          <option value="Warehouse">Warehouse</option>
+          <option value="Store">Store</option>
+          <option value="Office">Office</option>
+        </select>
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Add Location</button>
+    </form>
+
+    <!-- Locations Table -->
+    <h2>Locations</h2>
+    <table id="location-table" class="ant-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Address</th>
+          <th>City</th>
+          <th>Country</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Locations will be dynamically populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const { ipcRenderer } = window.electron;
+
+    // Fetch and display locations
+    function loadLocations() {
+      ipcRenderer.invoke('get-locations').then(locations => {
+        const tbody = document.getElementById('location-table').querySelector('tbody');
+        tbody.innerHTML = '';
+        locations.forEach(location => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${location.name}</td>
+            <td>${location.address}</td>
+            <td>${location.city}</td>
+            <td>${location.country}</td>
+            <td>${location.type}</td>
+            <td>
+              <button class="ant-btn ant-btn-link" onclick="editLocation('${location.id}')">Edit</button>
+              <button class="ant-btn ant-btn-danger" onclick="deleteLocation('${location.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    // Add Location
+    document.getElementById('add-location-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const location = {
+        name: document.getElementById('location-name').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        country: document.getElementById('country').value.trim(),
+        type: document.getElementById('location-type').value,
+      };
+      ipcRenderer.send('add-location', location);
+      loadLocations();
+    });
+
+    // Edit Location
+    function editLocation(id) {
+      const newName = prompt('Enter new name:');
+      const newAddress = prompt('Enter new address:');
+      if (newName && newAddress) {
+        ipcRenderer.send('edit-location', { id, newName, newAddress });
+        loadLocations();
+      }
+    }
+
+    // Delete Location
+    function deleteLocation(id) {
+      if (confirm('Are you sure you want to delete this location?')) {
+        ipcRenderer.send('delete-location', id);
+        loadLocations();
+      }
+    }
+
+    // Initial Load
+    loadLocations();
+  </script>
+</body>
+</html>

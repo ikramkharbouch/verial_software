@@ -119,6 +119,34 @@ ipcMain.handle('get-language', () => {
   return store.get('language', 'en'); // Default to 'en'
 });
 
+// Default company info with your provided data
+const defaultCompanyInfo = {
+  name: 'Maroc Auto Center',
+  address: 'Tetouan, Avenue Kaboul',
+  city: 'Tetouan',
+  country: 'Morocco',
+  contact: '',
+  email: 'contact@mac.ma',
+  website: 'mac.ma',
+};
+
+// Ensure default company info exists in the store
+if (!store.has('companyInfo')) {
+  store.set('companyInfo', defaultCompanyInfo);
+}
+
+// Get company info
+ipcMain.handle('get-company-info', async () => {
+  try {
+    const companyInfo = store.get('companyInfo', defaultCompanyInfo);
+    console.log('[INFO] Fetched company info:', companyInfo); // Debug logging
+    return companyInfo;
+  } catch (error) {
+    console.error('[ERROR] Failed to fetch company info:', error);
+    throw new Error('Unable to fetch company information.');
+  }
+});
+
 
 /**
  * Add event listeners...

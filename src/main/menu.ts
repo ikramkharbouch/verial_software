@@ -73,7 +73,7 @@ export default class MenuBuilder {
       },
     });
 
-    const popupPath = path.join(__dirname, 'popups', contentFile);
+    const popupPath = path.join(__dirname, 'popups/templates', contentFile);
     popupWindow.loadFile(popupPath);
 
     popupWindow.setMenu(null); // Remove the menu bar (optional)
@@ -134,10 +134,6 @@ export default class MenuBuilder {
         {
           label: 'Backup',
           click: () => this.openPopup('Backup Data', 'backup_data.html', 800, 600),
-        },
-        {
-          label: 'Restore',
-          click: () => this.openPopup('Restore Data', 'restore_data.html', 800, 600),
         },
       ],
     };

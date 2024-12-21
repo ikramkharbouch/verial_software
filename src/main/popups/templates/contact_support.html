@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Support</h1>
+
+    <!-- Contact Information -->
+    <div class="support-section">
+      <h2>Contact Us</h2>
+      <p>If you need assistance, please reach out to us using the following methods:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:support@mac.ma">support@mac.ma</a></li>
+        <li><strong>Phone:</strong> +212 5 22 123 456</li>
+        <li><strong>Address:</strong> Tetouan, Avenue Kaboul, Morocco</li>
+      </ul>
+    </div>
+
+    <!-- FAQs Section -->
+    <div class="support-section">
+      <h2>FAQs</h2>
+      <p>Find answers to commonly asked questions:</p>
+      <ul>
+        <li><a href="#" target="_blank">How to use the software?</a></li>
+        <li><a href="#" target="_blank">How to manage your data?</a></li>
+        <li><a href="#" target="_blank">How to update company information?</a></li>
+      </ul>
+    </div>
+
+    <!-- Submit a Support Ticket -->
+    <div class="support-section">
+      <h2>Submit a Support Ticket</h2>
+      <form id="support-form" class="add-form">
+        <div class="form-group">
+          <label for="support-name">Your Name:</label>
+          <input type="text" id="support-name" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label for="support-email">Your Email:</label>
+          <input type="email" id="support-email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="support-message">Describe Your Issue:</label>
+          <textarea id="support-message" rows="5" placeholder="Describe your issue in detail" required></textarea>
+        </div>
+        <button type="submit" class="ant-btn ant-btn-primary">Submit</button>
+      </form>
+      <div id="support-status"></div>
+    </div>
+  </div>
+
+  <script>
+    // Handle support form submission
+    document.getElementById('support-form').addEventListener('submit', event => {
+      event.preventDefault();
+
+      const name = document.getElementById('support-name').value.trim();
+      const email = document.getElementById('support-email').value.trim();
+      const message = document.getElementById('support-message').value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill out all fields.');
+        return;
+      }
+
+      // Simulate sending the support ticket (add IPC or API call here)
+      console.log('Support Ticket Submitted:', { name, email, message });
+      document.getElementById('support-status').textContent = 'Your support ticket has been submitted!';
+      document.getElementById('support-status').className = 'success';
+
+      // Reset form
+      document.getElementById('support-form').reset();
+    });
+  </script>
+</body>
+</html>
