@@ -39,8 +39,6 @@ const ProfilePage: React.FC = () => {
     if (profile && profile.profilePicture) {
       setProfilePic(`${cleanedUrl}`);
     }
-
-    console.log("Profile picture debugging", profilePic);
   }, [profile]);
 
   const handleFormSubmit = async (values: any) => {

@@ -69,11 +69,7 @@ const MainLayout = ({ items }: any) => {
 
   useEffect(() => {
 
-
-    const cleanedUrl = profile?.profilePicture.replace('//uploads', '').replace('http://localhost:3000/profile/uploads/', '');
-
-    console.log("cleaaaaaneed", cleanedUrl);
-
+    const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
     setProfilePic(cleanedUrl as any);
     setUsername(profile?.username as string | null);
   }, [profile])
