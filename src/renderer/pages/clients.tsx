@@ -50,16 +50,30 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleFilter = (values: Partial<any>) => {
+    const normalizedKeys = {
+      companyName: 'company_name',
+      clientName: 'client_name',
+      clientType: 'client_type',
+      country: 'country',
+      province: 'province',
+      industry: 'industry',
+      source: 'source',
+    };
+  
     const filteredData = clients.filter((client) => {
-      return Object.entries(values).every(([key, value]) => {
-        if (!value) return true;
-        return String(client[key as keyof typeof client])
-          .toLowerCase()
-          .includes(String(value).toLowerCase());
+      return Object.entries(values).every(([formKey, formValue]) => {
+        if (!formValue) return true; // Skip empty fields
+  
+        const dataKey = normalizedKeys[formKey as keyof typeof normalizedKeys];
+        const dataValue = String(client[dataKey as keyof typeof client]);
+  
+        return dataValue.toLowerCase().includes(String(formValue).toLowerCase());
       });
     });
+  
     setData(filteredData);
   };
+  
 
   const resetFilters = () => {
     form.resetFields();
