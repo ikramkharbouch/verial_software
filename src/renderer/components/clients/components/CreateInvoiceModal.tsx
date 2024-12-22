@@ -85,7 +85,7 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
         layout="vertical"
         onFinish={handleCreateInvoice} // This should point to your function
         onValuesChange={onValuesChange}
-        className="create-invoice"
+        className="create-edit-invoice"
       >
         {' '}
         <Form.Item

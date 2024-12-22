@@ -213,4 +213,60 @@ router.get('/client-invoices', async (req, res) => {
   }
 });
 
+router.put('/client-invoices/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    client_name,
+    invoice_type,
+    date_of_purchase,
+    total_price,
+    comment,
+  } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE client_invoices
+       SET client_name = $1,
+           invoice_type = $2,
+           date_of_purchase = $3,
+           total_price = $4,
+           comment = $5
+       WHERE id = $6
+       RETURNING *`,
+      [client_name, invoice_type, date_of_purchase, total_price, comment, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating invoice:', error);
+    res.status(500).json({ message: 'Failed to update invoice' });
+  }
+});
+
+router.delete('/client-invoices/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM client_invoices
+       WHERE invoice_id = $1
+       RETURNING *`,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    res.json({ message: 'Invoice deleted successfully', invoice: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting invoice:', error);
+    res.status(500).json({ message: 'Failed to delete invoice' });
+  }
+});
+
 module.exports = router;

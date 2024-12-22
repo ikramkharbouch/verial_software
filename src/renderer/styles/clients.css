@@ -22,7 +22,7 @@
     margin: 0 !important;
 }
 
-.create-invoice {
+.create-edit-invoice {
   display: flex;
   flex-direction: column;
   gap: 1rem;
