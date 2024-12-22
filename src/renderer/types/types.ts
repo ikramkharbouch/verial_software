@@ -42,3 +42,20 @@ export interface InventoryItem {
   stock: number; // Current stock level of the item
   threshold: number; // Low-stock threshold for the item
 }
+
+export interface InvoiceOverview {
+  month: string;       // The month (e.g., "January", "February", etc.)
+  outstanding: number; // The amount outstanding for the month
+  paid: number;        // The amount paid for the month
+}
+
+export interface DueInvoicesDataPoint {
+  x: string; // The date (e.g., "2024-10-01")
+  y: number; // The count of due invoices (e.g., 5)
+}
+
+export interface DueInvoicesDataset {
+  id: string; // The identifier for the dataset (e.g., "Invoices")
+  data: DueInvoicesDataPoint[]; // Array of data points
+}
+

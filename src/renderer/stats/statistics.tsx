@@ -11,6 +11,8 @@ import {
   fetchFinance,
   fetchProviders,
   fetchArticles,
+  fetchInvoicesOverview,
+  fetchRevenueExpenses
 } from '../../store/slices/dashboardSlice';
 
 import type { RootState, AppDispatch } from '../../store/store'; // Adjust path to your store
@@ -19,9 +21,11 @@ const Statistics: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     inventory,
-    financialSnapshot,
+    dueInvoices,
     providersOverview,
     articlesPerformance,
+    invoicesOverview,
+    revenueExpenses,
     loading,
     error,
   } = useSelector((state: any) => state.dashboard);
@@ -31,6 +35,11 @@ const Statistics: React.FC = () => {
     dispatch(fetchFinance());
     dispatch(fetchProviders());
     dispatch(fetchArticles());
+    dispatch(fetchInvoicesOverview());
+    dispatch(fetchRevenueExpenses());
+
+
+    console.log(dueInvoices, revenueExpenses);
   }, [dispatch]);
 
   if (loading) return <p>Loading...</p>;
@@ -45,7 +54,7 @@ const Statistics: React.FC = () => {
 
       <div className="line-container">
         <h2>Financial Snapshot</h2>
-        <InvoiceStatusPieChart />
+        <InvoiceStatusPieChart data={invoicesOverview} />
       </div>
 
       <div className="pie-container">

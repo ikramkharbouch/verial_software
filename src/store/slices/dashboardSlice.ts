@@ -4,6 +4,8 @@ import {
   fetchFinanceData,
   fetchProvidersData,
   fetchArticlesData,
+  fetchInvoicesOverviewData,
+  fetchRevenueExpensesData,
 } from '../../api/dashboardService';
 
 interface DashboardState {
@@ -11,6 +13,8 @@ interface DashboardState {
   finance: any; // Updated name to `finance` for consistency
   providers: any; // Updated name to `providers` for consistency
   articles: any; // Updated name to `articles` for consistency
+  invoicesOverview: any[];
+  revenueExpenses: { id: string; data: { x: string; y: number }[] }[];
   loading: boolean;
   error: string | null;
 }
@@ -20,9 +24,34 @@ const initialState: DashboardState = {
   finance: null,
   providers: null,
   articles: null,
+  invoicesOverview: [],
+  revenueExpenses: [],
   loading: false,
   error: null,
 };
+
+export const fetchRevenueExpenses = createAsyncThunk(
+  'dashboard/fetchRevenueExpenses',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchRevenueExpensesData();
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch revenue vs expenses data');
+    }
+  }
+);
+
+
+export const fetchInvoicesOverview = createAsyncThunk(
+  'dashboard/fetchInvoicesOverview',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchInvoicesOverviewData();
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch invoices overview data');
+    }
+  }
+);
 
 // Thunk for fetching inventory data
 export const fetchInventory = createAsyncThunk('dashboard/fetchInventory', async (_, { rejectWithValue }) => {
@@ -115,6 +144,30 @@ const dashboardSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchArticles.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchInvoicesOverview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInvoicesOverview.fulfilled, (state, action) => {
+        state.invoicesOverview = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchInvoicesOverview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchRevenueExpenses.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRevenueExpenses.fulfilled, (state, action) => {
+        state.revenueExpenses = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchRevenueExpenses.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
