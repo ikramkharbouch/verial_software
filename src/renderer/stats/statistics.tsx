@@ -51,9 +51,10 @@ const Statistics: React.FC = () => {
     <div className="charts">
       <div className="bar-container">
         <h2>Inventory Overview</h2>
-        <InventoryOverview data={inventory} />
+        <InventoryOverview data={inventory || []} />
       </div>
 
+      {/* Bug to fix */}
       <div className="line-container">
         <h2>Financial Snapshot</h2>
         <InvoiceStatusPieChart data={revenueExpenses} />
@@ -62,12 +63,12 @@ const Statistics: React.FC = () => {
       <div className="pie-container">
         <h2>Providers Overview (Invoices)</h2>
         <p>Pending Orders: 54</p>
-        <Providers data={providers} />
+        <Providers data={providers || []} />
       </div>
 
       <div className="bar-container" id="articles">
         <h2>Articles Performance</h2>
-        <ArticlesPerformanceBarChart data={articles} />
+        <ArticlesPerformanceBarChart data={articles || []} />
       </div>
     </div>
   );

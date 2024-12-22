@@ -21,3 +21,9 @@
 .submit-btn {
     margin: 0 !important;
 }
+
+.create-invoice {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
