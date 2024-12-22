@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, DatePicker, InputNumber, Space } from 'antd';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  InputNumber,
+  Space,
+} from 'antd';
 import { useDispatch } from 'react-redux';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -12,22 +22,26 @@ const { Option } = Select;
 
 interface Document {
   id: number;
-  invoiceNumber: number;
-  clientName: string;
-  invoiceType: string;
+  invoice_id: number;
+  client_name: string;
+  invoice_type: string;
   date: string;
   totalPrice: number;
+  comment: string;
 }
 
 const ClientDocs: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateInvoiceModalVisible, setIsCreateInvoiceModalVisible] = useState(false);
+  const [isCreateInvoiceModalVisible, setIsCreateInvoiceModalVisible] =
+    useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Document | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [form] = Form.useForm();
   const [data, setData] = useState<Document[]>([]);
-  const [currentOptions, setCurrentOptions] = useState<{ label: string; value: string }[]>([]);
+  const [currentOptions, setCurrentOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   const dispatch = useDispatch();
 
@@ -45,38 +59,82 @@ const ClientDocs: React.FC = () => {
     { label: 'Engine Tuning', value: 'Engine Tuning' },
   ];
 
+  const invoiceItems = [
+    {
+      reference: 'REF001',
+      description: 'Consulting Service',
+      units: 2,
+      unitPrice: 100,
+    },
+    {
+      reference: 'REF002',
+      description: 'Website Design',
+      units: 1,
+      unitPrice: 500,
+    },
+    {
+      reference: 'REF003',
+      description: 'SEO Optimization',
+      units: 3,
+      unitPrice: 150,
+    },
+  ];
+  
+
   useEffect(() => {
     // Fetch documents from backend
     const fetchDocuments = async () => {
-      const response = await fetch('/api/client-documents');
+      const response = await fetch('http://localhost:3000/clients/client-invoices');
       const result = await response.json();
+      console.log("result is", result)
       setData(result);
     };
     fetchDocuments();
   }, []);
 
   const handleCreateInvoice = async (values: any) => {
-    // Save invoice to backend
-    const response = await fetch('/api/client-documents/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
-    });
+    console.log(values);
+    const formattedValues = {
+      clientName: values.clientName,
+      invoiceType: values.invoiceType,
+      items: values.items.map((item: string) => ({ name: item })), // Assuming items is an array of strings
+      date: dayjs(values.date).format('YYYY-MM-DD'),
+      numberOfUnits: values.units,
+      price: values.price,
+      comment: values.comment,
+      totalPrice: values.price * values.units, // Calculate total price
+    };
 
-    if (response.ok) {
-      const newInvoice = await response.json();
-      setData((prev) => [...prev, newInvoice]); // Update table data
-      setIsCreateInvoiceModalVisible(false);
-      form.resetFields(); // Reset the form
-    } else {
-      console.error('Failed to create invoice');
+    try {
+      const response = await fetch(
+        'http://localhost:3000/clients/client-documents/create',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formattedValues),
+        },
+      );
+
+      if (response.ok) {
+        const newInvoice = await response.json();
+        setData((prev) => [...prev, newInvoice]); // Update table data
+        setIsCreateInvoiceModalVisible(false);
+        form.resetFields(); // Reset the form
+      } else {
+        const error = await response.json();
+        console.error('Failed to create invoice:', error);
+      }
+    } catch (err) {
+      console.error('Error while creating invoice:', err);
     }
   };
 
   const onValuesChange = (changedValues: any) => {
     if (changedValues.invoiceType) {
       const options =
-        changedValues.invoiceType === 'Car Repair' ? carRepairServices : articles;
+        changedValues.invoiceType === 'Car Repair'
+          ? carRepairServices
+          : articles;
       setCurrentOptions(options);
       form.setFieldsValue({ items: [] }); // Reset items field
     }
@@ -85,27 +143,28 @@ const ClientDocs: React.FC = () => {
   const columns = [
     {
       title: 'Invoice Number',
-      dataIndex: 'invoiceNumber',
+      dataIndex: 'invoice_id',
       key: 'invoiceNumber',
     },
     {
       title: "Client's Name",
-      dataIndex: 'clientName',
+      dataIndex: 'client_name',
       key: 'clientName',
     },
     {
       title: 'Invoice Type',
-      dataIndex: 'invoiceType',
+      dataIndex: 'invoice_type',
       key: 'invoiceType',
     },
     {
       title: 'Date',
-      dataIndex: 'date',
+      dataIndex: 'date_of_purchase',
       key: 'date',
+      render: (text: string) => text.slice(0, 10)
     },
     {
       title: 'Total Price (with TVA)',
-      dataIndex: 'totalPrice',
+      dataIndex: 'total_price',
       key: 'totalPrice',
       render: (text: number) => `${text} €`,
     },
@@ -127,9 +186,15 @@ const ClientDocs: React.FC = () => {
   ];
 
   const handleDownload = (record: Document) => {
-    const fileContent = `Invoice: ${record.invoiceNumber}\nClient: ${record.clientName}\nDate: ${record.date}\nTotal: ${record.totalPrice} €`;
+    const fileContent = `Invoice: ${record.invoice_id}\nClient: ${record.client_name}\nDate: ${record.date}\nTotal: ${record.totalPrice} €`;
     const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-    saveAs(blob, `Invoice_${record.invoiceNumber}.txt`);
+    saveAs(blob, `Invoice_${record.invoice_id}.txt`);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setSelectedInvoice(null);
+    setIsExpanded(false); // Reset to normal size when modal closes
   };
 
   const handleDownloadSelected = () => {
@@ -138,8 +203,8 @@ const ClientDocs: React.FC = () => {
     selectedRowKeys.forEach((key) => {
       const document = data.find((doc) => doc.id === key);
       if (document) {
-        const fileContent = `Invoice: ${document.invoiceNumber}\nClient: ${document.clientName}\nDate: ${document.date}\nTotal: ${document.totalPrice} €`;
-        zip.file(`Invoice_${document.invoiceNumber}.txt`, fileContent);
+        const fileContent = `Invoice: ${document.invoice_id}\nClient: ${document.client_name}\nDate: ${document.date}\nTotal: ${document.totalPrice} €`;
+        zip.file(`Invoice_${document.invoice_id}.txt`, fileContent);
       }
     });
 
@@ -158,7 +223,9 @@ const ClientDocs: React.FC = () => {
   };
 
   const showInvoiceModal = (record: Document) => {
+    console.log(record);
     setSelectedInvoice(record);
+    console.log(selectedInvoice?.client_name);
     setIsModalVisible(true);
   };
 
@@ -186,7 +253,7 @@ const ClientDocs: React.FC = () => {
       <Button
         type="primary"
         onClick={() => setIsCreateInvoiceModalVisible(true)}
-        style={{ marginBottom: '16px' }}
+        style={{ marginBottom: '16px', marginLeft: '1rem' }}
       >
         Create New Invoice
       </Button>
@@ -215,45 +282,155 @@ const ClientDocs: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleCreateInvoice}
+          onFinish={handleCreateInvoice} // This should point to your function
           onValuesChange={onValuesChange}
-          className='create-invoice'
+          className="create-invoice"
         >
-          <Form.Item name="clientName" rules={[{ required: true }]}>
+          {' '}
+          <Form.Item
+            name="clientName"
+            rules={[{ required: true, message: 'Client Name is required' }]}
+          >
             <Input placeholder="Client Name" />
           </Form.Item>
-          <Form.Item name="invoiceType" rules={[{ required: true }]}>
-            <Select placeholder="Select Type">
+          <Form.Item
+            name="invoiceType"
+            rules={[
+              { required: true, message: 'Please select an invoice type' },
+            ]}
+          >
+            <Select placeholder="Select Invoice Type">
               <Option value="Car Repair">Car Repair</Option>
               <Option value="Article Purchase">Article Purchase</Option>
             </Select>
           </Form.Item>
           <Form.Item
             name="items"
-            rules={[{ required: true, message: 'Please select at least one item' }]}
+            rules={[
+              { required: true, message: 'Please select at least one item' },
+            ]}
           >
-            <Select mode="multiple" placeholder="Select items" options={currentOptions} />
+            <Select
+              mode="multiple"
+              placeholder="Select Items"
+              options={currentOptions} // Options change based on `invoiceType`
+            />
           </Form.Item>
           <Form.Item
             name="date"
-            initialValue={dayjs()}
-            rules={[{ required: true, message: 'Please select a date' }]}
+            initialValue={dayjs()} // Default to today's date
+            rules={[{ required: true, message: 'Date is required' }]}
           >
-            <DatePicker format="YYYY-MM-DD" />
+            <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="units" rules={[{ required: true }]}>
-            <InputNumber min={1} placeholder="Units" />
+          <Form.Item
+            name="units"
+            rules={[
+              { required: true, message: 'Units are required' },
+              {
+                type: 'number',
+                min: 1,
+                message: 'Units must be a positive integer',
+              },
+            ]}
+          >
+            <InputNumber
+              min={1}
+              placeholder="Units"
+              style={{ width: '100%' }}
+            />
           </Form.Item>
-          <Form.Item name="price" rules={[{ required: true }]}>
-            <InputNumber min={0} prefix="€" placeholder="Price" />
+          <Form.Item
+            name="price"
+            rules={[
+              { required: true, message: 'Price is required' },
+              {
+                type: 'number',
+                min: 0,
+                message: 'Price must be a positive value',
+              },
+            ]}
+          >
+            <InputNumber
+              min={0}
+              prefix="€"
+              placeholder="Price per Unit"
+              style={{ width: '100%' }}
+            />
           </Form.Item>
           <Form.Item name="comment">
-            <Input.TextArea placeholder="Add Comment" />
+            <Input.TextArea placeholder="Add Comment (optional)" />
           </Form.Item>
-          <Button type="primary" htmlType="submit">
-            Create
-          </Button>
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Create Invoice
+              </Button>
+              <Button onClick={() => form.resetFields()}>Reset</Button>
+            </Space>
+          </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title={
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span>Pneus Maroc SARL #{selectedInvoice?.invoice_id}</span>
+            <Button
+              icon={isExpanded ? <ShrinkOutlined /> : <FullscreenOutlined />}
+              onClick={toggleExpand}
+              style={{
+                border: 'none',
+                boxShadow: 'none',
+                marginRight: '20px', // Add margin to the right to create space from the close button
+              }}
+
+            />
+          </div>
+        }
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="close" onClick={handleCancel}>
+            Close
+          </Button>,
+          <Button key="submit" type="primary">
+            Download
+          </Button>,
+        ]}
+        width={isExpanded ? '100vw' : 800} // Full width on expand
+        style={{
+          top: isExpanded ? 0 : 20,
+          height: isExpanded ? '100vh' : 'auto', // Full height on expand
+          overflowY: isExpanded ? 'auto' : 'visible',
+        }} // Fullscreen style
+      >
+        {selectedInvoice && (
+          <div className="invoice-modal">
+            <Invoice
+              invoiceNumber={selectedInvoice.invoice_id}
+              clientName={selectedInvoice.client_name}
+              date={selectedInvoice.date}
+              invoiceType={selectedInvoice.invoice_type}
+              items={invoiceItems}
+              comment={selectedInvoice.comment}
+              tvaPercentage={20}
+            />
+          </div>
+        )}
+
+        <footer className="invoice-footer">
+          <p>
+            <strong>contact:</strong>mac@gmail.com +212938292019
+          </p>
+          <p>Thank you for trusting MAC company.</p>
+        </footer>
       </Modal>
     </div>
   );

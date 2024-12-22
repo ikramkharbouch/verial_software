@@ -32,6 +32,9 @@ const Invoice: React.FC<InvoiceProps> = ({
     const tvaValue = subtotal * (tvaPercentage / 100); // Calculate the TVA amount
     const totalPrice = subtotal + tvaValue; // Total price with TVA
   
+
+    console.log(clientName);
+    console.log(invoiceNumber);
   return (
    <div className="invoice-container">
       <div className="invoice-header">
