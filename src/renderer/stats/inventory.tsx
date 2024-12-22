@@ -1,72 +1,68 @@
-import { ResponsiveBar } from '@nivo/bar';
+import { BarDatum, ResponsiveBar } from '@nivo/bar';
+import { InventoryItem } from '@renderer/types/types';
 
-const InventoryBarChart = () => {
-  const data = [
-    { brand: "Michelin", stockLevel: 150, lowStock: 20 },
-    { brand: "Goodyear", stockLevel: 200, lowStock: 10 },
-    { brand: "Bridgestone", stockLevel: 80, lowStock: 30 },
-    { brand: "Pirelli", stockLevel: 50, lowStock: 15 },
-    { brand: "Continental", stockLevel: 120, lowStock: 25 },
-    { brand: "Dunlop", stockLevel: 90, lowStock: 5 },
-  ];
+interface InventoryProps {
+  data: InventoryItem[]; // Expecting an array of `InventoryItem` objects
+}
 
+const InventoryOverview: React.FC<InventoryProps> = ({ data }) => {
   return (
-    <ResponsiveBar
-      data={data}
-      keys={['stockLevel', 'lowStock']}
-      indexBy="brand"
-      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-      padding={0.3}
-      colors={{ scheme: 'set3' }} // Color scheme for different bars
-      borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-      axisBottom={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: 'Tire Brands',
-        legendPosition: 'middle',
-        legendOffset: 32,
-      }}
-      axisLeft={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: 'Stock Level',
-        legendPosition: 'middle',
-        legendOffset: -40,
-      }}
-      labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-      tooltip={({ id, value, color }) => (
-        <strong style={{ color }}>
-          {id}: {value} tires
-        </strong>
-      )}
-      legends={[
-        {
-          dataFrom: 'keys',
-          anchor: 'bottom-right',
-          direction: 'column',
-          justify: false,
-          translateX: 120,
-          translateY: 0,
-          itemsSpacing: 2,
-          itemWidth: 100,
-          itemHeight: 20,
-          itemOpacity: 0.85,
-          symbolSize: 20,
-          effects: [
-            {
-              on: 'hover',
-              style: {
-                itemOpacity: 1,
+    <div style={{ height: 400 }}>
+      <ResponsiveBar
+        data={data as any}
+        keys={['stock_level', 'low_stock']} // Fields to plot
+        indexBy="brand" // X-axis labels
+        margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+        padding={0.3}
+        colors={{ scheme: 'set3' }}
+        borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+        axisBottom={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: -45, // Rotate if labels are long
+          legend: 'Tire Brands',
+          legendPosition: 'middle',
+          legendOffset: 50,
+        }}
+        axisLeft={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: 'Stock Level',
+          legendPosition: 'middle',
+          legendOffset: -50,
+        }}
+        labelSkipWidth={12}
+        labelSkipHeight={12}
+        labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+        legends={[
+          {
+            dataFrom: 'keys',
+            anchor: 'bottom-right',
+            direction: 'column',
+            justify: false,
+            translateX: 120,
+            translateY: 0,
+            itemsSpacing: 2,
+            itemWidth: 100,
+            itemHeight: 20,
+            itemOpacity: 0.85,
+            symbolSize: 20,
+            effects: [
+              {
+                on: 'hover',
+                style: {
+                  itemOpacity: 1,
+                },
               },
-            },
-          ],
-        },
-      ]}
-      animate={true}
-    />
+            ],
+          },
+        ]}
+        animate={true}
+      />
+    </div>
   );
 };
 
-export default InventoryBarChart;
+
+export default InventoryOverview;

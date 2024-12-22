@@ -15,7 +15,7 @@ const InvoicesOverviewBar = () => {
       data={data}
       keys={['outstanding', 'paid']}
       indexBy="month"
-      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+      margin={{ top: 50, right: 130, bottom: 70, left: 60 }} // Increased bottom margin
       padding={0.3}
       layout="vertical" // Vertical bars
       colors={{ scheme: 'set2' }} // Color scheme for bars
@@ -25,10 +25,10 @@ const InvoicesOverviewBar = () => {
       axisBottom={{
         tickSize: 5,
         tickPadding: 5,
-        tickRotation: 0,
+        tickRotation: -45, // Rotated labels for better visibility
         legend: 'Month',
         legendPosition: 'middle',
-        legendOffset: 32,
+        legendOffset: 50, // Adjusted offset to accommodate rotated labels
       }}
       axisLeft={{
         tickSize: 5,

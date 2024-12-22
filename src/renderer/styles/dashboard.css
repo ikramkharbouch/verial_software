@@ -51,6 +51,11 @@
   flex-wrap: wrap;
   height: 100%;
   gap: 1rem;
+  overflow: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .bar-container {

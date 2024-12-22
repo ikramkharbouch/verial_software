@@ -5,6 +5,7 @@ import providersReducer from './slices/providersSlice';
 import financialsReducer from './slices/financialsSlice';
 import userReducer from './slices/userSlice';
 import profileReducer from './slices/profileSlice';
+import dashboardReducer from './slices/dashboardSlice'
 
 export const store = configureStore({
     reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
         // articles: articlesReducer,
         financials: financialsReducer,
         user: userReducer, // Add the user slice here
-        profile: profileReducer
+        profile: profileReducer,
+        dashboard: dashboardReducer
     },
 });
 

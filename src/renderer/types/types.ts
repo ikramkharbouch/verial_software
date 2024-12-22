@@ -35,3 +35,10 @@ export interface Bill {
   date: string; // Could be Date if you parse it before rendering
   status: string;
 }
+
+export interface InventoryItem {
+  id: number; // Unique identifier for the inventory item
+  name: string; // Name of the inventory item (e.g., brand or product name)
+  stock: number; // Current stock level of the item
+  threshold: number; // Low-stock threshold for the item
+}
