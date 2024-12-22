@@ -69,4 +69,15 @@ export interface Provider {
   color: string;     // Color associated with the category
 }
 
+export interface Article {
+  id: number;           // Unique identifier
+  name: string;         // Product name
+  product: string;      // Product label
+  sales: number;        // Number of items sold
+  used: number;         // Number of items used
+  revenue: number;      // Total revenue generated
+  last_sold: string;    // Date of the last sale (ISO string)
+}
+
+
 

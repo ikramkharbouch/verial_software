@@ -23,7 +23,7 @@ const Statistics: React.FC = () => {
     inventory,
     finance,
     providers,
-    articlesPerformance,
+    articles,
     invoicesOverview,
     revenueExpenses,
     loading,
@@ -39,7 +39,7 @@ const Statistics: React.FC = () => {
     dispatch(fetchRevenueExpenses());
 
 
-    console.log(finance, revenueExpenses);
+    console.log("Revenueeee", revenueExpenses);
 
     console.log(providers);
   }, [dispatch]);
@@ -56,7 +56,7 @@ const Statistics: React.FC = () => {
 
       <div className="line-container">
         <h2>Financial Snapshot</h2>
-        <InvoiceStatusPieChart data={invoicesOverview} />
+        <InvoiceStatusPieChart data={revenueExpenses} />
       </div>
 
       <div className="pie-container">
@@ -67,7 +67,7 @@ const Statistics: React.FC = () => {
 
       <div className="bar-container" id="articles">
         <h2>Articles Performance</h2>
-        <ArticlesPerformanceBarChart />
+        <ArticlesPerformanceBarChart data={articles} />
       </div>
     </div>
   );
