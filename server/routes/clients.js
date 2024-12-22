@@ -147,7 +147,7 @@ router.post(
       .isISO8601()
       .toDate()
       .withMessage('Invalid date format'),
-    body('units')
+    body('numberOfUnits')
       .isInt({ min: 1 })
       .withMessage('Units must be a positive integer'),
     body('price')
@@ -161,9 +161,12 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
 
-    console.log(req.body);
-
-    // console.log(errors);
+    if (req.body.numberOfUnits) {
+      req.body.units = req.body.numberOfUnits;
+      delete req.body.numberOfUnits;
+    }
+  
+    console.log(errors);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
