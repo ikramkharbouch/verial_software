@@ -59,3 +59,14 @@ export interface DueInvoicesDataset {
   data: DueInvoicesDataPoint[]; // Array of data points
 }
 
+export interface Provider {
+  id: number;        // Unique identifier for the provider
+  name: string;      // Name of the provider
+  orders: number;    // Number of orders handled by the provider
+  pending: number;   // Number of pending orders
+  value: number;     // Total monetary value of transactions
+  label: string;     // Category of the provider (e.g., "Paid", "Unpaid")
+  color: string;     // Color associated with the category
+}
+
+

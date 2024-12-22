@@ -21,8 +21,8 @@ const Statistics: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     inventory,
-    dueInvoices,
-    providersOverview,
+    finance,
+    providers,
     articlesPerformance,
     invoicesOverview,
     revenueExpenses,
@@ -39,7 +39,9 @@ const Statistics: React.FC = () => {
     dispatch(fetchRevenueExpenses());
 
 
-    console.log(dueInvoices, revenueExpenses);
+    console.log(finance, revenueExpenses);
+
+    console.log(providers);
   }, [dispatch]);
 
   if (loading) return <p>Loading...</p>;
@@ -60,7 +62,7 @@ const Statistics: React.FC = () => {
       <div className="pie-container">
         <h2>Providers Overview (Invoices)</h2>
         <p>Pending Orders: 54</p>
-        <Providers />
+        <Providers data={providers} />
       </div>
 
       <div className="bar-container" id="articles">
