@@ -54,7 +54,10 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
+    console.log(req.body);
+    console.log(errors);
     if (!errors.isEmpty()) {
+      console.log('did it enter here ?');
       console.log(errors);
       return res.status(400).json({ errors: errors.array() });
     }
@@ -83,27 +86,26 @@ router.post(
 
     try {
       const query = `
-        INSERT INTO clients (id, company_name, nif, client_name, client_type, phone1, phone2, phone3, iceo, country, province, postal_code, email1, email2, email3)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-      `;
-      await pool.query(query, [
-        id,
-        companyName,
-        nif,
-        clientName,
-        clientType,
-        phone1,
-        phone2,
-        phone3,
-        iceo,
-        country,
-        province,
-        postalCode,
-        email1,
-        email2,
-        email3,
-      ]);
-
+      INSERT INTO clients (company_name, nif, client_name, client_type, phone1, phone2, phone3, iceo, country, province, postal_code, email1, email2, email3)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+    `;
+    await pool.query(query, [
+      companyName,
+      nif,
+      clientName,
+      clientType,
+      phone1,
+      phone2,
+      phone3,
+      iceo,
+      country,
+      province,
+      postalCode,
+      email1,
+      email2,
+      email3,
+    ]);
+    
       res.status(201).json({ message: 'Client added successfully!' });
     } catch (error) {
       console.error('Database error:', error);

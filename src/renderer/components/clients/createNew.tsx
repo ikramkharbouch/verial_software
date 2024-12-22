@@ -70,7 +70,7 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
     try {
       // Send a POST request to the server
       const response = await axios.post(
-        'http://localhost:3000/users/create',
+        'http://localhost:3000/clients/create',
         data,
       );
       
@@ -290,10 +290,6 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
           render={({ field }) => <Input {...field} />}
         />
       </Form.Item>
-
-
-        {/* Rest of the form remains the same as in the previous implementation */}
-        {/* ... (other form fields) ... */}
 
         <Form.Item>
           <Space>

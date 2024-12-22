@@ -45,8 +45,7 @@ const ClientsPage: React.FC = () => {
     setIsModalVisible(false);
   };
 
-  const handleNewClientCreated = (newClient: any) => {
-    // Refresh the client list
+  const handleNewClientCreated = () => {
     dispatch(getClients());
   };
 
@@ -68,36 +67,12 @@ const ClientsPage: React.FC = () => {
   };
 
   const columns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Company Name',
-      dataIndex: 'companyName',
-      key: 'companyName',
-    },
-    {
-      title: 'Client Name',
-      dataIndex: 'clientName',
-      key: 'clientName',
-    },
-    {
-      title: 'Type of Client',
-      dataIndex: 'clientType',
-      key: 'clientType',
-    },
-    {
-      title: 'Country',
-      dataIndex: 'country',
-      key: 'country',
-    },
-    {
-      title: 'Province',
-      dataIndex: 'province',
-      key: 'province',
-    },
+    { title: 'ID', dataIndex: 'id', key: 'id' },
+    { title: 'Company Name', dataIndex: 'company_name', key: 'companyName' },
+    { title: 'Client Name', dataIndex: 'client_name', key: 'clientName' },
+    { title: 'Type of Client', dataIndex: 'client_type', key: 'clientType' },
+    { title: 'Country', dataIndex: 'country', key: 'country' },
+    { title: 'Province', dataIndex: 'province', key: 'province' },
     {
       title: 'Actions',
       key: 'actions',
@@ -121,7 +96,11 @@ const ClientsPage: React.FC = () => {
     <div>
       <h1>Client Management</h1>
       <div className="clients-actions">
-        <Button type="primary" onClick={showModal}>
+        <Button
+          type="primary"
+          onClick={showModal}
+          className="custom-primary-button"
+        >
           Create New Client
         </Button>
       </div>
@@ -130,30 +109,31 @@ const ClientsPage: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={handleFilter}
-        style={{ marginBottom: 16 }}
+        className="clients-form"
+        style={{ marginBottom: '16px' }}
       >
-        <Row gutter={16}>
+        <Row gutter={[16, 24]}>
           <Col span={6}>
-            <Form.Item name="companyName" label="Company Name">
-              <Input placeholder="Enter company name" />
+            <Form.Item name="companyName">
+              <Input placeholder="Company Name" />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="clientName" label="Client Name">
-              <Input placeholder="Enter client name" />
+            <Form.Item name="clientName">
+              <Input placeholder="Client Name" />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="clientType" label="Type of Client">
-              <Select placeholder="Select type" allowClear>
+            <Form.Item name="clientType">
+              <Select placeholder="Type of Client" allowClear>
                 <Option value="Individual">Individual</Option>
                 <Option value="Corporate">Corporate</Option>
               </Select>
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="country" label="Country">
-              <Select placeholder="Select country" allowClear>
+            <Form.Item name="country">
+              <Select placeholder="Country" allowClear>
                 <Option value="USA">USA</Option>
                 <Option value="Canada">Canada</Option>
                 <Option value="UK">UK</Option>
@@ -162,15 +142,15 @@ const ClientsPage: React.FC = () => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={16}>
+        <Row gutter={[16, 24]} style={{ marginTop: '1rem' }}>
           <Col span={6}>
-            <Form.Item name="province" label="Province/State">
-              <Input placeholder="Enter province/state" />
+            <Form.Item name="province">
+              <Input placeholder="Province/State" />
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="industry" label="Industry">
-              <Select placeholder="Select industry" allowClear>
+            <Form.Item name="industry">
+              <Select placeholder="Industry" allowClear>
                 <Option value="Technology">Technology</Option>
                 <Option value="Finance">Finance</Option>
                 <Option value="Healthcare">Healthcare</Option>
@@ -179,8 +159,8 @@ const ClientsPage: React.FC = () => {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item name="source" label="Source">
-              <Select placeholder="Select source" allowClear>
+            <Form.Item name="source">
+              <Select placeholder="Source" allowClear>
                 <Option value="Referral">Referral</Option>
                 <Option value="Advertisement">Advertisement</Option>
                 <Option value="Website">Website</Option>
@@ -188,13 +168,15 @@ const ClientsPage: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
-              <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
-                Filter
-              </Button>
-              <Button onClick={resetFilters}>Reset</Button>
-            </div>
+          <Col span={6} className='filter-buttons-container'>
+            <Form.Item>
+              <Space>
+                <Button type="primary" htmlType="submit" className='submit-btn'>
+                  Filter
+                </Button>
+                <Button onClick={resetFilters}>Reset</Button>
+              </Space>
+            </Form.Item>
           </Col>
         </Row>
       </Form>
@@ -206,7 +188,7 @@ const ClientsPage: React.FC = () => {
         pagination={{ pageSize: 8 }}
       />
 
-      <CreateNewClient 
+      <CreateNewClient
         isVisible={isModalVisible}
         onClose={handleModalClose}
         onClientCreated={handleNewClientCreated}
