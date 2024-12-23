@@ -103,3 +103,12 @@ li.ant-menu-item {
 .ant-btn-primary:hover {
   background-color: #a52a2a; /* Darker shade for hover effect */
 }
+
+.filter-buttons-container {
+  display: flex;
+  gap: 1rem !important;
+}
+
+.submit-btn {
+  margin: 0 1rem 0 0 !important;
+}
