@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import '../styles/root.css'
+import '../styles/root.css';
 
 const { Option } = Select;
 
@@ -37,6 +37,8 @@ const ArticlesPage: React.FC = () => {
   const [data, setData] = useState<Article[]>([]);
   const [filteredData, setFilteredData] = useState<Article[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   const fetchArticles = async () => {
     try {
@@ -90,24 +92,33 @@ const ArticlesPage: React.FC = () => {
       return Object.entries(values).every(([key, value]) => {
         if (!value) return true; // Skip empty filters
         if (key === 'productname' && value) {
-          return article.name?.toLowerCase().includes((value as string).toLowerCase());
+          return article.name
+            ?.toLowerCase()
+            .includes((value as string).toLowerCase());
         }
         if (key === 'dimensions' && value) {
-          return article.dimensions?.toLowerCase().includes((value as string).toLowerCase());
+          return article.dimensions
+            ?.toLowerCase()
+            .includes((value as string).toLowerCase());
         }
         if (key === 'brand' && value) {
-          return article.brand?.toLowerCase().includes((value as string).toLowerCase());
+          return article.brand
+            ?.toLowerCase()
+            .includes((value as string).toLowerCase());
         }
         return true;
       });
     });
     setFilteredData(filtered);
   };
-  
-  
-  
+
   const resetFilters = () => {
     fetchArticles();
+  };
+
+  const handleView = (article: Article) => {
+    setSelectedArticle(article); // Set the selected article
+    setIsViewModalVisible(true); // Open the view modal
   };
 
   const columns: ColumnsType<Article> = [
@@ -143,6 +154,7 @@ const ArticlesPage: React.FC = () => {
         <Space size="middle">
           <Button>Edit</Button>
           <Button>Delete</Button>
+          <Button onClick={() => handleView(record)}>View</Button>
         </Space>
       ),
     },
@@ -180,7 +192,7 @@ const ArticlesPage: React.FC = () => {
           <Col span={6}>
             <Form.Item>
               <Space>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" className="submit-btn">
                   Filter
                 </Button>
                 <Button onClick={resetFilters}>Reset</Button>
@@ -189,9 +201,11 @@ const ArticlesPage: React.FC = () => {
           </Col>
         </Row>
       </Form>
-
-      <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 7 }} />
-
+      <Table
+        dataSource={filteredData}
+        columns={columns}
+        pagination={{ pageSize: 7 }}
+      />
       <Modal
         title="Create New Article"
         visible={isModalVisible}
@@ -255,7 +269,9 @@ const ArticlesPage: React.FC = () => {
           <Form.Item
             name="low_stock"
             label="Low Stock Threshold"
-            rules={[{ required: true, message: 'Low Stock Threshold is required' }]}
+            rules={[
+              { required: true, message: 'Low Stock Threshold is required' },
+            ]}
           >
             <InputNumber min={0} style={{ width: '100%' }} />
           </Form.Item>
@@ -274,6 +290,54 @@ const ArticlesPage: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+      // View Modal
+      <Modal
+        title="Article Details"
+        visible={isViewModalVisible}
+        footer={null}
+        onCancel={() => setIsViewModalVisible(false)}
+      >
+        {selectedArticle ? (
+          <div>
+            <p>
+              <strong>ID:</strong> {selectedArticle.id}
+            </p>
+            <p>
+              <strong>Product Name:</strong> {selectedArticle.name}
+            </p>
+            <p>
+              <strong>Dimensions:</strong> {selectedArticle.dimensions}
+            </p>
+            <p>
+              <strong>Brand:</strong> {selectedArticle.brand}
+            </p>
+            <p>
+              <strong>Stock Level:</strong> {selectedArticle.stock_level}
+            </p>
+            <p>
+              <strong>Description:</strong>{' '}
+              {selectedArticle.description || 'N/A'}
+            </p>
+            <p>
+              <strong>Purchase Price:</strong> {selectedArticle.purchase_price}
+            </p>
+            <p>
+              <strong>Sale Price:</strong> {selectedArticle.sale_price}
+            </p>
+            <p>
+              <strong>Low Stock Threshold:</strong> {selectedArticle.low_stock}
+            </p>
+            <p>
+              <strong>Used:</strong> {selectedArticle.used ? 'Yes' : 'No'}
+            </p>
+            <p>
+              <strong>Last Sold:</strong> {selectedArticle.last_sold}
+            </p>
+          </div>
+        ) : (
+          <p>No details available</p>
+        )}
       </Modal>
     </div>
   );
