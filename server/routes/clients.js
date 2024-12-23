@@ -114,9 +114,118 @@ router.post(
   },
 );
 
+router.put(
+  '/:id',
+  [
+    body('companyName').optional().isString().withMessage("Company's name must be a string"),
+    body('nif').optional().isString().withMessage('NIF must be a string'),
+    body('clientName').optional().isString().withMessage("Client's name must be a string"),
+    body('clientType').optional().isString().withMessage('Client type must be a string'),
+    body('phone1')
+      .optional()
+      .isMobilePhone()
+      .withMessage('Phone 1 must be a valid phone number'),
+    body('phone2')
+      .optional()
+      .isMobilePhone()
+      .withMessage('Phone 2 must be a valid phone number'),
+    body('phone3')
+      .optional()
+      .isMobilePhone()
+      .withMessage('Phone 3 must be a valid phone number'),
+    body('email1')
+      .optional()
+      .isEmail()
+      .withMessage('Email 1 must be a valid email'),
+    body('email2')
+      .optional()
+      .isEmail()
+      .withMessage('Email 2 must be a valid email'),
+    body('email3')
+      .optional()
+      .isEmail()
+      .withMessage('Email 3 must be a valid email'),
+    body('postalCode')
+      .optional()
+      .isPostalCode('any')
+      .withMessage('Postal code must be valid'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    console.log(errors);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const {
+      companyName,
+      nif,
+      clientName,
+      clientType,
+      phone1,
+      phone2,
+      phone3,
+      iceo,
+      country,
+      province,
+      postalCode,
+      email1,
+      email2,
+      email3,
+    } = req.body;
+
+    try {
+      // Construct the SET clause dynamically based on provided fields
+      const fields = [];
+      const values = [];
+      let index = 1;
+
+      if (companyName) fields.push(`company_name = $${index++}`), values.push(companyName);
+      if (nif) fields.push(`nif = $${index++}`), values.push(nif);
+      if (clientName) fields.push(`client_name = $${index++}`), values.push(clientName);
+      if (clientType) fields.push(`client_type = $${index++}`), values.push(clientType);
+      if (phone1) fields.push(`phone1 = $${index++}`), values.push(phone1);
+      if (phone2) fields.push(`phone2 = $${index++}`), values.push(phone2);
+      if (phone3) fields.push(`phone3 = $${index++}`), values.push(phone3);
+      if (iceo) fields.push(`iceo = $${index++}`), values.push(iceo);
+      if (country) fields.push(`country = $${index++}`), values.push(country);
+      if (province) fields.push(`province = $${index++}`), values.push(province);
+      if (postalCode) fields.push(`postal_code = $${index++}`), values.push(postalCode);
+      if (email1) fields.push(`email1 = $${index++}`), values.push(email1);
+      if (email2) fields.push(`email2 = $${index++}`), values.push(email2);
+      if (email3) fields.push(`email3 = $${index++}`), values.push(email3);
+
+      // Ensure at least one field to update is provided
+      if (fields.length === 0) {
+        return res.status(400).json({ error: 'No fields provided for update' });
+      }
+
+      values.push(id);
+
+      const query = `
+        UPDATE clients
+        SET ${fields.join(', ')}
+        WHERE id = $${index}
+      `;
+
+      await pool.query(query, values);
+
+      res.status(200).json({ message: 'Client updated successfully!' });
+    } catch (error) {
+      console.error('Database error:', error);
+      res.status(500).json({ error: 'Database update failed' });
+    }
+  },
+);
+
+
 // DELETE Client by ID
 router.delete('/:id', async (req, res) => {
   const { id } = req.params; // Extract client ID from URL parameters
+
+  console.log(id);
 
   try {
     // Execute a query to delete the client from the database

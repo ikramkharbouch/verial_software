@@ -1,18 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { 
-  Input, 
-  Select, 
-  Button, 
-  Form, 
-  notification, 
-  Row, 
-  Col, 
-  Modal, 
-  Space
-} from 'antd';
+import { Input, Select, Button, Form, notification, Row, Col, Modal, Space } from 'antd';
 import axios from 'axios';
 import '../../styles/forms.css';
 
@@ -20,9 +10,9 @@ const { Option } = Select;
 
 // Define the validation schema using Zod
 const clientSchema = z.object({
-  companyName: z.string().min(1, 'Company name is required'),
-  nif: z.string().min(1, 'NIF is required'),
-  clientName: z.string().min(1, 'Client name is required'),
+  companyName: z.string().optional(),
+  nif: z.string().optional(),
+  clientName: z.string().optional(),
   clientType: z.string().optional(),
   phoneNumber1: z.string().optional(),
   phoneNumber2: z.string().optional(),
@@ -48,13 +38,15 @@ type ClientFormData = z.infer<typeof clientSchema>;
 interface CreateNewClientProps {
   isVisible: boolean;
   onClose: () => void;
-  onClientCreated?: (client: ClientFormData) => void;
+  onClientCreated: () => void;
+  editingClient?: any; // Optional client data for editing
 }
 
-const CreateNewClient: React.FC<CreateNewClientProps> = ({ 
-  isVisible, 
-  onClose, 
-  onClientCreated 
+const CreateNewClient: React.FC<CreateNewClientProps> = ({
+  isVisible,
+  onClose,
+  onClientCreated,
+  editingClient,
 }) => {
   const {
     control,
@@ -66,33 +58,44 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
     mode: 'onBlur',
   });
 
+  // Populate form when editing
+  useEffect(() => {
+    if (editingClient) {
+      reset(editingClient); // Populate the form with the editing client's data
+    } else {
+      reset(); // Reset the form for new client creation
+    }
+  }, [editingClient, reset]);
+
   const onSubmit = async (data: ClientFormData) => {
     try {
-      // Send a POST request to the server
-      const response = await axios.post(
-        'http://localhost:3000/clients/create',
+      const url = editingClient
+        ? `http://localhost:3000/clients/${editingClient.id}`
+        : 'http://localhost:3000/clients/create';
+
+      const method = editingClient ? 'PUT' : 'POST';
+
+      await axios({
+        url,
+        method,
         data,
-      );
-      
-      // Notify success
-      notification.success({ 
-        message: 'Client created successfully!',
-        description: `Client ${data.clientName} has been added.`
       });
 
-      // Call optional callback if provided
-      if (onClientCreated) {
-        onClientCreated(data);
-      }
+      notification.success({
+        message: `Client ${editingClient ? 'updated' : 'created'} successfully!`,
+        description: `Client ${data.clientName || editingClient?.clientName} has been ${
+          editingClient ? 'updated' : 'added'
+        }.`,
+      });
 
-      // Reset form and close modal
+      onClientCreated();
       reset();
       onClose();
     } catch (error) {
-      console.error('Error creating client:', error);
-      notification.error({ 
-        message: 'Failed to create client',
-        description: 'Please check your input and try again.'
+      console.error(`Error ${editingClient ? 'updating' : 'creating'} client:`, error);
+      notification.error({
+        message: `Failed to ${editingClient ? 'update' : 'create'} client`,
+        description: 'Please check your input and try again.',
       });
     }
   };
@@ -104,21 +107,17 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
 
   return (
     <Modal
-      title="Create New Client"
+      title={editingClient ? 'Edit Client' : 'Create New Client'}
       open={isVisible}
       onCancel={handleCancel}
       footer={null}
       destroyOnClose // Ensures form is reset when modal is closed
     >
-      <Form 
-        onFinish={handleSubmit(onSubmit)} 
-        layout="vertical" 
-        className="client-form"
-      >
+      <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="client-form">
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item 
-              label="Company's Name" 
+            <Form.Item
+              label="Company's Name"
               help={errors.companyName?.message}
               validateStatus={errors.companyName ? 'error' : ''}
             >
@@ -130,7 +129,7 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item 
+            <Form.Item
               label="N.I.F"
               help={errors.nif?.message}
               validateStatus={errors.nif ? 'error' : ''}
@@ -143,162 +142,138 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
             </Form.Item>
           </Col>
         </Row>
-
         <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item label="Client's Name">
-            <Controller
-              name="clientName"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.clientName && (
-              <span style={{ color: 'red' }}>{errors.clientName.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          {' '}
-          <Form.Item label="Type of Client">
-            <Controller
-              name="clientType"
-              control={control}
-              render={({ field }) => (
-                <Select {...field}>
-                  <Option value="individual">Individual</Option>
-                  <Option value="corporate">Corporate</Option>
-                  <Option value="government">Government</Option>
-                </Select>
-              )}
-            />
-            {errors.clientType && (
-              <span style={{ color: 'red' }}>{errors.clientType.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-
-            <Row gutter={16}>
-            <Col span={12}>
-          <Form.Item label="Phone Number 1">
-            <Controller
-              name="phoneNumber1"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.phoneNumber1 && (
-              <span style={{ color: 'red' }}>
-                {errors.phoneNumber1.message}
-              </span>
-            )}
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item label="Phone Number 2">
-            <Controller
-              name="phoneNumber2"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item label="Phone Number 3">
-            <Controller
-              name="phoneNumber3"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item label="ICEO">
-            <Controller
-              name="iceo"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.iceo && (
-              <span style={{ color: 'red' }}>{errors.iceo.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item label="Country">
-            <Controller
-              name="country"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-            {errors.country && (
-              <span style={{ color: 'red' }}>{errors.country.message}</span>
-            )}
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-        <Form.Item label="Province">
-        <Controller
-          name="province"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.province && (
-          <span style={{ color: 'red' }}>{errors.province.message}</span>
-        )}
-      </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item label="Postal Code">
-        <Controller
-          name="postalCode"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.postalCode && (
-          <span style={{ color: 'red' }}>{errors.postalCode.message}</span>
-        )}
-      </Form.Item>
-        </Col>
-
-            </Row>
-
+          <Col span={12}>
+            <Form.Item label="Client's Name">
+              <Controller
+                name="clientName"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Type of Client">
+              <Controller
+                name="clientType"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field}>
+                    <Option value="individual">Individual</Option>
+                    <Option value="corporate">Corporate</Option>
+                    <Option value="government">Government</Option>
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
         </Row>
-
-        <Form.Item label="Email 1">
-        <Controller
-          name="email1"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-        {errors.email1 && (
-          <span style={{ color: 'red' }}>{errors.email1.message}</span>
-        )}
-      </Form.Item>
-
-      <Form.Item label="Email 2">
-        <Controller
-          name="email2"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-      </Form.Item>
-
-      <Form.Item label="Email 3">
-        <Controller
-          name="email3"
-          control={control}
-          render={({ field }) => <Input {...field} />}
-        />
-      </Form.Item>
-
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Phone Number 1">
+              <Controller
+                name="phoneNumber1"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Phone Number 2">
+              <Controller
+                name="phoneNumber2"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Phone Number 3">
+              <Controller
+                name="phoneNumber3"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="ICEO">
+              <Controller
+                name="iceo"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Country">
+              <Controller
+                name="country"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Province">
+              <Controller
+                name="province"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Postal Code">
+              <Controller
+                name="postalCode"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Email 1">
+              <Controller
+                name="email1"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Email 2">
+              <Controller
+                name="email2"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Email 3">
+              <Controller
+                name="email3"
+                control={control}
+                render={({ field }) => <Input {...field} />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              Submit
+              {editingClient ? 'Save Changes' : 'Create Client'}
             </Button>
-            <Button onClick={handleCancel}>
-              Cancel
-            </Button>
+            <Button onClick={handleCancel}>Cancel</Button>
           </Space>
         </Form.Item>
       </Form>

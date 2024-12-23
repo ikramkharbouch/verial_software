@@ -25,6 +25,9 @@ const ClientsPage: React.FC = () => {
   const [data, setData] = useState(clients);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [editingClient, setEditingClient] = useState<any | null>(null);
+  const [selectedClient, setSelectedClient] = useState(null);
+
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -43,6 +46,7 @@ const ClientsPage: React.FC = () => {
 
   const handleModalClose = () => {
     setIsModalVisible(false);
+    setSelectedClient(null);
   };
 
   const handleNewClientCreated = () => {
@@ -80,6 +84,33 @@ const ClientsPage: React.FC = () => {
     setData(clients);
   };
 
+  const handleEdit = (client: any) => {
+    setEditingClient(client); // Set the client to be edited
+    setIsModalVisible(true); // Show the modal
+  };
+
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/clients/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        message.success('Client deleted successfully.');
+        // Remove the deleted client from the state
+        setData((prevData) => prevData.filter((client) => client.id !== String(id)));
+        // Optionally update the Redux store
+        dispatch(getClients());
+      } else {
+        message.error('Failed to delete client.');
+      }
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      message.error('An error occurred while deleting the client.');
+    }
+  };
+  
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
     { title: 'Company Name', dataIndex: 'company_name', key: 'companyName' },
@@ -93,13 +124,20 @@ const ClientsPage: React.FC = () => {
       render: (_: any, record: any) => (
         <Space size="middle">
           <Tooltip title="Edit">
-            <Button icon={<EditOutlined />} onClick={showModal} />
+          <Button
+  icon={<EditOutlined />}
+  onClick={() => {
+    setSelectedClient(record);
+    setIsModalVisible(true);
+  }}
+/>
           </Tooltip>
           <Tooltip title="Delete">
-            <Button
-              icon={<DeleteOutlined />}
-              onClick={() => message.warning('Delete functionality pending')}
-            />
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+            danger
+          />
           </Tooltip>
         </Space>
       ),
@@ -199,14 +237,17 @@ const ClientsPage: React.FC = () => {
         dataSource={data}
         columns={columns}
         rowKey="id"
-        pagination={{ pageSize: 8 }}
+        pagination={{ pageSize: 7 }}
       />
 
-      <CreateNewClient
-        isVisible={isModalVisible}
-        onClose={handleModalClose}
-        onClientCreated={handleNewClientCreated}
-      />
+<CreateNewClient
+  isVisible={isModalVisible}
+  onClose={handleModalClose}
+  onClientCreated={handleNewClientCreated}
+  editingClient={selectedClient}
+/>
+
+
     </div>
   );
 };
