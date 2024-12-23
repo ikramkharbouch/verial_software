@@ -4,56 +4,113 @@ import {
   Table,
   Space,
   Modal,
-  Card,
+  Form,
   Input,
   DatePicker,
   Select,
+  InputNumber,
+  notification,
+  Row,
+  Col,
 } from 'antd';
-import type { DatePickerProps } from 'antd/es/date-picker';
-import SalesOverview from '@renderer/components/articles/salesModal';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import '../styles/root.css'
 
-const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 interface Article {
   id: string;
-  productName: string;
-  provider: string;
+  name: string;
+  brand: string;
   dimensions: string;
-  totalPrice: string;
+  description: string;
+  purchase_price: number;
+  sale_price: number;
+  stock_level: number;
+  low_stock: number;
+  used: number;
+  last_sold: string;
 }
 
 const ArticlesPage: React.FC = () => {
-  const [isSalesModalVisible, setIsSalesModalVisible] =
-    useState<boolean>(false);
+  const [data, setData] = useState<Article[]>([]);
+  const [filteredData, setFilteredData] = useState<Article[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const [data, setData] = useState<Article[]>([]); // State for storing articles
-
-  const handleSalesModalOpen = () => {
-    setIsSalesModalVisible(true);
+  const fetchArticles = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/articles');
+      const articles = await response.json();
+      console.log(articles);
+      setData(articles || []);
+      setFilteredData(articles || []);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    }
   };
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/articles');
-        const articles = await response.json();
-
-        console.log(articles);
-        setData(articles || []);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      }
-    };
-
     fetchArticles();
   }, []);
 
-  const handleSalesModalClose = () => {
-    setIsSalesModalVisible(false);
+  const handleCreateArticle = async (values: Omit<Article, 'id'>) => {
+    try {
+      const response = await fetch('http://localhost:3000/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+
+      if (response.ok) {
+        notification.success({
+          message: 'Article Created',
+          description: 'The article has been added successfully.',
+        });
+        setIsModalVisible(false);
+        fetchArticles();
+      } else {
+        const error = await response.json();
+        notification.error({
+          message: 'Error Creating Article',
+          description: error.message || 'An error occurred.',
+        });
+      }
+    } catch (error) {
+      console.error('Error creating article:', error);
+      notification.error({
+        message: 'Error Creating Article',
+        description: 'An error occurred. Please try again.',
+      });
+    }
   };
 
-  const columns = [
+  const handleFilter = (values: Partial<Article>) => {
+    const filtered = data.filter((article) => {
+      return Object.entries(values).every(([key, value]) => {
+        if (!value) return true; // Skip empty filters
+        if (key === 'productname' && value) {
+          return article.name?.toLowerCase().includes((value as string).toLowerCase());
+        }
+        if (key === 'dimensions' && value) {
+          return article.dimensions?.toLowerCase().includes((value as string).toLowerCase());
+        }
+        if (key === 'brand' && value) {
+          return article.brand?.toLowerCase().includes((value as string).toLowerCase());
+        }
+        return true;
+      });
+    });
+    setFilteredData(filtered);
+  };
+  
+  
+  
+  const resetFilters = () => {
+    fetchArticles();
+  };
+
+  const columns: ColumnsType<Article> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -62,12 +119,7 @@ const ArticlesPage: React.FC = () => {
     {
       title: 'Product Name',
       dataIndex: 'productname',
-      key: 'productName',
-    },
-    {
-      title: 'Provider',
-      dataIndex: 'provider_id',
-      key: 'provider',
+      key: 'name',
     },
     {
       title: 'Dimensions',
@@ -75,19 +127,22 @@ const ArticlesPage: React.FC = () => {
       key: 'dimensions',
     },
     {
-      title: 'Total Price',
-      dataIndex: 'totalprice',
-      key: 'totalPrice',
+      title: 'Brand',
+      dataIndex: 'brand',
+      key: 'brand',
+    },
+    {
+      title: 'Stock Level',
+      dataIndex: 'stock_level',
+      key: 'stock_level',
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: Article) => (
+      render: (_, record) => (
         <Space size="middle">
           <Button>Edit</Button>
           <Button>Delete</Button>
-          <Button>Comment</Button>
-          <Button>Expand</Button>
         </Space>
       ),
     },
@@ -97,19 +152,128 @@ const ArticlesPage: React.FC = () => {
     <div>
       <h1 style={{ marginBottom: '20px' }}>Articles Management</h1>
       <Space style={{ marginBottom: '20px' }}>
-        <Button type="primary">New</Button>
-        <Button onClick={handleSalesModalOpen}>Sales</Button>
+        <Button type="primary" onClick={() => setIsModalVisible(true)}>
+          New Article
+        </Button>
       </Space>
-      <Table dataSource={data} columns={columns} pagination={{ pageSize: 7 }} />
+      <Form
+        layout="vertical"
+        onFinish={handleFilter}
+        style={{ marginBottom: '20px' }}
+      >
+        <Row gutter={[16, 16]}>
+          <Col span={6}>
+            <Form.Item name="name">
+              <Input placeholder="Product Name" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="dimensions">
+              <Input placeholder="Dimensions" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="brand">
+              <Input placeholder="Brand" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item>
+              <Space>
+                <Button type="primary" htmlType="submit">
+                  Filter
+                </Button>
+                <Button onClick={resetFilters}>Reset</Button>
+              </Space>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+
+      <Table dataSource={filteredData} columns={columns} pagination={{ pageSize: 7 }} />
 
       <Modal
-        visible={isSalesModalVisible}
+        title="Create New Article"
+        visible={isModalVisible}
         footer={null}
-        onCancel={handleSalesModalClose}
-        width="90%" // Set the modal width as per your design
-        style={{ top: 20 }}
+        onCancel={() => setIsModalVisible(false)}
+        destroyOnClose
       >
-        <SalesOverview onClose={handleSalesModalClose} />
+        <Form
+          layout="vertical"
+          onFinish={handleCreateArticle}
+          initialValues={{
+            last_sold: dayjs(),
+            used: 0,
+          }}
+        >
+          <Form.Item
+            name="name"
+            label="Product Name"
+            rules={[{ required: true, message: 'Product Name is required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="dimensions"
+            label="Dimensions"
+            rules={[{ required: true, message: 'Dimensions are required' }]}
+          >
+            <Input placeholder="e.g., 205/55R16" />
+          </Form.Item>
+          <Form.Item
+            name="brand"
+            label="Brand"
+            rules={[{ required: true, message: 'Brand is required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="purchase_price"
+            label="Purchase Price"
+            rules={[{ required: true, message: 'Purchase Price is required' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            name="sale_price"
+            label="Sale Price"
+            rules={[{ required: true, message: 'Sale Price is required' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            name="stock_level"
+            label="Stock Level"
+            rules={[{ required: true, message: 'Stock Level is required' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            name="low_stock"
+            label="Low Stock Threshold"
+            rules={[{ required: true, message: 'Low Stock Threshold is required' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="used" label="Used">
+            <Select>
+              <Option value={0}>No</Option>
+              <Option value={1}>Yes</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="last_sold" label="Last Sold Date">
+            <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+              Create Article
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
