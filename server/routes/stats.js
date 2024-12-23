@@ -5,7 +5,7 @@ const pool = require('../db'); // Assuming you have a db.js file for PostgreSQL 
 // GET route to fetch inventory data
 router.get('/inventory', async (req, res) => {
   try {
-    const fetchQuery = 'SELECT * FROM inventory;';
+    const fetchQuery = 'SELECT * FROM articles;';
     const result = await pool.query(fetchQuery);
     res.status(200).json(result.rows);
   } catch (error) {

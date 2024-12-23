@@ -12,6 +12,8 @@ const InvoiceViewModal = ({
   toggleExpand,
 }: any) => {
 
+  console.log(selectedInvoice);
+
     const invoiceItems = [
       {
         reference: 'REF001',

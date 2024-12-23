@@ -7,7 +7,7 @@ interface InventoryProps {
 
 const InventoryOverview: React.FC<InventoryProps> = ({ data }) => {
   return (
-    <div style={{ height: 400 }}>
+    <div style={{ height: 300, width: 500 }}>
       <ResponsiveBar
         data={data as any}
         keys={['stock_level', 'low_stock']} // Fields to plot
