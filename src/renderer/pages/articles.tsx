@@ -39,6 +39,11 @@ const ArticlesPage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deletingArticleId, setDeletingArticleId] = useState<string | null>(null);
+
 
   const fetchArticles = async () => {
     try {
@@ -86,6 +91,83 @@ const ArticlesPage: React.FC = () => {
       });
     }
   };
+
+  const handleDelete = async () => {
+    if (!deletingArticleId) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/articles/${deletingArticleId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        notification.success({
+          message: 'Article Deleted',
+          description: 'The article has been deleted successfully.',
+        });
+        setIsDeleteModalVisible(false);
+        fetchArticles();
+      } else {
+        const error = await response.json();
+        notification.error({
+          message: 'Error Deleting Article',
+          description: error.message || 'An error occurred.',
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      notification.error({
+        message: 'Error Deleting Article',
+        description: 'An error occurred. Please try again.',
+      });
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    setDeletingArticleId(id);
+    setIsDeleteModalVisible(true);
+  };
+
+
+  const handleEditSubmit = async (values: Partial<Article>) => {
+    try {
+      if (!editingArticle) return;
+
+      const response = await fetch(`http://localhost:3000/articles/${editingArticle.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+
+      if (response.ok) {
+        notification.success({
+          message: 'Article Updated',
+          description: 'The article has been updated successfully.',
+        });
+        setIsEditModalVisible(false);
+        fetchArticles();
+      } else {
+        const error = await response.json();
+        notification.error({
+          message: 'Error Updating Article',
+          description: error.message || 'An error occurred.',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating article:', error);
+      notification.error({
+        message: 'Error Updating Article',
+        description: 'An error occurred. Please try again.',
+      });
+    }
+  };
+
+  const handleEdit = (record: Article) => {
+    setEditingArticle(record);
+    setIsEditModalVisible(true);
+  };
+
+
 
   const handleFilter = (values: Partial<Article>) => {
     const filtered = data.filter((article) => {
@@ -152,8 +234,8 @@ const ArticlesPage: React.FC = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Button>Edit</Button>
-          <Button>Delete</Button>
+          <Button onClick={() => handleEdit(record)}>Edit</Button>
+          <Button onClick={() => confirmDelete(record.id)}>Delete</Button>
           <Button onClick={() => handleView(record)}>View</Button>
         </Space>
       ),
@@ -291,7 +373,6 @@ const ArticlesPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-      // View Modal
       <Modal
         title="Article Details"
         visible={isViewModalVisible}
@@ -339,6 +420,69 @@ const ArticlesPage: React.FC = () => {
           <p>No details available</p>
         )}
       </Modal>
+
+      <Modal
+        title="Edit Article"
+        visible={isEditModalVisible}
+        footer={null}
+        onCancel={() => setIsEditModalVisible(false)}
+        destroyOnClose
+      >
+        <Form
+          layout="vertical"
+          onFinish={handleEditSubmit}
+          initialValues={editingArticle || {}}
+        >
+          <Form.Item
+            name="name"
+            label="Product Name"
+            rules={[{ required: true, message: 'Product Name is required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="dimensions"
+            label="Dimensions"
+            rules={[{ required: true, message: 'Dimensions are required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="brand"
+            label="Brand"
+            rules={[{ required: true, message: 'Brand is required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="stock_level"
+            label="Stock Level"
+            rules={[{ required: true, message: 'Stock Level is required' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+              Save Changes
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+        title="Confirm Delete"
+        visible={isDeleteModalVisible}
+        onOk={handleDelete}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this article?</p>
+      </Modal>
+
+
     </div>
   );
 };
