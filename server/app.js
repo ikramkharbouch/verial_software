@@ -16,7 +16,8 @@ var paymentsRouter = require('./routes/payments');
 var madeBillsrouter = require('./routes/bills');
 var profileRouter = require('./routes/profile');
 var statsRouter = require('./routes/stats');
-var providerRouter = require('./routes/providers')
+var providerRouter = require('./routes/providers');
+var articlesRouter = require('./routes/articles');
 
 // import our postgres db
 const db = require('./db/index');
@@ -64,6 +65,7 @@ app.use('/madeBills', madeBillsrouter);
 app.use('/profile', profileRouter);
 app.use('/stats', statsRouter);
 app.use('/providers', providerRouter);
+app.use('/articles', articlesRouter);
 
 // DB crud functions for users
 app.get('/users', queries.getUsers);

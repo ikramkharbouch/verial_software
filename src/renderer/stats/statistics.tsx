@@ -39,7 +39,7 @@ const Statistics: React.FC = () => {
     dispatch(fetchRevenueExpenses());
 
 
-    console.log("Revenueeee", revenueExpenses);
+    console.log("Inventory", inventory);
 
     console.log(providers);
   }, [dispatch]);
