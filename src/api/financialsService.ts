@@ -27,6 +27,7 @@ export const createCharge = async (charge: Omit<Charge, 'id'>): Promise<Charge> 
 
 // Update an existing charge
 export const updateChargeById = async (id: number, charge: Omit<Charge, 'id'>): Promise<Charge> => {
+  console.log(charge);
     const response = await API.put(`/charges/${id}`, charge);
     return response.data;
 };

@@ -90,14 +90,15 @@ export const addCharge = createAsyncThunk('financials/addCharge', async (charge:
 export const updateCharge = createAsyncThunk(
     'financials/updateCharge',
     async ({ id, charge }: { id: number; charge: Omit<Charge, 'id'> }, { rejectWithValue }) => {
-        try {
-            return await updateChargeById(id, charge);
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data || 'Failed to update charge');
-        }
+      try {
+        console.log("in slices file", { id, charge }); // Debugging log
+        return await updateChargeById(id, charge); // Ensure `updateChargeById` is implemented correctly
+      } catch (error: any) {
+        return rejectWithValue(error.response?.data || 'Failed to update charge');
+      }
     }
-);
-
+  );
+  
 export const deleteCharge = createAsyncThunk('financials/deleteCharge', async (id: number, { rejectWithValue }) => {
     try {
         await deleteChargeById(id);

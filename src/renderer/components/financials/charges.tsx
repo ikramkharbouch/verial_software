@@ -24,6 +24,7 @@ import {
   updateCharge,
   deleteCharge,
 } from '../../../store/slices/financialsSlice';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -43,7 +44,9 @@ interface Charge {
 
 const ChargesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { charges, loading } = useSelector((state: RootState) => state.financials.chargesState);
+  const { charges, loading } = useSelector(
+    (state: RootState) => state.financials.chargesState,
+  );
   const [filteredCharges, setFilteredCharges] = useState<Charge[]>([]);
 
   // Filter states
@@ -59,14 +62,13 @@ const ChargesPage: React.FC = () => {
   useEffect(() => {
     dispatch(fetchCharges());
   }, [dispatch]);
-  
+
   const memoizedCharges = useMemo(() => charges, [charges]);
 
   useEffect(() => {
     setFilteredCharges(memoizedCharges as any);
   }, [memoizedCharges]);
 
-  // Apply Filters
   const applyFilters = () => {
     let filtered = [...charges];
 
@@ -74,21 +76,27 @@ const ChargesPage: React.FC = () => {
     if (searchText) {
       filtered = filtered.filter(
         (charge) =>
-          (charge.provider_client?.toLowerCase() || '').includes(searchText.toLowerCase()) ||
-          (charge.invoice_number?.toLowerCase() || '').includes(searchText.toLowerCase()) ||
-          (charge.description?.toLowerCase() || '').includes(searchText.toLowerCase())
+          charge.provider_client
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          charge.invoice_number
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          charge.description.toLowerCase().includes(searchText.toLowerCase()),
       );
     }
 
     // Charge type
     if (chargeType) {
-      filtered = filtered.filter((charge) => charge.chargeType === chargeType);
+      filtered = filtered.filter((charge) => charge.charge_type === chargeType);
     }
 
     // Provider/Client filter
     if (providerClient) {
       filtered = filtered.filter((charge) =>
-        (charge.provider_client?.toLowerCase() || '').includes(providerClient.toLowerCase())
+        charge.provider_client
+          .toLowerCase()
+          .includes(providerClient.toLowerCase()),
       );
     }
 
@@ -96,11 +104,17 @@ const ChargesPage: React.FC = () => {
     if (dateRange) {
       const [start, end] = dateRange;
       filtered = filtered.filter((charge) =>
-        dayjs(charge.chargeDate).isBetween(dayjs(start), dayjs(end), 'day', '[]')
+        dayjs(charge.charge_date).isBetween(
+          dayjs(start),
+          dayjs(end),
+          'day',
+          '[]',
+        ),
       );
     }
 
-    setFilteredCharges(filtered as any);
+    setFilteredCharges(filtered);
+    message.success('Filters applied.');
   };
 
   // Reset Filters
@@ -131,18 +145,29 @@ const ChargesPage: React.FC = () => {
     setEditingCharge(null);
   };
 
-  // Handle Add/Edit Submission
   const handleFormSubmit = async (values: any) => {
-    if (editingCharge) {
-      await dispatch(updateCharge({ ...editingCharge, ...values })).unwrap();
-      message.success('Charge updated successfully.');
-    } else {
-      await dispatch(addCharge(values)).unwrap();
-      message.success('Charge added successfully.');
+    try {
+      if (editingCharge) {
+        // Structure the payload correctly
+        const payload = {
+          id: editingCharge.id,
+          charge: {
+            ...values, // Form values
+          },
+        };
+        console.log('Dispatching updateCharge with payload:', payload);
+        await dispatch(updateCharge(payload)).unwrap();
+        message.success('Charge updated successfully.');
+      } else {
+        await dispatch(addCharge(values)).unwrap();
+        message.success('Charge added successfully.');
+      }
+      closeModal(); // Close the modal on success
+    } catch (error) {
+      message.error('Failed to save charge. Please try again.');
     }
-    closeModal();
   };
-
+  
   // Handle Delete
   const handleDelete = async (id: number) => {
     await dispatch(deleteCharge(id)).unwrap();
@@ -187,14 +212,18 @@ const ChargesPage: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <>
-          <Button type="link" onClick={() => openModal(record)}>
-            Edit
-          </Button>
-          <Button type="link" danger onClick={() => handleDelete(record.id)}>
-            Delete
-          </Button>
-        </>
+        <Space>
+          <Button
+            type="text"
+            icon={<EditOutlined style={{ color: 'black' }} />}
+            onClick={() => openModal(record)}
+          />
+          <Button
+            type="text"
+            icon={<DeleteOutlined style={{ color: 'red' }} />}
+            onClick={() => handleDelete(record.id)}
+          />
+        </Space>
       ),
     },
   ];
@@ -202,7 +231,18 @@ const ChargesPage: React.FC = () => {
   return (
     <div>
       <h1>Charges</h1>
-      <Row gutter={[16, 16]} style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+      <Button
+        type="primary"
+        onClick={() => openModal()}
+        style={{ marginTop: '1rem' }}
+      >
+        Create Charge
+      </Button>
+
+      <Row
+        gutter={[16, 16]}
+        style={{ marginTop: '1rem', marginBottom: '1rem' }}
+      >
         <Col xs={24} sm={12} md={6}>
           <Input
             placeholder="Search by provider, invoice, or description"
@@ -235,13 +275,19 @@ const ChargesPage: React.FC = () => {
         <Col xs={24} sm={12} md={6}>
           <RangePicker
             onChange={(dates, dateStrings) =>
-              setDateRange(dateStrings[0] && dateStrings[1] ? dateStrings : undefined)
+              setDateRange(
+                dateStrings[0] && dateStrings[1] ? dateStrings : undefined,
+              )
             }
             style={{ width: '100%' }}
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Button type="primary" onClick={applyFilters} style={{ width: '100%' }}>
+          <Button
+            type="primary"
+            onClick={applyFilters}
+            style={{ width: '100%' }}
+          >
             Apply Filters
           </Button>
         </Col>
@@ -251,6 +297,7 @@ const ChargesPage: React.FC = () => {
           </Button>
         </Col>
       </Row>
+
       <Table
         dataSource={filteredCharges}
         columns={columns}
@@ -280,7 +327,9 @@ const ChargesPage: React.FC = () => {
           <Form.Item
             name="provider_client"
             label="Provider/Client"
-            rules={[{ required: true, message: 'Please enter provider or client' }]}
+            rules={[
+              { required: true, message: 'Please enter provider or client' },
+            ]}
           >
             <Input placeholder="Enter provider or client" />
           </Form.Item>
@@ -294,7 +343,9 @@ const ChargesPage: React.FC = () => {
           <Form.Item
             name="payment_method"
             label="Payment Method"
-            rules={[{ required: true, message: 'Please select a payment method' }]}
+            rules={[
+              { required: true, message: 'Please select a payment method' },
+            ]}
           >
             <Select placeholder="Select payment method">
               <Option value="Cash">Cash</Option>
@@ -317,7 +368,10 @@ const ChargesPage: React.FC = () => {
             <InputNumber style={{ width: '100%' }} placeholder="Enter amount" />
           </Form.Item>
           <Form.Item name="description" label="Description">
-            <Input.TextArea placeholder="Enter description (optional)" rows={3} />
+            <Input.TextArea
+              placeholder="Enter description (optional)"
+              rows={3}
+            />
           </Form.Item>
         </Form>
       </Modal>

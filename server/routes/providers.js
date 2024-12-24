@@ -197,4 +197,16 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Route to fetch all provider documents
+router.get('/provider-documents', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM provider_documents ORDER BY date DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching provider documents:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 module.exports = router;

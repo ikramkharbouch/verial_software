@@ -45,10 +45,16 @@ chargesRouter.post('/', async (req, res) => {
     }
 });
 
-// Update a charge
 chargesRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { charge_type, provider_client, invoice_number, payment_method, charge_date, amount, description } = req.body;
+
+    console.log(req.body);
+    // Validate required fields
+    if (!charge_type || !provider_client || !invoice_number || !payment_method || !charge_date || amount == null) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
     try {
         const result = await db.query(
             `UPDATE charges 
@@ -66,6 +72,7 @@ chargesRouter.put('/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to update charge' });
     }
 });
+
 
 // Delete a charge
 chargesRouter.delete('/:id', async (req, res) => {
