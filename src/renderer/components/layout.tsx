@@ -25,6 +25,8 @@ import { Outlet } from 'react-router-dom';
 import { fetchProfile, updateProfile } from '../../store/slices/profileSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/store';
+import NotificationIcon from './notifications/NotifIcon';
+import { NotificationProvider } from './notifications/NotifProvider';
 
 type SearchProps = React.ComponentProps<typeof Input.Search>;
 
@@ -68,115 +70,117 @@ const MainLayout = ({ items }: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-
     const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
     setProfilePic(cleanedUrl as any);
     setUsername(profile?.username as string | null);
-  }, [profile])
+  }, [profile]);
 
   return (
-    <Layout>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        style={{
-          height: '100vh',
-          background: '#2C2C2C',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-        className={`sidebar ${collapsed ? 'collapsed' : ''}`}
-      >
-        <div
+    <NotificationProvider>
+      <Layout>
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
           style={{
+            height: '100vh',
+            background: '#2C2C2C',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            height: '100%',
           }}
+          className={`sidebar ${collapsed ? 'collapsed' : ''}`}
         >
-          <div>
-            <div
-              style={{
-                height: '64px',
-                margin: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '8px',
-              }}
-            >
-              <img
-                src={logo}
-                alt="Company Logo"
-                style={{ height: '6rem' }}
-              />
-            </div>
-            <MainMenu />
-          </div>
-
-          <Button
-            style={{ margin: '1rem', wordBreak: 'break-word' }}
-            onClick={() => auth.logout()}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '100%',
+            }}
           >
-            <LogoutOutlined />
-          </Button>
-        </div>
-      </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          <Flex align="center" justify="space-between">
-            <div
-              style={{ display: 'flex', width: '50%', alignItems: 'center' }}
-            >
-              <Button
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
+            <div>
+              <div
                 style={{
-                  fontSize: '16px',
-                  width: 64,
-                  height: 64,
+                  height: '64px',
+                  margin: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
                 }}
-              />
-
-              <div className="avatar">
-                <img src={profilePic as string} alt="Avatar" />
+              >
+                <img src={logo} alt="Company Logo" style={{ height: '6rem' }} />
               </div>
-              <div>
-                <Dropdown menu={{ items: menuItems }}>
-                  <a onClick={(e) => e.preventDefault()}>
-                    <Space>
-                      {username}
-                      <DownOutlined />
-                    </Space>
-                  </a>
-                </Dropdown>
-              </div>
+              <MainMenu />
             </div>
 
-            <Search
-              placeholder="input search text"
-              onSearch={onSearch}
-              style={{ width: 200, marginRight: '1rem' }}
-            />
-          </Flex>
-        </Header>
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          <Outlet />
-        </Content>
+            <Button
+              style={{ margin: '1rem', wordBreak: 'break-word' }}
+              onClick={() => auth.logout()}
+            >
+              <LogoutOutlined />
+            </Button>
+          </div>
+        </Sider>
+        <Layout>
+          <Header style={{ padding: 0, background: colorBgContainer }}>
+            <Flex align="center" justify="space-between">
+              <div
+                style={{ display: 'flex', width: '50%', alignItems: 'center' }}
+              >
+                <Button
+                  type="text"
+                  icon={
+                    collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+                  }
+                  onClick={() => setCollapsed(!collapsed)}
+                  style={{
+                    fontSize: '16px',
+                    width: 64,
+                    height: 64,
+                  }}
+                />
+
+                <div className="avatar">
+                  <img src={profilePic as string} alt="Avatar" />
+                </div>
+                <div>
+                  <Dropdown menu={{ items: menuItems }}>
+                    <a onClick={(e) => e.preventDefault()}>
+                      <Space>
+                        {username}
+                        <DownOutlined />
+                      </Space>
+                    </a>
+                  </Dropdown>
+                </div>
+              </div>
+
+              <div className='search-notif-section-top-menu'>
+                <NotificationIcon />
+                <Search
+                  placeholder="input search text"
+                  onSearch={onSearch}
+                  style={{ width: 200, marginRight: '1rem' }}
+                />
+              </div>
+            </Flex>
+          </Header>
+          <Content
+            style={{
+              margin: '24px 16px',
+              padding: 24,
+              minHeight: 280,
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            <Outlet />
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </NotificationProvider>
   );
 };
 
