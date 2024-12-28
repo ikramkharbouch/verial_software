@@ -21,7 +21,7 @@ import printJS from 'print-js';
 
 interface Document {
   id: number;
-  invoice_number: number;
+  invoice_number: string;
   client_name: string;
   invoice_type: string;
   date_of_purchase: string;
@@ -47,6 +47,12 @@ const ClientDocs: React.FC = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editForm] = Form.useForm(); // Form for editing
   const [editingInvoice, setEditingInvoice] = useState<Document | null>(null);
+    // Filter States
+    const [invoiceNumberFilter, setInvoiceNumberFilter] = useState<string | null>(null);
+    const [clientNameFilter, setClientNameFilter] = useState<string>('');
+    const [invoiceTypeFilter, setInvoiceTypeFilter] = useState<string>('');
+    const [dateFilter, setDateFilter] = useState<string | null>(null);
+  
 
   const { Option } = Select;
   const dispatch = useDispatch();
@@ -105,7 +111,6 @@ const ClientDocs: React.FC = () => {
     document.body.removeChild(printContainer);
   };
   
-
   const columns = [
     {
       title: 'Invoice Number',
@@ -267,6 +272,29 @@ const ClientDocs: React.FC = () => {
     setIsExpanded(false); // Reset to normal size when modal closes
   };
 
+  
+  const filteredData = data.filter((invoice) => {
+    return (
+      (!invoiceNumberFilter || invoice.invoice_number === invoiceNumberFilter) &&
+      (!clientNameFilter || invoice.client_name.toLowerCase().includes(clientNameFilter.toLowerCase())) &&
+      (!invoiceTypeFilter || invoice.invoice_type === invoiceTypeFilter) &&
+      (!dateFilter || invoice.date_of_purchase === dateFilter) // Adjust this comparison if needed
+    );
+  });
+
+  const handleResetFilters = () => {
+    setInvoiceNumberFilter(null);
+    setClientNameFilter('');
+    setInvoiceTypeFilter('');
+    setDateFilter(null);
+  };
+
+  const handleApplyFilters = () => {
+    // Filters are already applied via `filteredData`, so you just need to ensure the table uses this filtered data
+    setData(filteredData);
+  };
+
+
   const handleDownloadSelected = () => {
     const zip = new JSZip();
 
@@ -340,7 +368,68 @@ const ClientDocs: React.FC = () => {
         Create New Invoice
       </Button>
 
-      <InvoiceTable data={data} columns={columns} rowSelection={rowSelection} />
+      <Form layout="inline" style={{ marginBottom: 16 }}>
+  {/* Invoice Number Filter */}
+  <Form.Item>
+    <Input
+      type="text"
+      value={invoiceNumberFilter || ''}
+      onChange={(e) => setInvoiceNumberFilter(e.target.value)}
+      placeholder="Invoice Number"
+    />
+  </Form.Item>
+
+  {/* Client Name Filter */}
+  <Form.Item>
+    <Input
+      value={clientNameFilter}
+      onChange={(e) => setClientNameFilter(e.target.value)}
+      placeholder="Client Name"
+    />
+  </Form.Item>
+
+  {/* Invoice Type Filter */}
+  <Form.Item>
+    <Select
+      value={invoiceTypeFilter}
+      onChange={(value) => setInvoiceTypeFilter(value)}
+      placeholder="Select Type"
+      allowClear
+      style={{ width: 150 }}
+    >
+      <Option value="Car Repair">Car Repair</Option>
+      <Option value="Article Purchase">Article Purchase</Option>
+      {/* Add more options as needed */}
+    </Select>
+  </Form.Item>
+
+  {/* Date Filter */}
+  <Form.Item>
+    <DatePicker
+      value={dateFilter ? dayjs(dateFilter) : null}
+      onChange={(date, dateString) => setDateFilter(dateString as any)}
+      placeholder="Select Date"
+      format="YYYY-MM-DD"
+    />
+  </Form.Item>
+
+  {/* Reset Button */}
+  <Form.Item>
+    <Button onClick={handleResetFilters}>Reset Filters</Button>
+  </Form.Item>
+
+  {/* Apply Filter Button */}
+  <Form.Item>
+    <Button type="primary" onClick={handleApplyFilters}>
+      Apply Filters
+    </Button>
+  </Form.Item>
+</Form>
+
+
+
+
+      <InvoiceTable data={filteredData} columns={columns} rowSelection={rowSelection} />
 
       <CreateInvoiceModal
         propData={data}
