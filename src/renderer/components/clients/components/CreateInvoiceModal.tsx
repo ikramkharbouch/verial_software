@@ -26,18 +26,25 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
   >([]);
 
   const handleCreateInvoice = async (values: any) => {
-    console.log(values);
     const formattedValues = {
       clientName: values.clientName,
       invoiceType: values.invoiceType,
-      items: values.items.map((item: string) => ({ name: item })), // Assuming items is an array of strings
       date: dayjs(values.date).format('YYYY-MM-DD'),
-      numberOfUnits: values.units,
-      price: values.price,
+      items: values.items.map((item: any) => ({
+        name: item.name,
+        units: item.units,
+        unitPrice: item.unitPrice,
+        totalPrice: item.units * item.unitPrice, // Calculate item total
+      })),
       comment: values.comment,
-      totalPrice: values.price * values.units, // Calculate total price
+      grandTotal: values.items.reduce(
+        (sum: number, item: any) => sum + item.units * item.unitPrice,
+        0
+      ), // Calculate grand total
     };
-
+  
+    console.log(formattedValues);
+  
     try {
       const response = await fetch(
         'http://localhost:3000/clients/client-documents/create',
@@ -45,22 +52,20 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formattedValues),
-        },
+        }
       );
-
+  
       if (response.ok) {
-        const newInvoice = await response.json();
-        setData((prev) => [...prev, newInvoice]); // Update table data
-        onCancel();
-        form.resetFields(); // Reset the form
+        form.resetFields(); // Reset the form after success
+        onCancel(); // Close the modal
       } else {
-        const error = await response.json();
-        console.error('Failed to create invoice:', error);
+        console.error('Failed to create invoice');
       }
-    } catch (err) {
-      console.error('Error while creating invoice:', err);
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
+  
 
   const onValuesChange = (changedValues: any) => {
     if (changedValues.invoiceType) {
@@ -69,9 +74,9 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
           ? carRepairServices
           : articles;
       setCurrentOptions(options);
-      form.setFieldsValue({ items: [] }); // Reset items field
     }
   };
+  
 
   return (
     <Modal
@@ -103,18 +108,58 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
             <Option value="Article Purchase">Article Purchase</Option>
           </Select>
         </Form.Item>
-        <Form.Item
-          name="items"
-          rules={[
-            { required: true, message: 'Please select at least one item' },
-          ]}
-        >
-          <Select
-            mode="multiple"
-            placeholder="Select Items"
-            options={currentOptions} // Options change based on `invoiceType`
-          />
-        </Form.Item>
+        <Form.List name="items">
+  {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, name, fieldKey, ...restField }) => (
+        <Space key={key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
+          <Form.Item
+            {...restField}
+            name={[name, 'name']}
+            fieldKey={[fieldKey as any, 'name']}
+            rules={[{ required: true, message: 'Please select an item' }]}
+          >
+            <Select placeholder="Select Item" style={{ width: 200 }}>
+              {currentOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            {...restField}
+            name={[name, 'units']}
+            fieldKey={[fieldKey as any, 'units']}
+            rules={[{ required: true, message: 'Enter units' }]}
+          >
+            <InputNumber min={1} placeholder="Units" />
+          </Form.Item>
+
+          <Form.Item
+            {...restField}
+            name={[name, 'unitPrice']}
+            fieldKey={[fieldKey as any, 'unitPrice']}
+            rules={[{ required: true, message: 'Enter unit price' }]}
+          >
+            <InputNumber min={0} placeholder="Unit Price" />
+          </Form.Item>
+
+          <Button type="link" onClick={() => remove(name)}>
+            Remove
+          </Button>
+        </Space>
+      ))}
+      <Form.Item>
+        <Button type="dashed" onClick={() => add()} block>
+          Add Item
+        </Button>
+      </Form.Item>
+    </>
+  )}
+</Form.List>
+
         <Form.Item
           name="date"
           initialValue={dayjs()} // Default to today's date

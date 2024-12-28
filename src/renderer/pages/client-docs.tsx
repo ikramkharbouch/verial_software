@@ -17,16 +17,23 @@ import CreateInvoiceModal from '@renderer/components/clients/components/CreateIn
 import InvoiceTable from '@renderer/components/clients/components/ClientDocsInvoiceTable';
 import InvoiceViewModal from '@renderer/components/clients/components/InvoiceViewModal';
 import dayjs from 'dayjs';
+import printJS from 'print-js';
 
 interface Document {
   id: number;
   invoice_id: number;
   client_name: string;
   invoice_type: string;
-  date: string;
-  totalPrice: number;
+  date_of_purchase: string;
+  total_price: number;
   comment: string;
+  items: { 
+    name: string; 
+    units: number; 
+    unitPrice: number; 
+  }[]; // This will store the list of items with the respective units and unit prices
 }
+
 
 const ClientDocs: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
@@ -57,6 +64,48 @@ const ClientDocs: React.FC = () => {
     fetchDocuments();
   }, []);
 
+  const handlePrint = (record: Document) => {
+    console.log('print test');
+  
+    // Create a temporary div element to hold the content for printing
+    const printableContent = `
+      <div class="invoice">
+        <h1>Invoice ${record.invoice_id}</h1>
+        <div class="details">
+          <div><strong>Client Name:</strong> ${record.client_name}</div>
+          <div><strong>Invoice Type:</strong> ${record.invoice_type}</div>
+          <div><strong>Date:</strong> ${record.date_of_purchase}</div>
+          <div><strong>Total Price:</strong> ${record.total_price} €</div>
+          <div><strong>Comment:</strong> ${record.comment}</div>
+        </div>
+      </div>
+    `;
+  
+    // Create a temporary container for the content
+    const printContainer = document.createElement('div');
+    printContainer.innerHTML = printableContent;
+  
+    // Append the temporary container to the body
+    document.body.appendChild(printContainer);
+  
+    // Use Print.js to print the content of the temporary container
+    printJS({
+      printable: printContainer,
+      type: 'html',
+      style: `
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .invoice { border: 1px solid #ccc; padding: 20px; }
+        .invoice h1 { text-align: center; }
+        .invoice .details { margin-top: 20px; }
+        .invoice .details div { margin-bottom: 10px; }
+      `
+    });
+  
+    // Remove the temporary container after printing
+    document.body.removeChild(printContainer);
+  };
+  
+
   const columns = [
     {
       title: 'Invoice Number',
@@ -74,16 +123,35 @@ const ClientDocs: React.FC = () => {
       key: 'invoiceType',
     },
     {
+      title: 'Items',
+      dataIndex: 'items',
+      key: 'items',
+      render: (items: any) => (
+        <ul>
+          {items.map((item: any, index: number) => (
+            <li key={index}>
+              {item.name} (x{item.units}) - {item.unitPrice} €/unit
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
       title: 'Date',
       dataIndex: 'date_of_purchase',
       key: 'date',
-      render: (text: string) => text.slice(0, 10),
+      render: (text: string) => text.slice(0, 10), // Format date as yyyy-mm-dd
     },
     {
       title: 'Total Price (with TVA)',
       dataIndex: 'total_price',
       key: 'totalPrice',
-      render: (text: number) => `${text} €`,
+      render: (text: number) => `${text} €`, // Display price with € symbol
+    },
+    {
+      title: 'Comment',
+      dataIndex: 'comment',
+      key: 'comment',
     },
     {
       title: 'Actions',
@@ -92,6 +160,9 @@ const ClientDocs: React.FC = () => {
         <Space>
           <Button type="link" onClick={() => showInvoiceModal(record)}>
             Show
+          </Button>
+          <Button type="link" onClick={() => handlePrint(record)}>
+            Print
           </Button>
           <Button type="link" onClick={() => handleDownload(record)}>
             Download
@@ -106,6 +177,7 @@ const ClientDocs: React.FC = () => {
       ),
     },
   ];
+  
 
   const [form] = Form.useForm();
 
@@ -114,8 +186,8 @@ const ClientDocs: React.FC = () => {
     editForm.setFieldsValue({
       client_name: record.client_name,
       invoice_type: record.invoice_type,
-      date_of_purchase: dayjs(record.date),
-      total_price: record.totalPrice,
+      date_of_purchase: dayjs(record.date_of_purchase),
+      total_price: record.total_price,
       comment: record.comment,
     });
     setIsEditModalVisible(true); // Open the edit modal
@@ -177,7 +249,7 @@ const ClientDocs: React.FC = () => {
   };
 
   const handleDownload = (record: Document) => {
-    const fileContent = `Invoice: ${record.invoice_id}\nClient: ${record.client_name}\nDate: ${record.date}\nTotal: ${record.totalPrice} €`;
+    const fileContent = `Invoice: ${record.invoice_id}\nClient: ${record.client_name}\nDate: ${record.date_of_purchase}\nTotal: ${record.total_price} €`;
     const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
     saveAs(blob, `Invoice_${record.invoice_id}.txt`);
   };
@@ -194,7 +266,7 @@ const ClientDocs: React.FC = () => {
     selectedRowKeys.forEach((key) => {
       const document = data.find((doc) => doc.id === key);
       if (document) {
-        const fileContent = `Invoice: ${document.invoice_id}\nClient: ${document.client_name}\nDate: ${document.date}\nTotal: ${document.totalPrice} €`;
+        const fileContent = `Invoice: ${document.invoice_id}\nClient: ${document.client_name}\nDate: ${document.date_of_purchase}\nTotal: ${document.total_price} €`;
         zip.file(`Invoice_${document.invoice_id}.txt`, fileContent);
       }
     });

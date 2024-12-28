@@ -52,3 +52,20 @@
     justify-content: space-between;
     font-size: 10px;
 }
+
+/* .expanded-modal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 0 !important;
+}
+
+.expanded-modal .ant-modal-content {
+  height: 100% !important;
+}
+
+.expanded-modal .ant-modal-body {
+  overflow-y: auto !important;
+} */

@@ -251,17 +251,24 @@ router.post(
     body('invoiceType').notEmpty().withMessage('Invoice type is required'),
     body('items')
       .isArray({ min: 1 })
-      .withMessage('At least one item must be selected'),
+      .withMessage('At least one item must be selected')
+      .custom((items) =>
+        items.every(
+          (item) =>
+            typeof item.name === 'string' &&
+            typeof item.units === 'number' &&
+            item.units > 0 &&
+            typeof item.unitPrice === 'number' &&
+            item.unitPrice >= 0
+        )
+      )
+      .withMessage(
+        'Each item must have a name, positive unit count, and valid unit price'
+      ),
     body('date')
       .isISO8601()
       .toDate()
       .withMessage('Invalid date format'),
-    body('numberOfUnits')
-      .isInt({ min: 1 })
-      .withMessage('Units must be a positive integer'),
-    body('price')
-      .isNumeric()
-      .withMessage('Price must be a valid number'),
     body('comment')
       .optional()
       .isString()
@@ -269,36 +276,32 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-
-    if (req.body.numberOfUnits) {
-      req.body.units = req.body.numberOfUnits;
-      delete req.body.numberOfUnits;
-    }
-  
-    console.log(errors);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { clientName, invoiceType, items, date, units, price, comment } = req.body;
+    const { clientName, invoiceType, items, date, comment } = req.body;
 
     try {
+      // Calculate the total price for all items
+      const totalPrice = items.reduce(
+        (sum, item) => sum + item.units * item.unitPrice,
+        0
+      );
+
+      // Insert the invoice data
       const query = `
         INSERT INTO client_invoices
-          (client_name, invoice_type, items, date_of_purchase, number_of_units, unit_price, total_price, comment)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          (client_name, invoice_type, items, date_of_purchase, total_price, comment)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;
       `;
-      const tvaPercentage = 20; // For calculation, you can make this dynamic if needed.
-      const totalPrice = price + (price * tvaPercentage) / 100;
 
       const result = await pool.query(query, [
         clientName,
         invoiceType,
-        JSON.stringify(items),
+        JSON.stringify(items), // Save items as JSON
         date,
-        units,
-        price,
         totalPrice,
         comment || null,
       ]);
@@ -310,6 +313,7 @@ router.post(
     }
   }
 );
+
 
 // Route to get all client invoices
 router.get('/client-invoices', async (req, res) => {
