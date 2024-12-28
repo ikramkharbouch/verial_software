@@ -251,20 +251,22 @@ router.post(
     body('invoiceType').notEmpty().withMessage('Invoice type is required'),
     body('items')
       .isArray({ min: 1 })
-      .withMessage('At least one item must be selected')
-      .custom((items) =>
-        items.every(
-          (item) =>
-            typeof item.name === 'string' &&
-            typeof item.units === 'number' &&
-            item.units > 0 &&
-            typeof item.unitPrice === 'number' &&
-            item.unitPrice >= 0
-        )
-      )
-      .withMessage(
-        'Each item must have a name, positive unit count, and valid unit price'
-      ),
+      .withMessage('At least one item must be selected'),
+    body('items.*.name')
+      .isString()
+      .withMessage('Each item must have a name'),
+    body('items.*.units')
+      .isInt({ gt: 0 })
+      .withMessage('Each item must have a positive unit count'),
+    body('items.*.unitPrice')
+      .isFloat({ min: 0 })
+      .withMessage('Each item must have a valid unit price'),
+    body('items.*.tvaPercentage1')
+      .isFloat({ min: 0 })
+      .withMessage('Each item must have a valid first TVA percentage'),
+    body('items.*.tvaPercentage2')
+      .isFloat({ min: 0 })
+      .withMessage('Each item must have a valid second TVA percentage'),
     body('date')
       .isISO8601()
       .toDate()
@@ -283,21 +285,27 @@ router.post(
     const { clientName, invoiceType, items, date, comment } = req.body;
 
     try {
+      // Generate the invoice number
+      const currentMonth = new Date().getMonth() + 1; // Months are 0-indexed
+      const invoiceNumber = `${String(currentMonth).padStart(2, '0')}-${await getNextInvoiceNumber()}`;
+
       // Calculate the total price for all items
-      const totalPrice = items.reduce(
-        (sum, item) => sum + item.units * item.unitPrice,
-        0
-      );
+      const totalPrice = items.reduce((sum, item) => {
+        const priceAfterTva1 = item.unitPrice * (1 + item.tvaPercentage1 / 100);
+        const finalPrice = priceAfterTva1 * (1 + item.tvaPercentage2 / 100);
+        return sum + finalPrice * item.units;
+      }, 0);
 
       // Insert the invoice data
       const query = `
         INSERT INTO client_invoices
-          (client_name, invoice_type, items, date_of_purchase, total_price, comment)
-        VALUES ($1, $2, $3, $4, $5, $6)
+          (invoice_number, client_name, invoice_type, items, date_of_purchase, total_price, comment)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
       `;
 
       const result = await pool.query(query, [
+        invoiceNumber,
         clientName,
         invoiceType,
         JSON.stringify(items), // Save items as JSON
@@ -313,6 +321,13 @@ router.post(
     }
   }
 );
+
+// Function to get the next invoice number from the sequence
+async function getNextInvoiceNumber() {
+  const result = await pool.query('SELECT nextval(\'invoice_number_seq\') AS next_invoice_number');
+  return String(result.rows[0].next_invoice_number).padStart(3, '0');
+}
+
 
 
 // Route to get all client invoices

@@ -77,11 +77,11 @@ const InvoiceViewModal = ({
       {selectedInvoice && (
         <div className="invoice-modal">
           <Invoice
-            invoiceNumber={selectedInvoice.invoice_id}
+            invoiceNumber={selectedInvoice.invoice_number}
             clientName={selectedInvoice.client_name}
             date={selectedInvoice.date}
             invoiceType={selectedInvoice.invoice_type}
-            items={invoiceItems}
+            items={selectedInvoice.items}
             comment={selectedInvoice.comment}
             tvaPercentage={20}
           />

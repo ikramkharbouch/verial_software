@@ -21,7 +21,7 @@ import printJS from 'print-js';
 
 interface Document {
   id: number;
-  invoice_id: number;
+  invoice_number: number;
   client_name: string;
   invoice_type: string;
   date_of_purchase: string;
@@ -70,7 +70,7 @@ const ClientDocs: React.FC = () => {
     // Create a temporary div element to hold the content for printing
     const printableContent = `
       <div class="invoice">
-        <h1>Invoice ${record.invoice_id}</h1>
+        <h1>Invoice ${record.invoice_number}</h1>
         <div class="details">
           <div><strong>Client Name:</strong> ${record.client_name}</div>
           <div><strong>Invoice Type:</strong> ${record.invoice_type}</div>
@@ -109,7 +109,7 @@ const ClientDocs: React.FC = () => {
   const columns = [
     {
       title: 'Invoice Number',
-      dataIndex: 'invoice_id',
+      dataIndex: 'invoice_number',
       key: 'invoiceNumber',
     },
     {
@@ -130,7 +130,7 @@ const ClientDocs: React.FC = () => {
         <ul>
           {items.map((item: any, index: number) => (
             <li key={index}>
-              {item.name} (x{item.units}) - {item.unitPrice} €/unit
+              {item.name} (x{item.units}) - {item.unitPrice} MAD/unit
             </li>
           ))}
         </ul>
@@ -146,8 +146,15 @@ const ClientDocs: React.FC = () => {
       title: 'Total Price (with TVA)',
       dataIndex: 'total_price',
       key: 'totalPrice',
-      render: (text: number) => `${text} €`, // Display price with € symbol
-    },
+      render: (text: any) => {
+        const numericValue = Number(text);
+        if (!isNaN(numericValue)) {
+          return `${numericValue.toFixed(2)} MAD`; // Display price with two decimal places
+        } else {
+          return 'Invalid number';
+        }
+      },
+    },       
     {
       title: 'Comment',
       dataIndex: 'comment',
@@ -196,7 +203,7 @@ const ClientDocs: React.FC = () => {
   const handleDelete = async (record: Document) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/clients/client-invoices/${record.invoice_id}`,
+        `http://localhost:3000/clients/client-invoices/${record.invoice_number}`,
         {
           method: 'DELETE',
         },
@@ -204,7 +211,7 @@ const ClientDocs: React.FC = () => {
 
       if (response.ok) {
         setData((prevData) =>
-          prevData.filter((item) => item.invoice_id !== record.invoice_id),
+          prevData.filter((item) => item.invoice_number !== record.invoice_number),
         );
       } else {
         console.error('Failed to delete invoice');
@@ -249,9 +256,9 @@ const ClientDocs: React.FC = () => {
   };
 
   const handleDownload = (record: Document) => {
-    const fileContent = `Invoice: ${record.invoice_id}\nClient: ${record.client_name}\nDate: ${record.date_of_purchase}\nTotal: ${record.total_price} €`;
+    const fileContent = `Invoice: ${record.invoice_number}\nClient: ${record.client_name}\nDate: ${record.date_of_purchase}\nTotal: ${record.total_price} MAD`;
     const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-    saveAs(blob, `Invoice_${record.invoice_id}.txt`);
+    saveAs(blob, `Invoice_${record.invoice_number}.txt`);
   };
 
   const handleCancel = () => {
@@ -266,8 +273,8 @@ const ClientDocs: React.FC = () => {
     selectedRowKeys.forEach((key) => {
       const document = data.find((doc) => doc.id === key);
       if (document) {
-        const fileContent = `Invoice: ${document.invoice_id}\nClient: ${document.client_name}\nDate: ${document.date_of_purchase}\nTotal: ${document.total_price} €`;
-        zip.file(`Invoice_${document.invoice_id}.txt`, fileContent);
+        const fileContent = `Invoice: ${document.invoice_number}\nClient: ${document.client_name}\nDate: ${document.date_of_purchase}\nTotal: ${document.total_price} €`;
+        zip.file(`Invoice_${document.invoice_number}.txt`, fileContent);
       }
     });
 
@@ -302,6 +309,19 @@ const ClientDocs: React.FC = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const handleDataUpdate = (newData: Document[]) => {
+    console.log(newData);
+
+    // Check if newData is an array or a single object
+    if (Array.isArray(newData)) {
+      setData([...newData, ...data]); // Spread the newData array
+    } else {
+      setData([newData, ...data]); // If newData is an object, add it to the array
+    }
+  
+  };
+  
+
   return (
     <div>
       <h1>Client Documents</h1>
@@ -316,8 +336,7 @@ const ClientDocs: React.FC = () => {
       <Button
         type="primary"
         onClick={() => setIsCreateInvoiceModalVisible(true)}
-        style={{ marginBottom: '16px', marginLeft: '1rem' }}
-      >
+        style={{ marginBottom: '16px', marginLeft: '1rem' }}>
         Create New Invoice
       </Button>
 
@@ -327,6 +346,7 @@ const ClientDocs: React.FC = () => {
         propData={data}
         visible={isCreateInvoiceModalVisible}
         onCancel={() => setIsCreateInvoiceModalVisible(false)}
+        onDataUpdate={handleDataUpdate}
       />
 
       <InvoiceViewModal

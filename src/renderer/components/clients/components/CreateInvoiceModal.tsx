@@ -11,10 +11,16 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { articles, carRepairServices } from '@renderer/constants/constantData';
+import '../../../styles/invoice.css';
 
 const { Option } = Select;
 
-const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
+const CreateInvoiceModal = ({
+  propData,
+  visible,
+  onCancel,
+  onDataUpdate,
+}: any) => {
   const [isCreateInvoiceModalVisible, setIsCreateInvoiceModalVisible] =
     useState(false);
 
@@ -26,25 +32,31 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
   >([]);
 
   const handleCreateInvoice = async (values: any) => {
+    console.log('values', values);
     const formattedValues = {
       clientName: values.clientName,
       invoiceType: values.invoiceType,
       date: dayjs(values.date).format('YYYY-MM-DD'),
-      items: values.items.map((item: any) => ({
-        name: item.name,
-        units: item.units,
-        unitPrice: item.unitPrice,
-        totalPrice: item.units * item.unitPrice, // Calculate item total
-      })),
+      items: values.items.map((item: any) => {
+        const govTvaMultiplier = 1 + item.tvaGov / 100;
+        const companyTvaMultiplier = 1 + item.tvaUs / 100;
+        const totalPrice =
+          item.unitPrice * item.units * govTvaMultiplier * companyTvaMultiplier;
+        return {
+          name: item.name,
+          units: item.units,
+          unitPrice: item.unitPrice,
+          tvaPercentage1: item.tvaGov,
+          tvaPercentage2: item.tvaUs,
+          totalPrice: totalPrice.toFixed(2), // Store total price as a string with two decimal places
+        };
+      }),
       comment: values.comment,
-      grandTotal: values.items.reduce(
-        (sum: number, item: any) => sum + item.units * item.unitPrice,
-        0
-      ), // Calculate grand total
+      grandTotal: values.items
+        .reduce((sum: any, item: any) => sum + parseFloat(item.totalPrice), 0)
+        .toFixed(2), // Calculate grand total and format to two decimal places
     };
-  
-    console.log(formattedValues);
-  
+
     try {
       const response = await fetch(
         'http://localhost:3000/clients/client-documents/create',
@@ -52,11 +64,13 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formattedValues),
-        }
+        },
       );
-  
+
       if (response.ok) {
+        const newInvoice = await response.json();
         form.resetFields(); // Reset the form after success
+        onDataUpdate(newInvoice);
         onCancel(); // Close the modal
       } else {
         console.error('Failed to create invoice');
@@ -65,7 +79,6 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
       console.error('Error:', error);
     }
   };
-  
 
   const onValuesChange = (changedValues: any) => {
     if (changedValues.invoiceType) {
@@ -76,7 +89,6 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
       setCurrentOptions(options);
     }
   };
-  
 
   return (
     <Modal
@@ -109,94 +121,93 @@ const CreateInvoiceModal = ({ propData, visible, onCancel }: any) => {
           </Select>
         </Form.Item>
         <Form.List name="items">
-  {(fields, { add, remove }) => (
-    <>
-      {fields.map(({ key, name, fieldKey, ...restField }) => (
-        <Space key={key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
-          <Form.Item
-            {...restField}
-            name={[name, 'name']}
-            fieldKey={[fieldKey as any, 'name']}
-            rules={[{ required: true, message: 'Please select an item' }]}
-          >
-            <Select placeholder="Select Item" style={{ width: 200 }}>
-              {currentOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
+          {(fields, { add, remove }) => (
+            <div className="form-items">
+              {fields.map(({ key, name, fieldKey, ...restField }) => (
+                <Space
+                  key={key}
+                  align="baseline"
+                  style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }}
+                >
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'name']}
+                    fieldKey={[fieldKey as any, 'name']}
+                    rules={[
+                      { required: true, message: 'Please select an item' },
+                    ]}
+                  >
+                    <Select placeholder="Select Item" style={{ width: 200 }}>
+                      {currentOptions.map((option) => (
+                        <Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'units']}
+                    fieldKey={[fieldKey as any, 'units']}
+                    rules={[{ required: true, message: 'Enter units' }]}
+                  >
+                    <InputNumber min={1} placeholder="Units" />
+                  </Form.Item>
+
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'unitPrice']}
+                    fieldKey={[fieldKey as any, 'unitPrice']}
+                    rules={[{ required: true, message: 'Enter unit price' }]}
+                  >
+                    <InputNumber min={0} placeholder="Unit Price" />
+                  </Form.Item>
+
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'tvaGov']}
+                    fieldKey={[fieldKey as any, 'tvaGov']}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Enter government TVA percentage',
+                      },
+                    ]}
+                  >
+                    <InputNumber min={0} placeholder="Gov TVA (%)" />
+                  </Form.Item>
+
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'tvaUs']}
+                    fieldKey={[fieldKey as any, 'tvaUs']}
+                    rules={[
+                      { required: true, message: 'Enter US TVA percentage' },
+                    ]}
+                  >
+                    <InputNumber min={0} placeholder="TVA (%)" />
+                  </Form.Item>
+
+                  <Button type="link" onClick={() => remove(name)}>
+                    Remove
+                  </Button>
+                </Space>
               ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            {...restField}
-            name={[name, 'units']}
-            fieldKey={[fieldKey as any, 'units']}
-            rules={[{ required: true, message: 'Enter units' }]}
-          >
-            <InputNumber min={1} placeholder="Units" />
-          </Form.Item>
-
-          <Form.Item
-            {...restField}
-            name={[name, 'unitPrice']}
-            fieldKey={[fieldKey as any, 'unitPrice']}
-            rules={[{ required: true, message: 'Enter unit price' }]}
-          >
-            <InputNumber min={0} placeholder="Unit Price" />
-          </Form.Item>
-
-          <Button type="link" onClick={() => remove(name)}>
-            Remove
-          </Button>
-        </Space>
-      ))}
-      <Form.Item>
-        <Button type="dashed" onClick={() => add()} block>
-          Add Item
-        </Button>
-      </Form.Item>
-    </>
-  )}
-</Form.List>
-
+              <Form.Item>
+                <Button type="dashed" onClick={() => add()} block>
+                  Add Item
+                </Button>
+              </Form.Item>
+            </div>
+          )}
+        </Form.List>
         <Form.Item
           name="date"
           initialValue={dayjs()} // Default to today's date
           rules={[{ required: true, message: 'Date is required' }]}
         >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-        </Form.Item>
-        <Form.Item
-          name="units"
-          rules={[
-            { required: true, message: 'Units are required' },
-            {
-              type: 'number',
-              min: 1,
-              message: 'Units must be a positive integer',
-            },
-          ]}
-        >
-          <InputNumber min={1} placeholder="Units" style={{ width: '100%' }} />
-        </Form.Item>
-        <Form.Item
-          name="price"
-          rules={[
-            { required: true, message: 'Price is required' },
-            {
-              type: 'number',
-              min: 0,
-              message: 'Price must be a positive value',
-            },
-          ]}
-        >
-          <InputNumber
-            min={0}
-            prefix="€"
-            placeholder="Price per Unit"
-            style={{ width: '100%' }}
-          />
         </Form.Item>
         <Form.Item name="comment">
           <Input.TextArea placeholder="Add Comment (optional)" />
