@@ -33,8 +33,10 @@ const ProfilePage: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-
-    const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
+    var cleanedUrl: any = '';
+    if (profile?.profilePicture !== null) {
+      cleanedUrl = profile?.profilePicture.replace('//uploads', '');
+    }
 
     if (profile && profile.profilePicture) {
       setProfilePic(`${cleanedUrl}`);

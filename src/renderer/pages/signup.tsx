@@ -1,6 +1,10 @@
 import React from 'react';
-import { Form, Input, Button, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Form, Input, Button, Typography, message } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import bgImg from '../../assets/login_img.jpg'; // Same background image as SignIn
+import '../styles/clients.css'; // You can add specific styling here for consistency
+
+const { Title } = Typography;
 
 const SignupPage: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,72 +37,59 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
-      <h2 style={{ textAlign: 'center' }}>Sign Up</h2>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{ remember: true }}
-      >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[
-            { required: true, message: 'Please enter your username' },
-            { min: 3, message: 'Username must be at least 3 characters' },
-          ]}
-        >
-          <Input placeholder="Enter your username" />
-        </Form.Item>
+    <div style={{ display: 'flex', height: '100vh' }}>
+      {/* Left Section for Image */}
+      <div style={{ flex: 1, backgroundImage: `url(${bgImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {/* Optionally, you can add overlay text or other content here */}
+      </div>
 
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            { required: true, message: 'Please enter your email' },
-            { type: 'email', message: 'Please enter a valid email address' },
-          ]}
-        >
-          <Input placeholder="Enter your email" />
-        </Form.Item>
+      {/* Right Section for Form */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ maxWidth: '400px', width: '100%' }}>
+          <Title level={2}>Sign Up</Title>
+          <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item
+              label="Username"
+              name="username"
+              rules={[
+                { required: true, message: 'Please enter your username' },
+                { min: 3, message: 'Username must be at least 3 characters' },
+              ]}
+            >
+              <Input placeholder="Enter your username" />
+            </Form.Item>
 
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            { required: true, message: 'Please enter your password' },
-            { min: 6, message: 'Password must be at least 6 characters' },
-          ]}
-        >
-          <Input.Password placeholder="Enter your password" />
-        </Form.Item>
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Please enter a valid email' },
+              ]}
+            >
+              <Input placeholder="Enter your email" />
+            </Form.Item>
 
-        <Form.Item
-          label="Confirm Password"
-          name="confirmPassword"
-          dependencies={['password']}
-          rules={[
-            { required: true, message: 'Please confirm your password' },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue('password') === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error('Passwords do not match'));
-              },
-            }),
-          ]}
-        >
-          <Input.Password placeholder="Confirm your password" />
-        </Form.Item>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: 'Please enter your password' }]}
+            >
+              <Input.Password placeholder="Enter your password" />
+            </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block>
-            Sign Up
-          </Button>
-        </Form.Item>
-      </Form>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block>
+                Sign Up
+              </Button>
+            </Form.Item>
+
+            <div className="register-form">
+              Already have an account? <Link to="/login"><Button>Login</Button></Link>
+            </div>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 };

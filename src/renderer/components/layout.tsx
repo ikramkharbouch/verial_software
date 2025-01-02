@@ -7,9 +7,11 @@ import {
   Space,
   Dropdown,
   MenuProps,
+  Modal,
+  message,
 } from 'antd';
 import '@renderer/styles/dashboard.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   DownOutlined,
   LogoutOutlined,
@@ -40,6 +42,8 @@ const MainLayout = ({ items }: any) => {
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false); // State to manage modal visibility
+  const [searchValue, setSearchValue] = useState(''); // State to store search input
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -47,8 +51,34 @@ const MainLayout = ({ items }: any) => {
   const auth = useAuth();
   const navigate = useNavigate(); // Use navigate for navigation
 
-  const onSearch: SearchProps['onSearch'] = (value, _e, info) =>
-    console.log(info?.source, value);
+  const onSearch = (value: string) => {
+    if (!value) return;
+
+    // Navigate based on search term
+    switch (value.toLowerCase()) {
+      case 'client docs':
+        navigate('/client-docs');
+        break;
+      case 'client management':
+        navigate('/clients');
+        break;
+      case 'profile':
+        navigate('/profile');
+        break;
+      case 'providers':
+        navigate('/providers');
+        break;
+      case 'providers docs':
+        navigate('/providers-docs');
+        break;
+      default:
+        message.error('Page not found'); // Show error message if no matching route
+        break;
+    }
+
+    // Clear search input after action
+    setSearchValue('');
+  };
 
   const menuItems: MenuProps['items'] = [
     {
@@ -70,8 +100,12 @@ const MainLayout = ({ items }: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
-    setProfilePic(cleanedUrl as any);
+    console.log('debug here', profile?.profilePicture);
+    if (profile?.profilePicture !== null) {
+      const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
+      setProfilePic(cleanedUrl as any);
+  
+    }
     setUsername(profile?.username as string | null);
   }, [profile]);
 
@@ -157,12 +191,16 @@ const MainLayout = ({ items }: any) => {
                 </div>
               </div>
 
-              <div className='search-notif-section-top-menu'>
+              <div className="search-notif-section-top-menu">
                 <NotificationIcon />
                 <Search
-                  placeholder="input search text"
-                  onSearch={onSearch}
-                  style={{ width: 200, marginRight: '1rem' }}
+                  ref={(ref) => ref?.focus()}
+                  placeholder="Search"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)} // Update search value as user types
+                  onSearch={onSearch} // Trigger search when user clicks the search icon
+                  enterButton
+                  style={{ maxWidth: 300, marginRight: '1rem' }}
                 />
               </div>
             </Flex>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider'; // Adjust the import path as needed
 import bgImg from '../../assets/login_img.jpg';
+import '../styles/clients.css';
 
 const { Title } = Typography;
 
@@ -53,8 +54,8 @@ const SignIn = () => {
                 Sign In
               </Button>
             </Form.Item>
-            <div>
-              Don't have an account? <Link to="/signup">Register</Link>
+            <div className='register-form'>
+              Don't have an account? <Link to="/signup"><Button>Register</Button></Link>
             </div>
           </Form>
         </div>

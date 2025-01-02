@@ -44,6 +44,7 @@ export default function App() {
                 {/* Public Routes */}
                 {/* <Route path="/" element={<SignIn />} /> */}
                 <Route path="/login" element={<SignIn />} />
+                <Route path="/signup" element={<SignupPage />} />
 
                 {/* Private Routes */}
                 <Route element={<PrivateRoute />}>
