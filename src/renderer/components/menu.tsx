@@ -8,6 +8,7 @@ import { Menu, MenuProps, Dropdown } from 'antd';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Link } from 'react-router-dom'; // If you're using React Router
+import '../styles/root.css'
 
 interface MenuItem {
   key: string;
@@ -72,7 +73,7 @@ const MainMenu = () => {
       className="menu-container"
     >
       <Menu.Item key="ds" icon={<DashboardOutlined />}>
-        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/dashboard" className='ant-menu-item-selected'>Dashboard</Link>
       </Menu.Item>
 
       <Dropdown
@@ -97,17 +98,7 @@ const MainMenu = () => {
         </Menu.Item>
       </Dropdown>
 
-      {/* <Menu.Item
-        key="2"
-        icon={<UsergroupAddOutlined />}
-        className="ant-menu-item"
-      >
-        <NavLink to="/providers" className="ant-menu-item-selected">
-          Providers
-        </NavLink>
-      </Menu.Item> */}
-
-      <Menu.Item key="3" icon={<AppstoreOutlined />}>
+      <Menu.Item key="3" icon={<AppstoreOutlined />} className='menu-item'>
         <NavLink to="/articles" className="ant-menu-item-selected">
           Articles
         </NavLink>
@@ -123,16 +114,6 @@ const MainMenu = () => {
           Financials
         </Menu.Item>
       </Dropdown>
-
-      {/* <Menu.Item
-        key="4"
-        icon={<MoneyCollectOutlined />}
-        className="ant-menu-item"
-      >
-        <NavLink to="/financials">
-          Financials
-        </NavLink>
-      </Menu.Item> */}
     </Menu>
   );
 };

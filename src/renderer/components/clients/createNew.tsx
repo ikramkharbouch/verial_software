@@ -2,7 +2,17 @@ import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input, Select, Button, Form, notification, Row, Col, Modal, Space } from 'antd';
+import {
+  Input,
+  Select,
+  Button,
+  Form,
+  notification,
+  Row,
+  Col,
+  Modal,
+  Space,
+} from 'antd';
 import axios from 'axios';
 import '../../styles/forms.css';
 
@@ -21,15 +31,24 @@ const clientSchema = z.object({
   country: z.string().optional(),
   province: z.string().optional(),
   postalCode: z.string().optional(),
-  email1: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
-    message: 'Invalid email format',
-  }),
-  email2: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
-    message: 'Invalid email format',
-  }),
-  email3: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
-    message: 'Invalid email format',
-  }),
+  email1: z
+    .string()
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: 'Invalid email format',
+    }),
+  email2: z
+    .string()
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: 'Invalid email format',
+    }),
+  email3: z
+    .string()
+    .optional()
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: 'Invalid email format',
+    }),
 });
 
 // Define the form data type
@@ -92,7 +111,10 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
       reset();
       onClose();
     } catch (error) {
-      console.error(`Error ${editingClient ? 'updating' : 'creating'} client:`, error);
+      console.error(
+        `Error ${editingClient ? 'updating' : 'creating'} client:`,
+        error,
+      );
       notification.error({
         message: `Failed to ${editingClient ? 'update' : 'create'} client`,
         description: 'Please check your input and try again.',
@@ -110,10 +132,21 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
       title={editingClient ? 'Edit Client' : 'Create New Client'}
       open={isVisible}
       onCancel={handleCancel}
-      footer={null}
+      footer={[
+        <Button key="cancel" onClick={handleCancel}>
+          Cancel
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit(onSubmit)}>
+          {editingClient ? 'Update Client' : 'Create Client'}
+        </Button>,
+      ]}
       destroyOnClose // Ensures form is reset when modal is closed
     >
-      <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="client-form">
+      <Form
+        onFinish={handleSubmit(onSubmit)}
+        layout="vertical"
+        className="client-form"
+      >
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -249,7 +282,9 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+
+          {/* Remove email until later */}
+          {/* <Col span={12}>
             <Form.Item label="Email 2">
               <Controller
                 name="email2"
@@ -266,16 +301,8 @@ const CreateNewClient: React.FC<CreateNewClientProps> = ({
                 render={({ field }) => <Input {...field} />}
               />
             </Form.Item>
-          </Col>
+          </Col> */}
         </Row>
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit">
-              {editingClient ? 'Save Changes' : 'Create Client'}
-            </Button>
-            <Button onClick={handleCancel}>Cancel</Button>
-          </Space>
-        </Form.Item>
       </Form>
     </Modal>
   );

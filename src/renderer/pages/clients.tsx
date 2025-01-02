@@ -63,21 +63,22 @@ const ClientsPage: React.FC = () => {
       industry: 'industry',
       source: 'source',
     };
-  
+
     const filteredData = clients.filter((client) => {
       return Object.entries(values).every(([formKey, formValue]) => {
         if (!formValue) return true; // Skip empty fields
-  
+
         const dataKey = normalizedKeys[formKey as keyof typeof normalizedKeys];
         const dataValue = String(client[dataKey as keyof typeof client]);
-  
-        return dataValue.toLowerCase().includes(String(formValue).toLowerCase());
+
+        return dataValue
+          .toLowerCase()
+          .includes(String(formValue).toLowerCase());
       });
     });
-  
+
     setData(filteredData);
   };
-  
 
   const resetFilters = () => {
     form.resetFields();
@@ -89,17 +90,18 @@ const ClientsPage: React.FC = () => {
     setIsModalVisible(true); // Show the modal
   };
 
-
   const handleDelete = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3000/clients/${id}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
         message.success('Client deleted successfully.');
         // Remove the deleted client from the state
-        setData((prevData) => prevData.filter((client) => client.id !== String(id)));
+        setData((prevData) =>
+          prevData.filter((client) => client.id !== String(id)),
+        );
         // Optionally update the Redux store
         dispatch(getClients());
       } else {
@@ -110,7 +112,7 @@ const ClientsPage: React.FC = () => {
       message.error('An error occurred while deleting the client.');
     }
   };
-  
+
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
     { title: 'Company Name', dataIndex: 'company_name', key: 'companyName' },
@@ -124,20 +126,20 @@ const ClientsPage: React.FC = () => {
       render: (_: any, record: any) => (
         <Space size="middle">
           <Tooltip title="Edit">
-          <Button
-  icon={<EditOutlined />}
-  onClick={() => {
-    setSelectedClient(record);
-    setIsModalVisible(true);
-  }}
-/>
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => {
+                setSelectedClient(record);
+                setIsModalVisible(true);
+              }}
+            />
           </Tooltip>
           <Tooltip title="Delete">
-          <Button
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-            danger
-          />
+            <Button
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record.id)}
+              danger
+            />
           </Tooltip>
         </Space>
       ),
@@ -220,10 +222,10 @@ const ClientsPage: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6} className='filter-buttons-container'>
+          <Col span={6} className="filter-buttons-container">
             <Form.Item>
               <Space>
-                <Button type="primary" htmlType="submit" className='submit-btn'>
+                <Button type="primary" htmlType="submit" className="submit-btn">
                   Filter
                 </Button>
                 <Button onClick={resetFilters}>Reset</Button>
@@ -240,14 +242,12 @@ const ClientsPage: React.FC = () => {
         pagination={{ pageSize: 7 }}
       />
 
-<CreateNewClient
-  isVisible={isModalVisible}
-  onClose={handleModalClose}
-  onClientCreated={handleNewClientCreated}
-  editingClient={selectedClient}
-/>
-
-
+      <CreateNewClient
+        isVisible={isModalVisible}
+        onClose={handleModalClose}
+        onClientCreated={handleNewClientCreated}
+        editingClient={selectedClient}
+      />
     </div>
   );
 };

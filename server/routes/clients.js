@@ -329,7 +329,6 @@ async function getNextInvoiceNumber() {
 }
 
 
-
 // Route to get all client invoices
 router.get('/client-invoices', async (req, res) => {
   try {
