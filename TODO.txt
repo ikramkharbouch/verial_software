@@ -1,0 +1,11 @@
+To-Do List for 2024-11-29
+
+- Revise actions in all pages for correctness
+- Add notifications functionality
+- Add a global search functionality across the application
+
+
+Execution Plan
+Day 1-2: Finalize a functional menu with routes and basic navigation.
+Day 3-9: Focus on core app features and integration.
+Day 10: Polish the menu, test navigation, and debug.

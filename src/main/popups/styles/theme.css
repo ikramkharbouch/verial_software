@@ -1,0 +1,255 @@
+/* General Body Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Container Styling */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styling */
+h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #8b0000;
+  text-align: center;
+}
+
+/* Section Subheaders */
+h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #8b0000;
+}
+
+/* Form Styling */
+.add-form {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.add-form h2 {
+  margin: 0 0 15px;
+}
+
+.add-form .form-group {
+  margin-bottom: 20px;
+}
+
+.add-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.add-form input[type='text'],
+.add-form input[type='email'],
+.add-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+/* Input and Select Focus State */
+.add-form input:focus,
+.add-form select:focus {
+  border-color: #8b0000;
+  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+  outline: none;
+}
+
+/* Placeholder Styling */
+.add-form input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Table Styling */
+.ant-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #f0f0f0;
+  margin-top: 20px;
+}
+
+.ant-table th,
+.ant-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border: 1px solid #f0f0f0;
+}
+
+.ant-table th {
+  background: #f5f5f5;
+  color: #595959;
+  font-weight: 600;
+}
+
+.ant-table tbody tr:hover {
+  background: #ffe6e6;
+}
+
+.ant-table tbody tr:nth-child(even) {
+  background: #fdfdfd;
+}
+
+/* Button Styling */
+.ant-btn {
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary {
+  background-color: #8b0000;
+  color: #ffffff;
+}
+
+.ant-btn-primary:hover {
+  background-color: #a52a2a;
+}
+
+.ant-btn-danger {
+  background-color: #ff4d4f;
+  color: #ffffff;
+}
+
+.ant-btn-danger:hover {
+  background-color: #ff7875;
+}
+
+.ant-btn-link {
+  background: none;
+  color: #8b0000;
+  text-decoration: underline;
+}
+
+.ant-btn-link:hover {
+  color: #a52a2a;
+}
+
+/* Dropdown Styling */
+select {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  padding: 10px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  border-color: #8b0000;
+  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+  outline: none;
+}
+
+/* General Input Styling */
+input[type='date'] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #333;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+  appearance: none; /* Remove default browser styling */
+}
+
+/* Focus State for Date Inputs */
+input[type='date']:focus {
+  border-color: #8b0000;
+  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+  outline: none;
+}
+
+/* Placeholder Styling */
+input[type='date']::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Date Picker Icon (for modern browsers) */
+input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: brightness(0.6);
+  transition: filter 0.3s ease;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator:hover {
+  filter: brightness(1);
+}
+
+/* General styling for the textarea */
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical; /* Allow vertical resizing only */
+  background-color: #fff;
+  color: #333;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.5;
+}
+
+/* Focus state for the textarea */
+textarea:focus {
+  border-color: #8b0000; /* Highlight border in dark red */
+  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5); /* Subtle red glow */
+  outline: none; /* Remove default outline */
+}
+
+/* Placeholder styling */
+textarea::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  .container {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .ant-btn {
+    display: none; /* Hide buttons during printing */
+  }
+}

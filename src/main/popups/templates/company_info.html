@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Info</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Company Information</h1>
+
+    <!-- Display Company Info -->
+    <div id="company-details">
+      <h2>Current Company Info</h2>
+      <p><strong>Name:</strong> <span id="company-name">Maroc Auto Center</span></p>
+      <p><strong>Address:</strong> <span id="company-address">Tetouan, Avenue Kaboul</span></p>
+      <p><strong>City:</strong> <span id="company-city">Tetouan</span></p>
+      <p><strong>Country:</strong> <span id="company-country">Morocco</span></p>
+      <p><strong>Contact:</strong> <span id="company-contact">Not Set</span></p>
+      <p><strong>Email:</strong> <span id="company-email">contact@mac.ma</span></p>
+      <p><strong>Website:</strong> <span id="company-website">mac.ma</span></p>
+    </div>
+
+    <!-- Edit Company Info -->
+    <form id="edit-company-form" class="add-form">
+      <h2>Edit Company Info</h2>
+      <div class="form-group">
+        <label for="new-company-name">Company Name:</label>
+        <input type="text" id="new-company-name" placeholder="Enter company name" value="Maroc Auto Center" required>
+      </div>
+      <div class="form-group">
+        <label for="new-company-address">Address:</label>
+        <input type="text" id="new-company-address" placeholder="Enter address" value="Tetouan, Avenue Kaboul" required>
+      </div>
+      <div class="form-group">
+        <label for="new-company-city">City:</label>
+        <input type="text" id="new-company-city" placeholder="Enter city" value="Tetouan" required>
+      </div>
+      <div class="form-group">
+        <label for="new-company-country">Country:</label>
+        <input type="text" id="new-company-country" placeholder="Enter country" value="Morocco" required>
+      </div>
+      <div class="form-group">
+        <label for="new-company-contact">Contact Number:</label>
+        <input type="text" id="new-company-contact" placeholder="Enter contact number" value="">
+      </div>
+      <div class="form-group">
+        <label for="new-company-email">Email Address:</label>
+        <input type="email" id="new-company-email" placeholder="Enter email address" value="contact@mac.ma" required>
+      </div>
+      <div class="form-group">
+        <label for="new-company-website">Website:</label>
+        <input type="text" id="new-company-website" placeholder="Enter website URL" value="mac.ma">
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Save Changes</button>
+    </form>
+
+    <div id="status-message"></div>
+  </div>
+
+  <script>
+    // Save updated company info
+    document.getElementById('edit-company-form').addEventListener('submit', event => {
+      event.preventDefault();
+
+      const newInfo = {
+        name: document.getElementById('new-company-name').value.trim(),
+        address: document.getElementById('new-company-address').value.trim(),
+        city: document.getElementById('new-company-city').value.trim(),
+        country: document.getElementById('new-company-country').value.trim(),
+        contact: document.getElementById('new-company-contact').value.trim(),
+        email: document.getElementById('new-company-email').value.trim(),
+        website: document.getElementById('new-company-website').value.trim(),
+      };
+
+      // Call Electron IPC to save the data
+      window.electron.saveCompanyInfo(newInfo).then(response => {
+        const statusDiv = document.getElementById('status-message');
+        statusDiv.textContent = response.message;
+        statusDiv.className = response.success ? 'success' : 'error';
+      });
+    });
+  </script>
+</body>
+</html>

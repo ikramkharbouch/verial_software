@@ -30,3 +30,5 @@ npm-debug.log.*
 
 # push-script
 git-push.sh
+
+server/invoices

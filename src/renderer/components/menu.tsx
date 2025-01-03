@@ -2,11 +2,13 @@ import {
   AppstoreOutlined,
   MoneyCollectOutlined,
   UserOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons';
 import { Menu, MenuProps, Dropdown } from 'antd';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Link } from 'react-router-dom'; // If you're using React Router
+import '../styles/root.css'
 
 interface MenuItem {
   key: string;
@@ -68,46 +70,50 @@ const MainMenu = () => {
       style={{ background: '#2C2C2C' }}
       selectedKeys={[location.pathname]} // Highlight the selected menu item
       onClick={handleMenuClick} // Handle menu item click
-      className='menu-container'
+      className="menu-container"
     >
+      <Menu.Item key="ds" icon={<DashboardOutlined />}>
+        <Link to="/dashboard" className='ant-menu-item-selected'>Dashboard</Link>
+      </Menu.Item>
 
-      <Dropdown overlay={dropdownMenu} trigger={['click']} className='dropdownmenu' key="clientSub">
-        <Menu.Item key="cl" icon={<UserOutlined />}>Clients</Menu.Item>
-      </Dropdown>
-
-      <Dropdown overlay={dropdownMenuProviders} trigger={['click']} className='dropdownmenu' key="providerSub">
-        <Menu.Item key="pr" icon={<UserOutlined />}>Providers</Menu.Item>
-      </Dropdown>
-
-      {/* <Menu.Item
-        key="2"
-        icon={<UsergroupAddOutlined />}
-        className="ant-menu-item"
+      <Dropdown
+        overlay={dropdownMenu}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="clientSub"
       >
-        <NavLink to="/providers" className="ant-menu-item-selected">
-          Providers
-        </NavLink>
-      </Menu.Item> */}
+        <Menu.Item key="cl" icon={<UserOutlined />}>
+          Clients
+        </Menu.Item>
+      </Dropdown>
 
-      <Menu.Item key="3" icon={<AppstoreOutlined />}>
+      <Dropdown
+        overlay={dropdownMenuProviders}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="providerSub"
+      >
+        <Menu.Item key="pr" icon={<UserOutlined />}>
+          Providers
+        </Menu.Item>
+      </Dropdown>
+
+      <Menu.Item key="3" icon={<AppstoreOutlined />} className='menu-item'>
         <NavLink to="/articles" className="ant-menu-item-selected">
           Articles
         </NavLink>
       </Menu.Item>
 
-      <Dropdown overlay={dropdownMenuFinancials} trigger={['click']} className='dropdownmenu' key="financials-sub">
-        <Menu.Item key="fn" icon={<MoneyCollectOutlined />}>Financials</Menu.Item>
-      </Dropdown>
-
-      {/* <Menu.Item
-        key="4"
-        icon={<MoneyCollectOutlined />}
-        className="ant-menu-item"
+      <Dropdown
+        overlay={dropdownMenuFinancials}
+        trigger={['click']}
+        className="dropdownmenu"
+        key="financials-sub"
       >
-        <NavLink to="/financials">
+        <Menu.Item key="fn" icon={<MoneyCollectOutlined />}>
           Financials
-        </NavLink>
-      </Menu.Item> */}
+        </Menu.Item>
+      </Dropdown>
     </Menu>
   );
 };

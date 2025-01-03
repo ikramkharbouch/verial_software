@@ -1,42 +1,37 @@
 import { ResponsiveBar } from '@nivo/bar';
+import { Article } from '@renderer/types/types';
 
-const ArticlesPerformanceBarChart = () => {
-  const data = [
-    {
-      product: "Michelin",
-      sold: 500,
-      used: 700,
-    },
-    {
-      product: "Bridgestone",
-      sold: 400,
-      used: 500,
-    },
-    {
-      product: "Goodyear",
-      sold: 300,
-      used: 450,
-    },
-    {
-      product: "Pirelli",
-      sold: 200,
-      used: 300,
-    },
-    {
-      product: "Continental",
-      sold: 100,
-      used: 150,
-    },
-  ];
+interface ArticleData {
+  name: string; // Name of the product
+  sales: number; // Sales data from backend
+  used: number; // Used data from backend
+}
+
+interface ArticlesPerformanceProps {
+  data: Article[];
+}
+
+const ArticlesPerformanceBarChart = ({ data }: ArticlesPerformanceProps) => {
+  // Sort articles by sales in descending order and pick the top 5
+  const topArticles = [...data]
+    .sort((a, b) => b.sales - a.sales)
+    .slice(0, 5);
+
+  // Transform the data to match the required format
+  const transformedData = topArticles.map((item) => ({
+    product: item.name, // Rename 'name' to 'product'
+    sold: item.sales, // Rename 'sales' to 'sold'
+    used: item.used, // Keep 'used' as it is
+  }));
 
   const keys = ['sold', 'used'];
 
   return (
     <ResponsiveBar
-      data={data}
+      data={transformedData}
       keys={keys}
       indexBy="product"
-      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+      margin={{ top: 50, right: 130, bottom: 70, left: 60 }} // Adjusted bottom margin
       padding={0.3}
       valueScale={{ type: 'linear' }}
       indexScale={{ type: 'band', round: true }}
@@ -46,10 +41,10 @@ const ArticlesPerformanceBarChart = () => {
       axisBottom={{
         tickSize: 5,
         tickPadding: 5,
-        tickRotation: 0,
+        tickRotation: 45, // Rotate labels to prevent overlap
         legend: 'Product',
         legendPosition: 'middle',
-        legendOffset: 32,
+        legendOffset: 50, // Adjusted to align with rotated labels
       }}
       axisLeft={{
         tickSize: 5,
@@ -88,9 +83,9 @@ const ArticlesPerformanceBarChart = () => {
       ]}
       role="application"
       ariaLabel="Articles performance bar chart"
-      barAriaLabel={function (e) {
-        return `${e.id}: ${e.value} units for ${e.indexValue}`;
-      }}
+      barAriaLabel={(e) =>
+        `${e.id}: ${e.value} units for ${e.indexValue}`
+      }
     />
   );
 };

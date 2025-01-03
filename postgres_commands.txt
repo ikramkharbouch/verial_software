@@ -1,0 +1,78 @@
+
+1. Start/Stop PostgreSQL service (Linux):
+   - Start:  
+     sudo systemctl start postgresql
+   - Stop:  
+     sudo systemctl stop postgresql
+   - Restart:  
+     sudo systemctl restart postgresql
+
+2. Access PostgreSQL Command Line Interface (CLI):
+   - To access the PostgreSQL prompt:  
+     psql -U postgres
+   - If your PostgreSQL server is running on a different host:  
+     psql -U postgres -h <hostname> -p <port>
+
+3. Create a new database:
+   - Inside the psql prompt:  
+     CREATE DATABASE mydatabase;
+
+4. List all databases:
+   - Inside the psql prompt:  
+     \l
+
+5. Connect to a database:
+   - Inside the psql prompt:  
+     \c mydatabase
+
+6. Create a new user:
+   - Inside the psql prompt:  
+     CREATE USER myuser WITH PASSWORD 'mypassword';
+
+7. Grant user privileges:
+   - Inside the psql prompt:  
+     GRANT ALL PRIVILEGES ON DATABASE mydatabase TO myuser;
+
+8. List all tables in the database:
+   - Inside the psql prompt:  
+     \dt
+
+9. Create a new table:
+   - Inside the psql prompt:  
+     CREATE TABLE mytable (
+         id SERIAL PRIMARY KEY,
+         name VARCHAR(100),
+         age INT
+     );
+
+10. Insert data into a table:
+    - Inside the psql prompt:  
+      INSERT INTO mytable (name, age) VALUES ('John Doe', 30);
+
+11. Select data from a table:
+    - Inside the psql prompt:  
+      SELECT * FROM mytable;
+
+12. Update data in a table:
+    - Inside the psql prompt:  
+      UPDATE mytable SET age = 31 WHERE name = 'John Doe';
+
+13. Delete data from a table:
+    - Inside the psql prompt:  
+      DELETE FROM mytable WHERE name = 'John Doe';
+
+14. Drop a table:
+    - Inside the psql prompt:  
+      DROP TABLE mytable;
+
+15. Backup a database:
+    - From the terminal (outside psql):  
+      pg_dump mydatabase > backup.sql
+
+16. Restore a database:
+    - From the terminal (outside psql):  
+      psql mydatabase < backup.sql
+
+17. Exit PostgreSQL CLI:
+    - Inside the psql prompt:  
+      \q

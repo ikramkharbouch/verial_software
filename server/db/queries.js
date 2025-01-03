@@ -92,7 +92,6 @@ const createUser = async (request, response) => {
 
   let generatedId = await generateRandomId();
 
-  console.log(generatedId);
   // Insert the new client into the database
   pool.query(
     `INSERT INTO clients (id, company_name, nif, client_name, client_type, phone_number_1, phone_number_2, phone_number_3, iceo, country, province, postal_code, email_1, email_2, email_3)

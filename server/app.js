@@ -6,10 +6,18 @@ const bodyParser = require('body-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
+
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var clientsRouter = require('./routes/clients');
+var chargesRouter = require('./routes/charges');
 var emailRouter = require('./routes/email')
+var paymentsRouter = require('./routes/payments');
+var madeBillsrouter = require('./routes/bills');
+var profileRouter = require('./routes/profile');
+var statsRouter = require('./routes/stats');
+var providerRouter = require('./routes/providers');
+var articlesRouter = require('./routes/articles');
 
 // import our postgres db
 const db = require('./db/index');
@@ -19,12 +27,17 @@ var app = express();
 
 // Middleware
 app.use(express.json());
+app.use('./uploads', express.static('uploads')); // Serves files from the uploads folder
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+// Allow requests from your frontend's origin
+app.use(cors({
+  origin: 'http://localhost:1212', // Replace with your React app's URL
+  credentials: true, // Allow cookies and other credentials
+}));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -45,7 +58,14 @@ app.use(
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/clients', clientsRouter);
-app.use('/email', emailRouter)
+app.use('/charges', chargesRouter);
+app.use('/email', emailRouter);
+app.use('/payments', paymentsRouter);
+app.use('/madeBills', madeBillsrouter);
+app.use('/profile', profileRouter);
+app.use('/stats', statsRouter);
+app.use('/providers', providerRouter);
+app.use('/articles', articlesRouter);
 
 // DB crud functions for users
 app.get('/users', queries.getUsers);

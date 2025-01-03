@@ -5,6 +5,14 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import path from 'path';
+import Store from 'electron-store';
+const store = new Store();
+
+const setLanguage = (lang: string) => {
+  store.set('language', lang); // Save globally
+  console.log(`Language set to: ${lang}`);
+};
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -52,189 +60,104 @@ export default class MenuBuilder {
     });
   }
 
+  openPopup(title: string, contentFile: string, width = 800, height = 600): void {
+    const popupWindow = new BrowserWindow({
+      width, // Configurable width
+      height, // Configurable height
+      parent: this.mainWindow,
+      modal: true, // Prevent interaction with the main window
+      title,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+    });
+
+    const popupPath = path.join(__dirname, 'popups/templates', contentFile);
+    popupWindow.loadFile(popupPath);
+
+    popupWindow.setMenu(null); // Remove the menu bar (optional)
+
+    popupWindow.on('blur', () => popupWindow.close());
+
+    const { ipcMain } = require('electron');
+    ipcMain.once('close-popup', () => popupWindow.close());
+
+    popupWindow.webContents.once('did-finish-load', () => {
+      popupWindow.webContents.send('set-title', title);
+    });
+  }
+
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const UserManagementMenu: DarwinMenuItemConstructorOptions = {
-      label: 'User Management',
+      label: 'Users',
       submenu: [
         {
-          label: 'User Management',
-          selector: 'orderFrontStandardAboutPanel:',
-          submenu: [
-            { label: 'Datos de la empresa' },
-            { label: 'Personal de la empresa' },
-            { label: 'Cuentas bancarias de la empresa' },
-            { label: 'Empresas de este ‘grupo de empresas' },
-          ],
-        },
-        { type: 'separator' },
-        {
-          label: 'Ubicaciones',
-          submenu: [
-            { label: 'Divisas' },
-            { label: 'Paises' },
-            { label: 'Provincias' },
-            { label: 'Localidades' },
-          ],
-        },
-        { type: 'separator' },
-        {
-          label: 'Bancos',
-          accelerator: 'Command+H',
-          selector: 'hide:',
+          label: 'Manage',
+          click: () => this.openPopup('Manage Users', 'manage_users.html', 800, 600),
         },
         {
-          label: 'Impuestos',
-          accelerator: 'Command+Shift+H',
-          selector: 'hideOtherApplications:',
-        },
-        { label: 'Retenciones', selector: 'unhideAllApplications:' },
-        { type: 'separator' },
-        {
-          label: 'Periodicidades de cobro / pago',
-          accelerator: 'Command+Q',
-          click: () => {
-            app.quit();
-          },
-        },
-        {
-          label: 'Métodos de cobro / pago',
-          selector: 'unhideAllApplications:',
-        },
-        { label: 'Series', selector: 'unhideAllApplications:' },
-        { label: 'Areas de venta', selector: 'unhideAllApplications:' },
-        { label: 'Remesas', selector: 'unhideAllApplications:' },
-        { label: 'Incidencias', selector: 'unhideAllApplications:' },
-        { label: 'Aparatos', selector: 'unhideAllApplications:' },
-        { label: 'Calendario', selector: 'unhideAllApplications:' },
-        {
-          label: 'Salir (press Alt + F4 on keyboard)',
-          selector: 'unhideAllApplications:',
+          label: 'Roles',
+          click: () => this.openPopup('User Roles', 'user_roles.html', 800, 600),
         },
       ],
     };
-    const subMenuEdit: DarwinMenuItemConstructorOptions = {
-      label: 'System Settings',
+    const SystemPreferencesMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Settings',
       submenu: [
         {
-          label: 'Articulos',
-          accelerator: 'Command+Z',
-          selector: 'undo:',
-          submenu: [
-            { label: 'Articulos' },
-            { label: 'Perfiles' },
-            { label: 'Categorias' },
-            { label: 'Fabricantes' },
-            { label: 'Lotes (Conjuntos)' },
-            { label: 'Tarifas' },
-            { label: 'Movimientos de stock' },
-          ],
+          label: 'Currency',
+          click: () => this.openPopup('Currency Settings', 'currency_settings.html', 800, 600),
         },
         {
-          label: 'Clientes',
-          accelerator: 'Shift+Command+Z',
-          selector: 'redo:',
-          submenu: [
-            { label: 'Clientes' },
-            { label: 'Grupos' },
-            { label: 'Informes de ventas y documentos de gestión' },
-            { label: 'Impresión de documentos de gestión' },
-            { label: 'Comisiones' },
-            { label: 'Registro de facturas emitidas ' },
-            { label: 'Cobros' },
-            { label: 'Mandatos S.E.P.A' },
-          ],
+          label: 'Units',
+          click: () => this.openPopup('Measurement Units', 'measurement_units.html', 800, 600),
         },
-        { type: 'separator' },
+      ],
+    };
+    const FileReportPreferencesMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Reports',
+      submenu: [
         {
-          label: 'Proveedores',
-          accelerator: 'Command+X',
-          selector: 'cut:',
-          submenu: [
-            { label: 'Proveedores' },
-            { label: 'Grupos' },
-            { label: 'Informes de compras y documentos de gestión' },
-            { label: 'Registro de facturas recibidas' },
-            { label: 'Pagos' },
-          ],
+          label: 'Export',
+          click: () => this.openPopup('Default Export Format', 'default_export_format.html', 800, 600),
         },
         {
-          label: 'Almacen',
-          accelerator: 'Command+C',
-          selector: 'copy:',
-          submenu: [
-            {
-              label: 'Documentos de almacén',
-            },
-          ],
+          label: 'Location',
+          click: () => this.openPopup('Save Location', 'save_location.html', 800, 600),
         },
+      ],
+    };
+    const DataBackupRestoreMenu: DarwinMenuItemConstructorOptions = {
+      label: 'Backup',
+      submenu: [
         {
-          label: 'Cajas',
-          accelerator: 'Command+V',
-          selector: 'paste:',
-          submenu: [
-            { label: 'Arqueos' },
-            { label: 'Estado de la caja (pre-arqueos)' },
-            { label: 'Operaciones de caja' },
-          ],
+          label: 'Backup',
+          click: () => this.openPopup('Backup Data', 'backup_data.html', 800, 600),
         },
-        {
-          label: 'Nombres / Direcciones',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
-        },
-        {
-          label: 'Personal',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
-        },
-        {
-          label: 'Cuentas Bancarias'
-        },
-        {
-          label: 'Bancos'
-        },
-        { label: 'Retenciones' },
-        { label: 'Remesas' },
-        { label: 'Estadísticas de compras y ventas' },
-        { label: 'Incidencias' },
-        { label: 'Operaciones por usuarios o por puestos' },
-        { label: 'Registro de modificaciones en fichas' },
-        { label: 'Aparatos' },
-        { label: 'Reparaciones' },
-        { label: 'Revisiones' },
-        { label: 'Órdenes de trabajo' },
-        { label: 'Categorias de articulos para clientes y proveedores' },
-        { label: 'Calendario' },
-        { label: 'Informes de uso frecuente' },
       ],
     };
     const HelpSupportMenu: MenuItemConstructorOptions = {
-      label: 'Help/Support',
+      label: 'Help',
       submenu: [
         {
-          label: 'Ficha de articulos',
-          accelerator: 'Ctrl+Command+F',
-          click: () => {
-            this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-          },
+          label: 'Info',
+          click: () => this.openPopup('Company Info', 'company_info.html', 700, 500),
         },
         {
-          label: 'Perfiles',
-          accelerator: 'Alt+Command+I',
-          click: () => {
-            this.mainWindow.webContents.toggleDevTools();
-          },
+          label: 'Support',
+          click: () => this.openPopup('Contact Support', 'contact_support.html', 700, 500),
         },
-        { label: 'Categorias' },
-        { label: 'Lotes (definición de conjuntos de artículos)' },
-        { label: 'Consulta de precios de artículos' },
-        { label: 'Almacenes' },
-        { label: 'Fabricantes' },
-        { label: 'Tarifas' },
       ],
     };
 
-    return [UserManagementMenu, subMenuEdit, HelpSupportMenu];
+    return [
+      UserManagementMenu,
+      SystemPreferencesMenu,
+      FileReportPreferencesMenu,
+      DataBackupRestoreMenu,
+      HelpSupportMenu,
+    ];
   }
 
   buildDefaultTemplate() {
@@ -273,7 +196,7 @@ export default class MenuBuilder {
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
+                      !this.mainWindow.isFullScreen()
                     );
                   },
                 },
@@ -291,7 +214,7 @@ export default class MenuBuilder {
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
+                      !this.mainWindow.isFullScreen()
                     );
                   },
                 },
@@ -310,7 +233,7 @@ export default class MenuBuilder {
             label: 'Documentation',
             click() {
               shell.openExternal(
-                'https://github.com/electron/electron/tree/main/docs#readme',
+                'https://github.com/electron/electron/tree/main/docs#readme'
               );
             },
           },

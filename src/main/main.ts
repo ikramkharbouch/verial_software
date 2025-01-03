@@ -14,6 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import Store from 'electron-store';
+
+const store = new Store();
 
 class AppUpdater {
   constructor() {
@@ -36,12 +39,12 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-const isDebug =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+// const isDebug =
+//   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
-if (isDebug) {
-  require('electron-debug')();
-}
+// if (isDebug) {
+//   require('electron-debug')();
+// }
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
@@ -57,9 +60,9 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // if (isDebug) {
+  //   await installExtensions();
+  // }
 
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
@@ -111,6 +114,39 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
+
+ipcMain.handle('get-language', () => {
+  return store.get('language', 'en'); // Default to 'en'
+});
+
+// Default company info with your provided data
+const defaultCompanyInfo = {
+  name: 'Maroc Auto Center',
+  address: 'Tetouan, Avenue Kaboul',
+  city: 'Tetouan',
+  country: 'Morocco',
+  contact: '',
+  email: 'contact@mac.ma',
+  website: 'mac.ma',
+};
+
+// Ensure default company info exists in the store
+if (!store.has('companyInfo')) {
+  store.set('companyInfo', defaultCompanyInfo);
+}
+
+// Get company info
+ipcMain.handle('get-company-info', async () => {
+  try {
+    const companyInfo = store.get('companyInfo', defaultCompanyInfo);
+    console.log('[INFO] Fetched company info:', companyInfo); // Debug logging
+    return companyInfo;
+  } catch (error) {
+    console.error('[ERROR] Failed to fetch company info:', error);
+    throw new Error('Unable to fetch company information.');
+  }
+});
+
 
 /**
  * Add event listeners...

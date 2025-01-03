@@ -1,30 +1,50 @@
 import { ResponsivePie } from '@nivo/pie';
+import { Provider } from '@renderer/types/types';
 
-const InvoiceStatusPieChart = () => {
-  const data = [
-    {
-      id: "Paid",
-      label: "Paid",
-      value: 12000,
-      color: "hsl(120, 70%, 50%)",
-    },
-    {
-      id: "Unpaid",
-      label: "Unpaid",
-      value: 8000,
-      color: "hsl(0, 70%, 50%)",
-    },
-    {
-      id: "Partially Paid",
-      label: "Partially Paid",
-      value: 4000,
-      color: "hsl(45, 70%, 50%)",
-    },
-  ];
+interface Providers {
+  data: Provider[];
+}
+
+// Normalize and aggregate data, ensuring values are integers
+const normalizeAndAggregateData = (
+  data: Provider[]
+): { id: string; label: string; value: number; color: string }[] => {
+  // Extract and normalize required fields
+  const normalizedData = data.map((item) => ({
+    id: item.label, // Use label as id
+    label: item.label, // Use label for display
+    value: Math.round(item.value || 0), // Ensure value is an integer, default to 0
+    color: item.color || 'hsl(0, 0%, 50%)', // Default color if missing
+  }));
+
+  // Aggregate data by id
+  const aggregatedData = normalizedData.reduce((acc, current) => {
+    const existing = acc.find((item) => item.id === current.id);
+    if (existing) {
+      existing.value += current.value; // Aggregate values and ensure integer
+    } else {
+      acc.push(current);
+    }
+    return acc;
+  }, [] as { id: string; label: string; value: number; color: string }[]);
+
+  // Ensure all values are integers
+  return aggregatedData.map((item) => ({
+    ...item,
+    value: Math.round(item.value), // Final integer conversion for safety
+  }));
+};
+
+const InvoiceStatusPieChart = ({data}: Providers) => {
+
+  // Normalize and aggregate the raw data
+  const processedData = normalizeAndAggregateData(data);
+
+  console.log(processedData);
 
   return (
     <ResponsivePie
-      data={data}
+      data={processedData as any}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5} // Donut chart style
       padAngle={0.7}

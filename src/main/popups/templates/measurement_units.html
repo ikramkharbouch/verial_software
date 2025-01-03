@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement Units</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Measurement Units</h1>
+
+    <!-- Current Unit System -->
+    <div class="current-units">
+      <h2>Current Unit System: <span id="current-unit-system">Metric</span></h2>
+    </div>
+
+    <!-- Select Unit System -->
+    <form id="select-unit-system-form" class="add-form">
+      <h2>Change Unit System</h2>
+      <div class="form-group">
+        <label for="unit-system-select">Select Unit System:</label>
+        <select id="unit-system-select" required>
+          <option value="Metric">Metric</option>
+          <option value="Imperial">Imperial</option>
+          <option value="Custom">Custom</option>
+        </select>
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Change Unit System</button>
+    </form>
+
+    <!-- Manage Custom Units -->
+    <h2>Manage Custom Units</h2>
+    <form id="add-unit-form" class="add-form">
+      <h2>Add Custom Unit</h2>
+      <div class="form-group">
+        <label for="unit-name">Unit Name:</label>
+        <input type="text" id="unit-name" placeholder="Enter unit name (e.g., Box)" required>
+      </div>
+      <div class="form-group">
+        <label for="unit-abbreviation">Abbreviation:</label>
+        <input type="text" id="unit-abbreviation" placeholder="Enter abbreviation (e.g., BX)" required>
+      </div>
+      <div class="form-group">
+        <label for="unit-type">Type:</label>
+        <select id="unit-type" required>
+          <option value="Weight">Weight</option>
+          <option value="Volume">Volume</option>
+          <option value="Length">Length</option>
+          <option value="Quantity">Quantity</option>
+        </select>
+      </div>
+      <button type="submit" class="ant-btn ant-btn-primary">Add Unit</button>
+    </form>
+
+    <table id="unit-table" class="ant-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Abbreviation</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Units will be dynamically populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const { ipcRenderer } = window.electron;
+
+    // Fetch and display units
+    function loadUnits() {
+      ipcRenderer.invoke('get-units').then(({ currentSystem, units }) => {
+        // Update current unit system display
+        document.getElementById('current-unit-system').innerText = currentSystem;
+
+        // Populate unit table
+        const tbody = document.getElementById('unit-table').querySelector('tbody');
+        tbody.innerHTML = '';
+        units.forEach(unit => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${unit.name}</td>
+            <td>${unit.abbreviation}</td>
+            <td>${unit.type}</td>
+            <td>
+              <button class="ant-btn ant-btn-link" onclick="editUnit('${unit.name}')">Edit</button>
+              <button class="ant-btn ant-btn-danger" onclick="deleteUnit('${unit.name}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    // Handle Unit System Form Submission
+    const selectUnitSystemForm = document.getElementById('select-unit-system-form');
+    selectUnitSystemForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selectedSystem = document.getElementById('unit-system-select').value;
+      ipcRenderer.send('change-unit-system', selectedSystem);
+      loadUnits();
+    });
+
+    // Handle Add Unit Form Submission
+    const addUnitForm = document.getElementById('add-unit-form');
+    addUnitForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = document.getElementById('unit-name').value.trim();
+      const abbreviation = document.getElementById('unit-abbreviation').value.trim();
+      const type = document.getElementById('unit-type').value;
+
+      if (name && abbreviation && type) {
+        const unit = { name, abbreviation, type };
+        ipcRenderer.send('add-unit', unit);
+        loadUnits();
+        addUnitForm.reset();
+      }
+    });
+
+    // Edit Unit
+    function editUnit(name) {
+      const newName = prompt('Enter the new name for the unit:');
+      const newAbbreviation = prompt('Enter the new abbreviation for the unit:');
+      if (newName && newAbbreviation) {
+        ipcRenderer.send('edit-unit', { name, newName, newAbbreviation });
+        loadUnits();
+      }
+    }
+
+    // Delete Unit
+    function deleteUnit(name) {
+      if (confirm('Are you sure you want to delete this unit?')) {
+        ipcRenderer.send('delete-unit', name);
+        loadUnits();
+      }
+    }
+
+    // Initial Load
+    loadUnits();
+  </script>
+</body>
+</html>

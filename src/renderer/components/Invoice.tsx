@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/invoice.css'; // Assuming you have the CSS in a separate file
 
 interface InvoiceItem {
+  tvaPercentage2: number;
+  tvaPercentage1: number;
+  totalPrice: number;
+  name: string;
   reference: string;
   description: string;
   units: number;
@@ -27,17 +31,35 @@ const Invoice: React.FC<InvoiceProps> = ({
   comment,
   tvaPercentage
 }) => {
-    const calculateTotal = (units: number, unitPrice: number) => units * unitPrice;
-    const subtotal = items.reduce((total, item) => total + calculateTotal(item.units, item.unitPrice), 0);
-    const tvaValue = subtotal * (tvaPercentage / 100); // Calculate the TVA amount
-    const totalPrice = subtotal + tvaValue; // Total price with TVA
-  
+// Helper function to calculate the total price for each item
+const calculateTotal = (units: number, unitPrice: number, tvaPercentage1: number, tvaPercentage2: number) => {
+  // First, apply the first TVA
+  const priceAfterTva1 = unitPrice * (1 + tvaPercentage1 / 100);
+  // Then, apply the second TVA on the price after the first TVA
+  const finalPrice = priceAfterTva1 * (1 + tvaPercentage2 / 100);
+  return finalPrice * units; // Return the total price for the given number of units
+};
+
+// Calculate subtotal and TVA for each item, and keep a running total for the invoice
+let totalSubtotal = 0;
+let totalTva = 0;
+
+items.forEach((item) => {
+  const itemTotal = calculateTotal(item.units, item.unitPrice, item.tvaPercentage1, item.tvaPercentage2);
+  totalSubtotal += itemTotal;
+  totalTva += itemTotal - (item.units * item.unitPrice); // The difference between the original price and the final price is the TVA amount for this item
+});
+
+// Total price is the subtotal + total TVA
+const totalPrice = totalSubtotal + totalTva;
+
+
   return (
-   <div className="invoice-container">
+    <div className="invoice-container">
       <div className="invoice-header">
         <div>
           <h1>Pneus Maroc SARL</h1>
-          <p>14391810</p>
+          <p>Invoice Nb #{invoiceNumber}</p>
           <p>N49 AV Kaboul, Tetouan</p>
         </div>
 
@@ -56,8 +78,10 @@ const Invoice: React.FC<InvoiceProps> = ({
         <thead>
           <tr>
             <th>Reference Number</th>
-            <th>Description</th>
+            
             <th>Number of Units</th>
+            <th>Tva Price 1</th>
+            <th>Tva Price 2</th>
             <th>Unit Price (€)</th>
             <th>Total (€)</th>
           </tr>
@@ -65,35 +89,35 @@ const Invoice: React.FC<InvoiceProps> = ({
         <tbody>
           {items.map((item, index) => (
             <tr key={index}>
-              <td>{item.reference}</td>
-              <td>{item.description}</td>
+              <td>{item.name}</td>
+              <td>{item.tvaPercentage1}</td>
+              <td>{item.tvaPercentage2}</td>
               <td>{item.units}</td>
               <td>{item.unitPrice}</td>
-              <td>{calculateTotal(item.units, item.unitPrice)}</td>
+              <td>{item.totalPrice}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-            {/* Total Section */}
-            <div className="invoice-total-section">
-        <h3 className='total'>Total</h3>
+      {/* Total Section */}
+      <div className="invoice-total-section">
+        <h3 className="total">Total</h3>
 
         {/* Comment Section */}
         {comment && (
-          <ul className="invoice-comment"><li><strong>Comment:</strong> {comment}</li></ul>
+          <ul className="invoice-comment">
+            <li><strong>Comment:</strong> {comment}</li>
+          </ul>
         )}
 
         {/* Subtotal, TVA, and Final Total */}
         <div className="invoice-summary">
-          <p><strong>Subtotal:</strong> {subtotal.toFixed(2)} €</p>
-          <p><strong>TVA ({tvaPercentage}%):</strong> {tvaValue.toFixed(2)} €</p>
-          <p className="invoice-grand-total"><strong>Total Price:</strong> {totalPrice.toFixed(2)} €</p>
+          <p><strong>Subtotal:</strong> {totalSubtotal.toFixed(2)} MAD</p>
+          <p><strong>TVA ({tvaPercentage}%):</strong> {totalTva.toFixed(2)} MAD</p>
+          <p className="invoice-grand-total"><strong>Total Price:</strong> {totalPrice.toFixed(2)} MAD</p>
         </div>
       </div>
-
-      
-
     </div>
   );
 };
