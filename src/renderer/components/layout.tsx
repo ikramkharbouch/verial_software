@@ -100,7 +100,6 @@ const MainLayout = ({ items }: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('debug here', profile?.profilePicture);
     if (profile?.profilePicture !== null) {
       const cleanedUrl = profile?.profilePicture.replace('//uploads', '');
       setProfilePic(cleanedUrl as any);
@@ -194,7 +193,6 @@ const MainLayout = ({ items }: any) => {
               <div className="search-notif-section-top-menu">
                 <NotificationIcon />
                 <Search
-                  ref={(ref) => ref?.focus()}
                   placeholder="Search"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)} // Update search value as user types

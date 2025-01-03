@@ -57,3 +57,12 @@
   display: flex;
   flex-wrap: wrap;
 }
+
+.invoice-btns {
+  margin-bottom: 0 !important;
+  max-height: max-content;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0;
+}

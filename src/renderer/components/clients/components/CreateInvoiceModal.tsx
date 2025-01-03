@@ -212,12 +212,12 @@ const CreateInvoiceModal = ({
         <Form.Item name="comment">
           <Input.TextArea placeholder="Add Comment (optional)" />
         </Form.Item>
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit">
+        <Form.Item >
+          <Space className='invoice-btns'>
+            <Button type="primary" htmlType="submit" >
               Create Invoice
             </Button>
-            <Button onClick={() => form.resetFields()}>Reset</Button>
+            <Button onClick={() => form.resetFields()} className='reset-btn'>Reset</Button>
           </Space>
         </Form.Item>
       </Form>
